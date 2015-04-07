@@ -1,0 +1,207 @@
+__author__ = 'Wim Venhuizen, Jeroen Hagebeek'
+
+import sys
+import os
+import main
+import MySQLdb
+import time
+from dateutil.parser import parse
+Lobotomy = main.Lobotomy()
+plugin = "hivelist"
+
+DEBUG = False
+
+def main(database):
+    Lobotomy.plugin_start('hivelist', database)
+    case_settings = Lobotomy.get_settings(database)
+    imagename = case_settings["filepath"]
+    imagetype = case_settings["profile"]
+    casedir = case_settings["directory"]
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " > " + imagename + plugin + ".txt"
+    
+    if DEBUG:
+        print "Write log: " + database + " ,Start: " + command
+        print "Write log: " + casedir + " ,Start: " + command
+    else:
+        Lobotomy.write_to_main_log(database, " Start: " + command)
+        Lobotomy.write_to_case_log(casedir, " Start: " + command)
+        
+    if DEBUG:
+        print command
+    else:
+        os.system(command)
+        pass
+        
+    if DEBUG:
+        print "Write log: " + database + " ,Stop: " + command
+        print "Write log: " + casedir + " ,Stop: " + command
+    else:
+        Lobotomy.write_to_main_log(database, " Stop : " + command)
+        Lobotomy.write_to_case_log(casedir, " Stop : " + command)
+
+    if DEBUG:
+        print "Write log: (" + casedir + " ,Database: " + database + " Start:  running plugin: " + plugin + ")"
+    else:
+        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Start:  running plugin: " + plugin)
+
+    with open(imagename + plugin + ".txt") as f:
+        for hiveitem in f:
+        
+            # Hivelist om de offsets te verkrijgen
+            # Hivedump om de hivelistings te verkrijgen
+            # printkeys om door de hives te itereren.
+
+            # hivelist > memfor3nov.vmemhivelist.txt
+            #Virtual    Physical   Name
+            #---------- ---------- ----
+            #0xe2273008 0x1684c008 \Device\HarddiskVolume1\Documents and Settings\Chris Balt\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+            #0xe229f008 0x1687e008 \Device\HarddiskVolume1\Documents and Settings\Chris Balt\NTUSER.DAT
+
+            
+            SQL_cmd = 0
+            if hiveitem.startswith("0x"):
+                virtual, physical, hivefilepath = hiveitem.split(" ", 2)
+                virtual = MySQLdb.escape_string(virtual)
+                physical = MySQLdb.escape_string(physical)
+                #hivefilepath = hivefilepath.replace('\\', '\\\\').strip("\n")
+                hivefilepath = hivefilepath.strip("\n")
+                hivefilepath = MySQLdb.escape_string(hivefilepath)
+                SQL_cmd = "INSERT INTO hivelist VALUES (0, '{}', '{}', '{}')".format(virtual, physical, hivefilepath)
+                if DEBUG:
+                    print SQL_cmd
+                else:
+                    Lobotomy.exec_sql_query(SQL_cmd, database)
+                    pass
+                #command = "vol.py -f " + imagename + " --profile=" + imagetype + "  hivedump -o " + virtual + " >> " + imagename + "hivedump.txt"
+                #os.system(command)
+                
+
+    #try:
+    #with open(imagename + "hivedump.txt") as f:
+    #    for hiveitemkey in f:
+    #        #solvent@lobotomy:~/dumps/4E16394GBVT8$ vol.py -f memfor3nov.vmem --profile=WinXPSP3x86 hivedump -o 0xe229f008 # offset van hivelist
+    #        #Volatility Foundation Volatility Framework 2.4
+    #        #Last Written         Key
+    #        #2013-03-14 03:03:04 UTC+0000 \$$$PROTO.HIV
+    #        #2013-03-14 02:47:57 UTC+0000 \$$$PROTO.HIV\AppEvents\EventLabels\DeviceDisconnect
+    #        #2013-03-14 02:47:57 UTC+0000 \$$$PROTO.HIV\AppEvents\EventLabels\DeviceFail
+    #
+    #        SQL_cmd = 0
+    #        if not hiveitemkey.startswith("Last Written"):
+    #            lastwritten = hiveitemkey[0:28]
+    #            lastwritten = parse(lastwritten).strftime("%Y-%m-%d %H:%M:%S")
+    #            key = hiveitemkey[29:]
+    #            #key = key.replace('\\', '\\\\').strip("\n")
+    #            key = key.strip("\n")
+    #            key = MySQLdb.escape_string(key)
+    #            SQL_cmd = "INSERT INTO hivedump VALUES (0, '{}', '{}')".format(lastwritten, key)
+    #            if DEBUG:
+    #                print SQL_cmd
+    #            else:
+    #                pass
+    #                #Lobotomy.exec_sql_query(SQL_cmd, database)
+    #            strippedkey = 0
+    #            if key.startswith("\\\\$$$") or key.startswith("\\\\S-1-5"):
+    #                try:
+    #                    key = key.split("\\",3)[3][1:].replace("\\\\","\\")
+    #                except:
+    #                    key = key.split("\\",3)[2][1:].replace("\\\\","\\")
+    #                strippedkey = 1
+    #            #and not key.startswith("\S-1-5"):
+    #            if strippedkey == 1:
+    #                command = "vol.py -f " + imagename + " --profile=" + imagetype + "  printkey -K '" + key + "' >> " + imagename + "printkey.txt"
+    #                if DEBUG:
+    #                    print command
+    #                else: 
+    #                    os.system(command)
+    #                    pass
+    #
+    #newkey = 0
+    #value = 0
+    #with open(imagename + "printkey.txt") as f:
+    #    for line in f:
+    #        change = 0
+    #        if line.startswith("-----"):
+    #            newkey = 1
+    #            value = 0
+    #            newkey = 0
+    #            register = 0
+    #            keyname = 0
+    #            keylegend = 0
+    #            lastupdated = 0
+    #            subkeys = 0
+    #            type = 0
+    #            values = 0
+    #            legend = 0
+    #            threadingmodel = 0
+    #        if line.startswith("Registry"):
+    #            register = line.split(" ",1)[1]
+    #            #register = register.replace('\\', '\\\\').strip("\n")
+    #            register = register.strip("\n")
+    #            register = MySQLdb.escape_string(register)
+    #        if line.startswith("Key name"):
+    #            keyname = line.split(":",1)[1][1:].split(" ")[0]
+    #            keylegend = line.split(":")[1].split("(")[1][0]
+    #            keyname = MySQLdb.escape_string(keyname)
+    #        if line.startswith("Last updated"):
+    #            lastupdated = line.split(" ",2)[2]
+    #            lastupdated = parse(lastupdated).strftime("%Y-%m-%d %H:%M:%S")
+    #        if line.startswith("  (S)"):
+    #            change = 1
+    #            subkeys = line.split(")",1)[1][1:]
+    #            subkeys = subkeys.replace('\\', '\\\\').strip("\n")
+    #            subkeys = MySQLdb.escape_string(subkeys)
+    #        if value == 1 and not line.startswith("Legend"):
+    #            change = 1
+    #            try:
+    #                type = line.split(" ",1)[0]
+    #                model = line[14:]
+    #                model = model.strip(" ").split(":")[0]
+    #                legend = line.split(":",1)[1][2]
+    #                values = line.split(":",1)[1][5:]
+    #                values = values.replace('\\', '\\\\').strip("\n")
+    #                values = MySQLdb.escape_string(values)
+    #            except:
+    #                pass
+    #            if change == 1:
+    #                SQL_cmd = "INSERT INTO printkey VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(register, keyname, keylegend, lastupdated, subkeys, type, values, legend, model)
+    #                if DEBUG:
+    #                    print SQL_cmd
+    #                    newkey = 0
+    #                else:
+    #                    try:
+    #                        Lobotomy.exec_sql_query(SQL_cmd, database)
+    #                    except:
+    #                        print "Error: SQL statement error. Error op binaire data. " , SQL_cmd
+    #                    newkey = 0
+    #        if line.startswith("Values:"):
+    #            value = 1
+    #            
+    #                    #----------------------------
+    #                    #Registry: \Device\HarddiskVolume1\Documents and Settings\Chris Balt\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+    #                    #Key name: {CAFEEFAC-0014-0002-0015-ABCDEFFEDCBB} (S)
+    #                    #Last updated: 2013-03-14 14:19:33 UTC+0000
+    #                    #
+    #                    #Subkeys:
+    #                    #  (S) InprocServer32
+    #                    #
+    #                    #Values:
+    #                    #REG_SZ                        : (S) Java Plug-in 1.4.2_15 
+    #                    #REG_SZ        ThreadingModel  : (S) Apartment 
+    #                    
+                        
+                        
+                        
+                        
+                        
+    if DEBUG:
+        print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
+    else:
+        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Stop:  running plugin: " + plugin)
+        Lobotomy.plugin_stop('hivelist', database)
+        
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print "Usage: " + plugin + ".py <databasename>"
+    else:
+        main(sys.argv[1])
