@@ -25,14 +25,20 @@ echo '<a href="#strings"><strong>Jump to strings</strong></a>';
 echo '<br />';
 echo '<a name="hex"></a>';
 echo '<pre>';
-$xxd = passthru('xxd -c 32 ' . $row['fullfilename']);
-echo htmlspecialchars($xxd);
+exec('xxd -c 32 ' . $row['fullfilename'], $xxd);
+foreach ($xxd as $line) {
+    echo htmlspecialchars($line).PHP_EOL;
+}
+unset($line);
 echo '</pre>';
 echo '<br /><br />';
 echo '<a href="#hex"><strong>Jump to hex</strong></a>';
 echo '<a name="strings"></a>';
 echo '<pre>';
-passthru('strings '.$row['fullfilename']);
+exec('strings ' . $row['fullfilename'], $strings);
+foreach ($strings as $line) {
+    echo htmlspecialchars($line).PHP_EOL;
+}
 echo '</pre>';
 mysql_select_db("lobotomy");
 ?>
