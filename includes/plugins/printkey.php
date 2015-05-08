@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, `register`, keyname, keylegend, lastupdated, subkeys, type, `values`, legend, model FROM printkey";
