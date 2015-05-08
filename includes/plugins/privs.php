@@ -1,6 +1,6 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-$query = "SELECT id, pid, process, value, privileges, attributes, description FROM privs";
+$query = "SELECT `id`, `pid`, `process`, `value`, `privilege`, `attributes`, `description` FROM privs";
 $result = mysql_query($query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
