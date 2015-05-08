@@ -1,6 +1,8 @@
 <?php
 session_start();
-mysql_connect("localhost", "root", "ZPRvLVaZReH5BbNJGCu7OeEO1edBaJzh");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+mysql_connect("localhost", "root", "Fwgs91VpfRRH22K");
 mysql_select_db("lobotomy");
 
 function is_marked($plugin, $id) {
