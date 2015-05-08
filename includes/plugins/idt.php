@@ -1,6 +1,6 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-$query = "SELECT id, cpu, index, selector, value, modile, section FROM idt";
+$query = "SELECT `id`, `cpu`, `index`, `selector`, `value`, `module`, `section` FROM idt";
 $result = mysql_query($query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
