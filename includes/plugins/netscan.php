@@ -1,9 +1,8 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-$query = "SELECT `id`, `offset`, `proto`, `localaddress`, `foreignaddress`, `state`, `pid`, `owner`, `createtime` FROM netscan";
+$query = "SELECT `id`, `offset`, `proto`, `localaddress`, `foreignadress`, `state`, `pid`, `owner`, `createtime` FROM netscan";
 $result = mysql_query($query);
 ?>
-<h4><?php echo $dbase; ?></h4>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
     <thead>
         <tr>
