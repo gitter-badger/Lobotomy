@@ -1,10 +1,8 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-mysql_select_db($dbase);
-$query = "SELECT id, sharedinfo, sessionid, shareddelta, ahelist, tablesize, enrtysize, object, handle, btype, flags, threats, process FROM userhandles";
+$query = "SELECT id, sharedinfo, sessionid, shareddelta, ahelist, tablesize, entrysize, object, handle, btype, flags, thread, PROCESS FROM userhandles";
 $result = mysql_query($query);
 ?>
-<h4><?php echo $dbase; ?></h4>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
     <thead>
         <tr>
@@ -69,12 +67,12 @@ $result = mysql_query($query);
             <td><?php echo $row['shareddelta']; ?></td>
             <td><?php echo $row['ahelist']; ?></td>
             <td><?php echo $row['tablesize']; ?></td>
-            <td><?php echo $row['enrtysize']; ?></td>
+            <td><?php echo $row['entrysize']; ?></td>
             <td><?php echo $row['object']; ?></td>
             <td><?php echo $row['handle']; ?></td>
             <td><?php echo $row['btype']; ?></td>
             <td><?php echo $row['flags']; ?></td>
-            <td><?php echo $row['threats']; ?></td>
+            <td><?php echo $row['thread']; ?></td>
             <td><?php echo $row['process']; ?></td>
         </tr>
         <?php
