@@ -1,10 +1,8 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-mysql_select_db($dbase);
-$query = "SELECT id, pid, address, parent, left, right, start, end, tag FROM vadwalk";
+$query = "SELECT `id`, `pid`, `address`, `parent`, `left`, `right`, `start`, `end`, `tag` FROM vadwalk";
 $result = mysql_query($query);
 ?>
-<h4><?php echo $dbase; ?></h4>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
     <thead>
         <tr>
