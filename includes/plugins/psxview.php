@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, name, pid, pslist, psscan, thrdproc, pspcid, csrss, session, deskthrd, exittime FROM psxview";
