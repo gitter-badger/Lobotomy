@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, pid, commandprocess, commandhistory, application, flags, commandcount, lastadded, lastdisplayed, firstcommand, commandcountmax, processhandle, cmd1, cmd2, cmd3, cmd4 FROM cmdscan";
