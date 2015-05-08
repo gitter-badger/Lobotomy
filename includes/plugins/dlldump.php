@@ -40,6 +40,7 @@ $result = mysql_query($query);
             $row['md5'] = '<a href="https://www.virustotal.com/en/search/?query=' . $row['md5'] . '" target="_blank">' . $row['md5'] . '</a>&nbsp;&nbsp;<img src="./images/icons/alert2.png" title="This will upload the hash to VirusTotal!" alt="This will upload the hash to VirusTotal!" />';
         }
         $_query = "SELECT COUNT(*) AS marked FROM preferences WHERE plugin='" . $plugin . "' AND row_id=" . $row['id'];
+        mysql_select_db($_SESSION['dump']['dbase']);
         $_result = mysql_query($_query);
         $_row = mysql_fetch_assoc($_result);
         $filter = apply_filter($row);
