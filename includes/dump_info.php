@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 include_once './includes/database.php';
 $query = "SELECT id, location, dbase, added, case_assigned FROM dumps WHERE id=" . $_SESSION['dump']['id'];
