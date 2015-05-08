@@ -1,6 +1,6 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-$query = "SELECT id, serviceid, servicename FROM getserviceids";
+$query = "SELECT id, serviceid, servicename FROM getservicesids";
 $result = mysql_query($query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
