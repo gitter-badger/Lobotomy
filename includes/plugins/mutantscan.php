@@ -1,6 +1,6 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-$query = "SELECT id, offset, ptr, hnd, signal, thread, cid, name FROM mutantscan";
+$query = "SELECT `id`, `offset`, `ptr`, `hnd`, `signal`, `thread`, `cid`, `name` FROM mutantscan";
 $result = mysql_query($query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
