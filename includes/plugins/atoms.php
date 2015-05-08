@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, session, windowstation, atom, refcount, hindex, pinned, name FROM atoms";
