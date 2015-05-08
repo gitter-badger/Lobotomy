@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, depth, offset, name, pid, ppid, thds, hnds, plugin_time, audit, cmd, path FROM pstree";
