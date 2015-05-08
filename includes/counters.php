@@ -1,5 +1,4 @@
 <?php
-session_start();
 $query = "SELECT COUNT(*) AS unass_dump FROM dumps WHERE case_assigned=0";
 $result = mysql_query($query);
 $row = mysql_fetch_assoc($result);
