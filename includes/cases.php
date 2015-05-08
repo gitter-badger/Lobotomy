@@ -1,5 +1,4 @@
 <?php
-session_start();
 $query = "SELECT id, name, description, creator, added FROM cases ORDER BY added DESC";
 $result = mysql_query($query);
 $num = mysql_num_rows($result);
