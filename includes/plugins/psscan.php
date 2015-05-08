@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, name, pid, ppid, pdb, timecreated, timeexited FROM psscan";
