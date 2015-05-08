@@ -47,7 +47,7 @@ $result = mysql_query($query);
             <td><?php echo $row['offset']; ?></td>
             <td><a href="./search.php?q=<?php echo $row['pid']; ?>&type=PID"><?php echo $row['pid']; ?></a></td>
             <td><?php echo $row['tid']; ?></td>
-            <td><?php echo $row['startadress']; ?></td>
+            <td><?php echo $row['startaddress']; ?></td>
             <td><?php echo $row['createtime']; ?></td>
             <td><?php echo $row['exittime']; ?></td>
         </tr>
