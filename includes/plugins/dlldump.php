@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <div class="msg_box msg_alert"><strong>Clicking on a hash will submit the clicked hash to VirusTotal!</strong></div>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
