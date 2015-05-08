@@ -1,5 +1,4 @@
 <?php
-session_start();
 $query = "SELECT id, location, dbase, added FROM dumps WHERE case_assigned=" . $_SESSION['case']['id'];
 $result = mysql_query($query);
 $num = mysql_num_rows($result);
