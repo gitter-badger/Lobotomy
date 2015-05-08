@@ -53,7 +53,7 @@ $result = mysql_query($query);
             <td><a href="./search.php?q=<?php echo $row['ppid']; ?>&type=PID"><?php echo $row['ppid']; ?></a></td>
             <td><?php echo $row['pdb']; ?></td>
             <td><?php echo $row['timecreated']; ?></td>
-            <td><?php echo $row['timexited']; ?></td>
+            <td><?php echo $row['timeexited']; ?></td>
         </tr>
         <?php
     }
