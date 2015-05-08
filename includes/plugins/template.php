@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, id, aaa, bbb, ccc, ddd, eee, fff, ggg, hhh,  iii, jjj, kkk, lll FROM xxxxxx";
