@@ -65,79 +65,81 @@ function init_filters($file) {
 function apply_filter($data, $file = '/home/solvent/filter.lob') {
     $filters = init_filters($file);
     $plugin = $_GET['name'];
-    
+
     $return = array();
-    
-    foreach ($filters[$plugin] as $exp) {
-        switch ($exp['__match']) {
-            case 'exact':
-                $match = True;
-                foreach (array_keys($exp) as $field) {
-                    if ($field != '__match' && $field != '__type') {
-                        if (strtolower($exp[$field]) == strtolower($data[$field])) {
-                            //echo 'MATCH! ' . $exp[$field] . '==' . $data[$field];
-                        } else {
-                            $match = False;
+
+    if (array_key_exists($plugin, $filters)) {
+        foreach ($filters[$plugin] as $exp) {
+            switch ($exp['__match']) {
+                case 'exact':
+                    $match = True;
+                    foreach (array_keys($exp) as $field) {
+                        if ($field != '__match' && $field != '__type') {
+                            if (strtolower($exp[$field]) == strtolower($data[$field])) {
+                                //echo 'MATCH! ' . $exp[$field] . '==' . $data[$field];
+                            } else {
+                                $match = False;
+                            }
                         }
                     }
-                }
-                if ($match) {
-                    //echo $exp['__type'];
-                    //return $exp['__type'];
-                    $return[] = $exp['__type'];
-                }
-                break;
-            case 'contains':
-                $match = True;
-                foreach (array_keys($exp) as $field) {
-                    if ($field != '__match' && $field != '__type') {
-                        if (intval(substr_count(strtolower($data[$field]), strtolower($exp[$field]))) > 0) {
-                            //echo 'MATCH! ' . $data[$field] . '~=' . $exp[$field];
-                        } else {
-                            $match = False;
+                    if ($match) {
+                        //echo $exp['__type'];
+                        //return $exp['__type'];
+                        $return[] = $exp['__type'];
+                    }
+                    break;
+                case 'contains':
+                    $match = True;
+                    foreach (array_keys($exp) as $field) {
+                        if ($field != '__match' && $field != '__type') {
+                            if (intval(substr_count(strtolower($data[$field]), strtolower($exp[$field]))) > 0) {
+                                //echo 'MATCH! ' . $data[$field] . '~=' . $exp[$field];
+                            } else {
+                                $match = False;
+                            }
                         }
                     }
-                }
-                if ($match) {
-                    //echo $exp['__type'];
-                    //return $exp['__type'];
-                    $return[] = $exp['__type'];
-                }
-                break;
-            case 'notcontains':
-                $match = True;
-                foreach (array_keys($exp) as $field) {
-                    if ($field != '__match' && $field != '__type') {
-                        if (intval(substr_count(strtolower($data[$field]), strtolower($exp[$field]))) > 0) {
-                            $match = False;
-                        } else {
-                            //echo 'MATCH! ' . $data[$field] . '!~' . $exp[$field];
+                    if ($match) {
+                        //echo $exp['__type'];
+                        //return $exp['__type'];
+                        $return[] = $exp['__type'];
+                    }
+                    break;
+                case 'notcontains':
+                    $match = True;
+                    foreach (array_keys($exp) as $field) {
+                        if ($field != '__match' && $field != '__type') {
+                            if (intval(substr_count(strtolower($data[$field]), strtolower($exp[$field]))) > 0) {
+                                $match = False;
+                            } else {
+                                //echo 'MATCH! ' . $data[$field] . '!~' . $exp[$field];
+                            }
                         }
                     }
-                }
-                if ($match) {
-                    //echo $exp['__type'];
-                    //return $exp['__type'];
-                    $return[] = $exp['__type'];
-                }
-                break;
-            case 'not':
-                $match = False;
-                foreach (array_keys($exp) as $field) {
-                    if ($field != '__match' && $field != '__type') {
-                        if (strtolower($exp[$field]) == strtolower($data[$field])) {
-                            $match = True;
-                        } else {
-                            //echo 'MATCH! ' . $data[$field] . '!=' . $exp[$field];
+                    if ($match) {
+                        //echo $exp['__type'];
+                        //return $exp['__type'];
+                        $return[] = $exp['__type'];
+                    }
+                    break;
+                case 'not':
+                    $match = False;
+                    foreach (array_keys($exp) as $field) {
+                        if ($field != '__match' && $field != '__type') {
+                            if (strtolower($exp[$field]) == strtolower($data[$field])) {
+                                $match = True;
+                            } else {
+                                //echo 'MATCH! ' . $data[$field] . '!=' . $exp[$field];
+                            }
                         }
                     }
-                }
-                if ($match) {
-                    //echo $exp['__type'];
-                    //return $exp['__type'];
-                    $return[] = $exp['__type'];
-                }
-                break;
+                    if ($match) {
+                        //echo $exp['__type'];
+                        //return $exp['__type'];
+                        $return[] = $exp['__type'];
+                    }
+                    break;
+            }
         }
     }
     return $return;
