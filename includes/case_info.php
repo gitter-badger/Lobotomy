@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 include_once './includes/database.php';
 $query = "SELECT id, name, description, creator, added FROM cases WHERE id=" . $_SESSION['case']['id'];
