@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
 $query = "SELECT id, pid, process, base, inload, ininit, inmem, mappedpath FROM ldrmodules";
