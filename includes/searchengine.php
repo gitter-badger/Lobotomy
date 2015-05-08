@@ -1,7 +1,4 @@
 <?php
-
-session_start();
-
 function search_image($srch, $timeline = 0, $dbase = null) {
     $matches = array();
     if ($srch == '') {
