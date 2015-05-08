@@ -47,7 +47,7 @@ $result = mysql_query($query);
             <td><a href="./search.php?q=<?php echo $row['pid']; ?>&type=PID"><?php echo $row['pid']; ?></a></td>
             <td><?php echo $row['process']; ?></td>
             <td><?php echo $row['value']; ?></td>
-            <td><?php echo $row['privileges']; ?></td>
+            <td><?php echo $row['privilege']; ?></td>
             <td><?php echo $row['attributes']; ?></td>
             <td><?php echo $row['description']; ?></td>
         </tr>
