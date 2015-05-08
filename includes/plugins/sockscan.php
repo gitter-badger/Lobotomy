@@ -1,10 +1,8 @@
 <?php
 mysql_select_db($_SESSION['dump']['dbase']);
-mysql_select_db($dbase);
 $query = "SELECT id, offset, pid, port, proto, protocol, address, createtime FROM sockscan";
 $result = mysql_query($query);
 ?>
-<h4><?php echo $dbase; ?></h4>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
     <thead>
         <tr>
