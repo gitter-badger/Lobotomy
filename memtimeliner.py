@@ -25,7 +25,7 @@ def memtimeliner(database):
     command.append('vol.py -f "' + imagename + '" --profile=' + imagetype + ' shellbags --output=body --output-file="' + imagename + '-shellbagstime"')
     command.append('vol.py -f "' + imagename + '" --profile=' + imagetype + ' mftparser --output=body --output-file="' + imagename + '-mfttime"')
     command.append('cat "' + imagename + '-timeliner_time" "' + imagename + '-mfttime" "' + imagename + '-shellbagstime" >> "' + imagename + '-bodytimeline.txt"')
-    command.append('mactime -b "' + imagename + '-bodytimeline.txt" -d > "' + imagename + '-mactime.txt"')
+    command.append('mactime -b "' + imagename + '-bodytimeline.txt" -d > "' + imagename + '-mactime.csv"')
 
     if DEBUG:
         for item in command:
@@ -46,7 +46,7 @@ def memtimeliner(database):
 
 def input_sql(imagename, database):
         counter = 0
-        with open(imagename + "-mactime.txt") as f:
+        with open(imagename + "-mactime.csv") as f:
             for line in f:
                 if counter != 0:
                     listitem = line.split(',')
