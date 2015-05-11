@@ -23,7 +23,7 @@ class Lobotomy():
         self.plugin_dir = '/home/solvent/lob_scripts/'  # Location of Lobotomy plugins
         self.mysql = ['localhost',  # Hostname
                       'root',  # Username
-                      'ZPRvLVaZReH5BbNJGCu7OeEO1edBaJzh',  # Password
+                      'Fwgs91VpfRRH22K',  # Password
                       'template']  # Database
         self.logfile = '/home/solvent/lobotomy.log'  # What logfile to use
         self.caselog = 'lobotomy.log'  # Filename to use for case log
