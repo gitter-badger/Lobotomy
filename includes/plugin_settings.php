@@ -1,10 +1,12 @@
 <?php
 
 $allowed_plugins = array(
+    'photorec',    
     'atoms',
     'atomscan',
     'callbacks',
     'clipboard',
+    'cmdline',    
     'cmdscan',
     'consoles',
     'dlldump',
