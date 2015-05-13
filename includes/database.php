@@ -2,6 +2,7 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+global $sqldb;
 $sqldb = mysqli_connect("localhost", "root", "Fwgs91VpfRRH22K", "lobotomy");
 
 function is_marked($plugin, $id) {
