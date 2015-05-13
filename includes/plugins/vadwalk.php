@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT `id`, `pid`, `address`, `parent`, `left`, `right`, `start`, `end`, `tag` FROM vadwalk";
 $result = mysqli_query($sqldb, $query);

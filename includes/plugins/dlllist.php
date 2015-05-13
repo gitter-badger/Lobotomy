@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, process, pid, cmd, servicepack, base, size, loadcount, dllpath  FROM dlllist";
 $result = mysqli_query($sqldb, $query);

@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, `offset`, `name`, pid, ppid, thds, hnds, sess, wow64, `start`, `exit` FROM pslist";
 $result = mysqli_query($sqldb, $query);

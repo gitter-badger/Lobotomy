@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, sharedinfo, sessionid, shareddelta, ahelist, tablesize, entrysize, object, handle, btype, flags, thread, PROCESS FROM userhandles";
 $result = mysqli_query($sqldb, $query);

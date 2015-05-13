@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, sess, handle, object, thread, process, nid, rate, countdown, func FROM gditimers";
 $result = mysqli_query($sqldb, $query);

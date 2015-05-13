@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, ptr, hnd, creationtime, `from`, `to` FROM symlinkscan";
 $result = mysqli_query($sqldb, $query);

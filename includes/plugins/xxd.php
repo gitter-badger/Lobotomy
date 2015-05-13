@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, filename, fullfilename FROM " . mysqli_real_escape_string($sqldb, $_GET['plugin']) . " where id = " . mysqli_real_escape_string($sqldb, $_GET['ID']);
 $result = mysqli_query($sqldb, $query) or die(mysqli_error());

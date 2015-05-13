@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, id, aaa, bbb, ccc, ddd, eee, fff, ggg, hhh,  iii, jjj, kkk, lll FROM xxxxxx";
 $result = mysqli_query($sqldb, $query);

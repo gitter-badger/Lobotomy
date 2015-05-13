@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, `offset`, pid, handle, access, `type`, details FROM handles";
 $result = mysqli_query($sqldb, $query);

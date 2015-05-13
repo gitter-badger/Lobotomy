@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, lastmodified, lastupdate, path FROM shimcache";
 $result = mysqli_query($sqldb, $query);

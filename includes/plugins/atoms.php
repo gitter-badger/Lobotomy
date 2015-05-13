@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, session, windowstation, atom, refcount, hindex, pinned, name FROM atoms";
 $result = mysqli_query($sqldb, $query);

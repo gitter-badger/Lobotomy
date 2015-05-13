@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, pid, process, base, inload, ininit, inmem, mappedpath FROM ldrmodules";
 $result = mysqli_query($sqldb, $query);

@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT `id`, `offset`, `nobjects`, `nhandles`, `key`, `name`, `pooltype` FROM objtypescan";
 $result = mysqli_query($sqldb, $query);

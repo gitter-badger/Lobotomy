@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, `offset`, pid, tid, startaddress, createtime, exittime FROM thrdscan";
 $result = mysqli_query($sqldb, $query);

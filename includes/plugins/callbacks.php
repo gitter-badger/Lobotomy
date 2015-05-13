@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, type, callback, module, details FROM callbacks";
 $result = mysqli_query($sqldb, $query);

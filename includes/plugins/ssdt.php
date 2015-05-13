@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, ssdt, mem1, entry, mem2, systemcall, owner FROM ssdt";
 $result = mysqli_query($sqldb, $query);

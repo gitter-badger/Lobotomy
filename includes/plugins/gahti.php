@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, session, type, tag, fndestroy, flags FROM gahti";
 $result = mysqli_query($sqldb, $query);

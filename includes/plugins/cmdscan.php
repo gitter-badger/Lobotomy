@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, pid, commandprocess, commandhistory, application, flags, commandcount, lastadded, lastdisplayed, firstcommand, commandcountmax, processhandle, cmd1, cmd2, cmd3, cmd4 FROM cmdscan";
 $result = mysqli_query($sqldb, $query);

@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, omschrijving, waarde FROM imageinfo";
 $result = mysqli_query($sqldb, $query);

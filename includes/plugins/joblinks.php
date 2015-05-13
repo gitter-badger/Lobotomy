@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, name, pid, ppid, sess, jobsess, wow64, total,  active, term, joblink, process FROM joblinks";
 $result = mysqli_query($sqldb, $query);

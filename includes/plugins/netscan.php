@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT `id`, `offset`, `proto`, `localaddress`, `foreignadress`, `state`, `pid`, `owner`, `createtime` FROM netscan";
 $result = mysqli_query($sqldb, $query);

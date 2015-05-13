@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, cpu, sel, base, `limit`, `type`, dpl, gr, pr FROM gdt";
 $result = mysqli_query($sqldb, $query);

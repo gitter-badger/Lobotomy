@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, offset, pid, port, proto, protocol, address, createtime FROM sockscan";
 $result = mysqli_query($sqldb, $query);

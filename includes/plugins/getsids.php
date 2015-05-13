@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, process, pid, sid, user, comment FROM getsids";
 $result = mysqli_query($sqldb, $query);

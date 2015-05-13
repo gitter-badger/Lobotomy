@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, memtype, offset, pid, port, proto, protocol, address, createtime FROM sockets";
 $result = mysqli_query($sqldb, $query);

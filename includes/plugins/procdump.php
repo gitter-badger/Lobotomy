@@ -1,5 +1,6 @@
 <div class="msg_box msg_alert"><strong>Clicking on a hash will submit the clicked hash to VirusTotal!</strong></div>
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, process, imagebase, name, result, md5, filename, fullfilename FROM procdump";
 $result = mysqli_query($sqldb, $query);

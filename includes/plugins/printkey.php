@@ -1,4 +1,5 @@
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, `register`, keyname, keylegend, lastupdated, subkeys, type, `values`, legend, model FROM printkey";
 $result = mysqli_query($sqldb, $query);
