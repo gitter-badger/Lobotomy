@@ -1,5 +1,6 @@
 <div class="msg_box msg_alert"><strong>Clicking on a hash will submit the clicked hash to VirusTotal!</strong></div>
 <?php
+global $sqldb;
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, fullfilename, filename, filemd5 FROM PR_files";
 $result = mysqli_query($sqldb, $query);
