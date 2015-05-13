@@ -1,6 +1,5 @@
 <?php session_start(); ?>
 <?php
-global $sqldb;
 include './includes/filters.php';
 if (isset($_GET['case']) && isset($_GET['image'])) {
     if (ctype_digit($_GET['case']) && ctype_digit($_GET['image'])) {
