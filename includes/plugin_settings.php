@@ -1,12 +1,12 @@
 <?php
 
 $allowed_plugins = array(
-    'photorec',    
+    'photorec',
     'atoms',
     'atomscan',
     'callbacks',
     'clipboard',
-    'cmdline',    
+    'cmdline',
     'cmdscan',
     'consoles',
     'dlldump',
@@ -61,14 +61,15 @@ function plugin_submenu($plugin, $x = 0) {
     } else {
         echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="search.php">Search</a></li>';
     }
-    $filename = $_SESSION['dump']['location'].'-mactime.csv';
-    if (file_exists($filename)) {
-        echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="download.php" target="_blank">Download timeline</a><br />&nbsp;&nbsp;&nbsp;&nbsp;(CSV format, .csv)</li>';
+    if (isset($_SESSION['dump']['location'])) {
+        $filename = $_SESSION['dump']['location'] . '-mactime.csv';
+        if (file_exists($filename)) {
+            echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="download.php" target="_blank">Download timeline</a><br />&nbsp;&nbsp;&nbsp;&nbsp;(CSV format, .csv)</li>';
+        }
     }
     if ($_SERVER['SCRIPT_NAME'] == '/selected.php') {
-    echo '<li class="active">&nbsp;&nbsp;&nbsp;&nbsp;<a href="selected.php">Custom selections</a></li>';
-    }
-    else {
+        echo '<li class="active">&nbsp;&nbsp;&nbsp;&nbsp;<a href="selected.php">Custom selections</a></li>';
+    } else {
         echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="selected.php">Custom selections</a></li>';
     }
     echo '<hr />';
