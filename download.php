@@ -6,7 +6,7 @@ $query = "SELECT filepath FROM settings";
 $result = mysqli_query($sqldb, $query);
 $row = mysqli_fetch_assoc($result);
 
-$file = $row['filepath'].'-mactime.txt';
+$file = $row['filepath'].'-mactime.csv';
 
 if (file_exists($file)) {
     header('Content-Description: File Transfer');

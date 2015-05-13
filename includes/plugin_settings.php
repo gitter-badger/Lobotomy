@@ -61,9 +61,9 @@ function plugin_submenu($plugin, $x = 0) {
     } else {
         echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="search.php">Search</a></li>';
     }
-    $filename = $_SESSION['dump']['location'].'-mactime.txt';
+    $filename = $_SESSION['dump']['location'].'-mactime.csv';
     if (file_exists($filename)) {
-        echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="download.php" target="_blank">Download timeline</a><br />&nbsp;&nbsp;&nbsp;&nbsp;(CSV format, .txt)</li>';
+        echo '<li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="download.php" target="_blank">Download timeline</a><br />&nbsp;&nbsp;&nbsp;&nbsp;(CSV format, .csv)</li>';
     }
     if ($_SERVER['SCRIPT_NAME'] == '/selected.php') {
     echo '<li class="active">&nbsp;&nbsp;&nbsp;&nbsp;<a href="selected.php">Custom selections</a></li>';
