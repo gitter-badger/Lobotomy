@@ -1,8 +1,8 @@
 <?php
 mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
-$query = "SELECT id, filename, fullfilename FROM " . mysqli_real_escape_string($_GET['plugin']) . " where id = " . mysqli_real_escape_string($_GET['ID']);
+$query = "SELECT id, filename, fullfilename FROM " . mysqli_real_escape_string($sqldb, $_GET['plugin']) . " where id = " . mysqli_real_escape_string($sqldb, $_GET['ID']);
 $result = mysqli_query($sqldb, $query) or die(mysqli_error());
-$query1 = "SELECT id, filename, fullfilename FROM " . mysqli_real_escape_string($_GET['plugin']);
+$query1 = "SELECT id, filename, fullfilename FROM " . mysqli_real_escape_string($sqldb, $_GET['plugin']);
 $result1 = mysqli_query($sqldb, $query1);
 
 echo '<select id="dropdown">' . PHP_EOL;

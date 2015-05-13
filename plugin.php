@@ -95,7 +95,7 @@ include_once './includes/plugin_settings.php';
                                     <select id="dump_select">
                                         <?php
                                         foreach ($_SESSION['case']['dumps'] as $database) {
-                                            $select_query = "SELECT id, dbase FROM dumps WHERE dbase='" . mysqli_real_escape_string($database) . "'";
+                                            $select_query = "SELECT id, dbase FROM dumps WHERE dbase='" . mysqli_real_escape_string($sqldb, $database) . "'";
                                             $select_result = mysqli_query($sqldb, $select_query);
                                             $select_row = mysqli_fetch_assoc($select_result);
                                             if ($_SESSION['dump']['dbase'] == $select_row['dbase']) {

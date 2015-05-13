@@ -8,9 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             . "                 (name, description, creator, added)"
             . "                 VALUES"
             . "                     ("
-            . "                      '" . mysqli_real_escape_string($_POST['case_name']) . "',"
-            . "                      '" . mysqli_real_escape_string($_POST['case_description']) . "',"
-            . "                      '" . mysqli_real_escape_string($_POST['case_creator']) . "',"
+            . "                      '" . mysqli_real_escape_string($sqldb, $_POST['case_name']) . "',"
+            . "                      '" . mysqli_real_escape_string($sqldb, $_POST['case_description']) . "',"
+            . "                      '" . mysqli_real_escape_string($sqldb, $_POST['case_creator']) . "',"
             . "                      NOW()"
             . "                     )";
     $result = mysqli_query($sqldb, $query);

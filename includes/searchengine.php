@@ -18,7 +18,7 @@ function search_image($srch, $timeline = 0, $dbase = null) {
             $result2 = mysqli_query($sqldb, "SHOW COLUMNS FROM " . $table) or die(mysqli_error());
             if (mysqli_num_rows($result2) > 0) {
                 while ($row2 = mysqli_fetch_assoc($result2)) {
-                    $_query = "SELECT id FROM `" . $table . "` WHERE `" . $row2['Field'] . "` LIKE CONCAT('%', CAST('" . mysqli_real_escape_string($srch) . "' as CHAR),'%')";
+                    $_query = "SELECT id FROM `" . $table . "` WHERE `" . $row2['Field'] . "` LIKE CONCAT('%', CAST('" . mysqli_real_escape_string($sqldb, $srch) . "' as CHAR),'%')";
                     $_result = mysqli_query($sqldb, $_query) or die(mysqli_error());
                     if (mysqli_num_rows($_result) > 0) {
                         while ($_row = mysqli_fetch_assoc($_result)) {
@@ -43,7 +43,7 @@ function search_strings($srch, $dbase = null) {
     $result2 = mysqli_query($sqldb, "SHOW COLUMNS FROM " . $table) or die(mysqli_error());
     if (mysqli_num_rows($result2) > 0) {
         while ($row2 = mysqli_fetch_assoc($result2)) {
-            $_query = "SELECT id FROM `" . $table . "` WHERE `" . $row2['Field'] . "` LIKE CONCAT('%', CAST('" . mysqli_real_escape_string($srch) . "' as CHAR),'%')";
+            $_query = "SELECT id FROM `" . $table . "` WHERE `" . $row2['Field'] . "` LIKE CONCAT('%', CAST('" . mysqli_real_escape_string($sqldb, $srch) . "' as CHAR),'%')";
             $_result = mysqli_query($sqldb, $_query) or die(mysqli_error());
             if (mysqli_num_rows($_result) > 0) {
                 while ($_row = mysqli_fetch_assoc($_result)) {
@@ -71,7 +71,7 @@ function search_pid($pid, $dbase = null) {
             if (mysqli_num_rows($result2) > 0) {
                 while ($row2 = mysqli_fetch_assoc($result2)) {
                     if ($row2['Field'] == 'pid') {
-                        $_query = "SELECT id FROM `" . $table . "` WHERE `pid` = '" . mysqli_real_escape_string($pid) . "'";
+                        $_query = "SELECT id FROM `" . $table . "` WHERE `pid` = '" . mysqli_real_escape_string($sqldb, $pid) . "'";
                         $_result = mysqli_query($sqldb, $_query) or die(mysqli_error());
                         if (mysqli_num_rows($_result) > 0) {
                             while ($_row = mysqli_fetch_assoc($_result)) {

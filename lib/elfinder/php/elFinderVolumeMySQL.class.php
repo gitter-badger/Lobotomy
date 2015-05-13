@@ -416,7 +416,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 			$this->clearstat();
 
 			$sql = 'INSERT INTO %s (parent_id, name, size, mtime, mime) VALUES ("%s", "%s", 0, %d, "%s")';
-			$sql = sprintf($sql, $this->tbf, $path, $this->db->real_escape_string($name), time(), $mime);
+			$sql = sprintf($sql, $this->tbf, $path, $this->db->real_escape_string($sqldb, $name), time(), $mime);
 			return $this->query($sql) && $this->db->affected_rows > 0;
 		}
 		return false;
@@ -446,7 +446,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 **/
 	protected function _joinPath($dir, $name) {
 		
-		$sql = 'SELECT id FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name="'.$this->db->real_escape_string($name).'"';
+		$sql = 'SELECT id FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name="'.$this->db->real_escape_string($sqldb, $name).'"';
 		if (($res = $this->query($sql)) && ($r = $res->fetch_assoc())) {
 			return $r['id'];
 		}
@@ -819,7 +819,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 
 		$sql = $id > 0
 			? sprintf('REPLACE INTO %s (id, parent_id, name, content, size, mtime, mime, width, height) (SELECT %d, %d, name, content, size, mtime, mime, width, height FROM %s WHERE id=%d)', $this->tbf, $id, $this->_dirname($id), $this->tbf, $source)
-			: sprintf('INSERT INTO %s (parent_id, name, content, size, mtime, mime, width, height) SELECT %d, "%s", content, size, %d, mime, width, height FROM %s WHERE id=%d', $this->tbf, $target, $this->db->real_escape_string($name), time(), $this->tbf, $source);
+			: sprintf('INSERT INTO %s (parent_id, name, content, size, mtime, mime, width, height) SELECT %d, "%s", content, size, %d, mime, width, height FROM %s WHERE id=%d', $this->tbf, $target, $this->db->real_escape_string($sqldb, $name), time(), $this->tbf, $source);
 		
 		$this->clearstat();
 		return $this->query($sql);
@@ -840,7 +840,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 		}
 		
 		$this->clearstat();
-		$sql = 'UPDATE '.$this->tbf.' SET parent_id="'.$this->_dirname($source).'", name="'.$this->db->real_escape_string($name).'", mtime="'.time().'" WHERE id="'.intval($source).'"';
+		$sql = 'UPDATE '.$this->tbf.' SET parent_id="'.$this->_dirname($source).'", name="'.$this->db->real_escape_string($sqldb, $name).'", mtime="'.time().'" WHERE id="'.intval($source).'"';
 		
 		return $this->query($sql) && $this->db->affected_rows;
 	}
@@ -907,7 +907,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 			$sql = $id > 0
 				? 'REPLACE INTO %s (id, parent_id, name, content, size, mtime, mime, width, height) VALUES ('.$id.', %d, "%s", LOAD_FILE("%s"), %d, %d, "%s", %d, %d)'
 				: 'INSERT INTO %s (parent_id, name, content, size, mtime, mime, width, height) VALUES (%d, "%s", LOAD_FILE("%s"), %d, %d, "%s", %d, %d)';
-			$sql = sprintf($sql, $this->tbf, $dir, $this->db->real_escape_string($name), realpath($tmp), filesize($tmp), time(), $mime, $w, $h);
+			$sql = sprintf($sql, $this->tbf, $dir, $this->db->real_escape_string($sqldb, $name), realpath($tmp), filesize($tmp), time(), $mime, $w, $h);
 
 			$res = $this->query($sql);
 			@unlink($tmp);
@@ -931,12 +931,12 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 			$content .= fread($fp, 8192);
 		}
 
-		$content = $this->db->real_escape_string($content);
+		$content = $this->db->real_escape_string($sqldb, $content);
 
 		$sql = $id > 0
 			? 'REPLACE INTO %s (id, parent_id, name, content, size, mtime, mime, width, height) VALUES ('.$id.', %d, "%s", "%s", %d, %d, "%s", %d, %d)'
 			: 'INSERT INTO %s (parent_id, name, content, size, mtime, mime, width, height) VALUES (%d, "%s", "%s", %d, %d, "%s", %d, %d)';
-		$sql = sprintf($sql, $this->tbf, $dir, $this->db->real_escape_string($name), $content, $size, time(), $mime, $w, $h);
+		$sql = sprintf($sql, $this->tbf, $dir, $this->db->real_escape_string($sqldb, $name), $content, $size, time(), $mime, $w, $h);
 		
 		unset($content);
 		
@@ -973,7 +973,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 **/
 	protected function _filePutContents($path, $content) {
 		$this->clearstat();
-		$sql = sprintf('UPDATE %s SET content="%s", size=%d, mtime=%d WHERE id=%d', $this->tbf, $this->db->real_escape_string($content), strlen($content), time(), $path);
+		$sql = sprintf('UPDATE %s SET content="%s", size=%d, mtime=%d WHERE id=%d', $this->tbf, $this->db->real_escape_string($sqldb, $content), strlen($content), time(), $path);
 		return $this->query($sql);
 	}
 	
