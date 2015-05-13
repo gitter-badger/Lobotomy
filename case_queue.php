@@ -109,8 +109,8 @@ include_once './includes/plugin_settings.php';
                                     }
                                     $query = trim($query);
                                     $query .= "DER BY priority, added";
-                                    $result = mysql_query($query);
-                                    while ($row = mysql_fetch_assoc($result)) {
+                                    $result = mysqli_query($sqldb, $query);
+                                    while ($row = mysqli_fetch_assoc($result)) {
                                         ?>
                                         <tr>
                                             <td><?php echo $row['id']; ?></td>

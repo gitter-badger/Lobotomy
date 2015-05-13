@@ -1,30 +1,30 @@
 <?php
 $query = "SELECT id, name, description, creator, added FROM cases ORDER BY added DESC";
-$result = mysql_query($query);
-$num = mysql_num_rows($result);
+$result = mysqli_query($sqldb, $query);
+$num = mysqli_num_rows($result);
 if ($num > 0) {
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $imquery = "SELECT COUNT(*) as dumps FROM dumps WHERE case_assigned=" . $row['id'];
         $i_mquery = "SELECT dbase FROM dumps WHERE case_assigned=" . $row['id'];
-        $imresult = mysql_query($imquery);
-        $i_mresult = mysql_query($i_mquery);
-        $imrow = mysql_fetch_assoc($imresult);
+        $imresult = mysqli_query($sqldb, $imquery);
+        $i_mresult = mysqli_query($sqldb, $i_mquery);
+        $imrow = mysqli_fetch_assoc($imresult);
 
         $done = 0;
         $queued = 0;
         $running = 0;
-        while ($psrow = mysql_fetch_assoc($i_mresult)) {
-            mysql_select_db($psrow['dbase']);
+        while ($psrow = mysqli_fetch_assoc($i_mresult)) {
+            mysqli_select_db($sqldb, $psrow['dbase']);
             $zquery = "SELECT (SELECT COUNT(*) FROM plugins WHERE status=1) done,"
                     . "(SELECT COUNT(*) FROM plugins WHERE status=2) running";
-            $zresult = mysql_query($zquery);
-            $zrow = mysql_fetch_assoc($zresult);
+            $zresult = mysqli_query($sqldb, $zquery);
+            $zrow = mysqli_fetch_assoc($zresult);
             $done = $done + $zrow['done'];
             $running = $running + $zrow['running'];
-            mysql_select_db("lobotomy");
+            mysqli_select_db($sqldb, "lobotomy");
             $qquery = "SELECT COUNT(*) AS queued FROM queue WHERE command LIKE '%".$psrow['dbase']."%'";
-            $qresult = mysql_query($qquery);
-            $qrow = mysql_fetch_assoc($qresult);
+            $qresult = mysqli_query($sqldb, $qquery);
+            $qrow = mysqli_fetch_assoc($qresult);
             $queued = $queued + $qrow['queued'];
         }
         ?>

@@ -2,13 +2,13 @@
 session_start();
 include_once './includes/database.php';
 $query = "SELECT COUNT(*) AS num_tasks FROM queue";
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 $new_tasks = $row['num_tasks'];
 
 $query = "SELECT COUNT(*) AS num_cases FROM cases";
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 $cases = $row['num_cases'];
 
 $dirs = 0;
@@ -23,8 +23,8 @@ foreach ($y as $z) {
 }
 
 $query = "SELECT COUNT(*) AS num_tasks FROM queue_archive";
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 $old_tasks = $row['num_tasks'];
 ?>
 <ul class="summary_list">

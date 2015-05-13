@@ -10,20 +10,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             . "                 (name, description, creator, added)"
             . "                 VALUES"
             . "                     ("
-            . "                      '" . mysql_real_escape_string($_POST['case_name']) . "',"
-            . "                      '" . mysql_real_escape_string($_POST['case_description']) . "',"
-            . "                      '" . mysql_real_escape_string($_POST['case_creator']) . "',"
+            . "                      '" . mysqli_real_escape_string($_POST['case_name']) . "',"
+            . "                      '" . mysqli_real_escape_string($_POST['case_description']) . "',"
+            . "                      '" . mysqli_real_escape_string($_POST['case_creator']) . "',"
             . "                      NOW()"
             . "                     )";
-    $result = mysql_query($query);
-    $case_id = mysql_insert_id();
+    $result = mysqli_query($sqldb, $query);
+    $case_id = mysqli_insert_id();
 
     if (isset($_POST['case_dumps']) && !empty($_POST['case_dumps'])) {
         foreach ($_POST['case_dumps'] as $dbase) {
-            mysql_query("UPDATE dumps SET case_assigned=" . $case_id . " WHERE dbase='" . $dbase . "'");
-            mysql_select_db($dbase);
-            mysql_query("UPDATE settings SET caseid=".$case_id);
-            mysql_select_db("lobotomy");
+            mysqli_query($sqldb, "UPDATE dumps SET case_assigned=" . $case_id . " WHERE dbase='" . $dbase . "'");
+            mysqli_select_db($sqldb, $dbase);
+            mysqli_query($sqldb, "UPDATE settings SET caseid=".$case_id);
+            mysqli_select_db($sqldb, "lobotomy");
         }
     }
     header('location: case_list.php');
@@ -148,8 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                             echo '<label for="case_dumps" class="lbl_a">Assign memory dumps (Optional)</label>' . PHP_EOL;
                                             echo '<select name="case_dumps[]" id="case_dumps" multiple="multiple">' . PHP_EOL;
                                             $query = "SELECT dbase FROM dumps WHERE case_assigned=0 ORDER BY dbase DESC";
-                                            $result = mysql_query($query);
-                                            while ($row = mysql_fetch_assoc($result)) {
+                                            $result = mysqli_query($sqldb, $query);
+                                            while ($row = mysqli_fetch_assoc($result)) {
                                                 echo '<option value="' . $row['dbase'] . '">' . $row['dbase'] . '</option>' . PHP_EOL;
                                             }
                                             echo '</select>' . PHP_EOL;

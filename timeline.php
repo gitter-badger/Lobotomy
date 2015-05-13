@@ -29,9 +29,9 @@ include_once './includes/plugin_settings.php';
                         <div id="main_content" class="cf">
                             <div class="cf">
                                 <?php
-                                    mysql_select_db("1501260808_memfor3novvmem");
+                                    mysqli_select_db($sqldb, "1501260808_memfor3novvmem");
                                     $query = "SELECT date, size, type, mode, uid, gid, meta, filename FROM memtimeliner";
-                                    $result = mysql_query($query);
+                                    $result = mysqli_query($sqldb, $query);
                                     ?>
                                     <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
                                         <thead>
@@ -64,7 +64,7 @@ include_once './includes/plugin_settings.php';
                                         </thead>
                                         <tbody>
                                             <?php
-                                            while ($row = mysql_fetch_assoc($result)) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
                                                 ?>
                                                 <tr>
                                                     <td><?php echo $row['date']; ?></td>

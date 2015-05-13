@@ -7,10 +7,10 @@ include_once './includes/case_info.php';
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (isset($_POST['case_dumps']) && !empty($_POST['case_dumps'])) {
         foreach ($_POST['case_dumps'] as $dbase) {
-            mysql_query("UPDATE dumps SET case_assigned=" . $_SESSION['case']['id'] . " WHERE dbase='" . $dbase . "'");
-            mysql_select_db($dbase);
-            mysql_query("UPDATE settings SET caseid=".$_SESSION['case']['id']);
-            mysql_select_db("lobotomy");
+            mysqli_query($sqldb, "UPDATE dumps SET case_assigned=" . $_SESSION['case']['id'] . " WHERE dbase='" . $dbase . "'");
+            mysqli_select_db($sqldb, $dbase);
+            mysqli_query($sqldb, "UPDATE settings SET caseid=".$_SESSION['case']['id']);
+            mysqli_select_db($sqldb, "lobotomy");
         }
     }
     header('location: case.php');
@@ -115,8 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                             echo '<label for="case_dumps" class="lbl_a">Assign memory image(s)</label>' . PHP_EOL;
                                             echo '<select name="case_dumps[]" id="case_dumps" multiple="multiple">' . PHP_EOL;
                                             $query = "SELECT dbase FROM dumps WHERE case_assigned=0 ORDER BY dbase DESC";
-                                            $result = mysql_query($query);
-                                            while ($row = mysql_fetch_assoc($result)) {
+                                            $result = mysqli_query($sqldb, $query);
+                                            while ($row = mysqli_fetch_assoc($result)) {
                                                 echo '<option value="' . $row['dbase'] . '">' . $row['dbase'] . '</option>' . PHP_EOL;
                                             }
                                             echo '</select>' . PHP_EOL;

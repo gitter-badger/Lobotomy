@@ -1,7 +1,7 @@
 <?php
-mysql_select_db($_SESSION['dump']['dbase']);
+mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, pid, commandprocess, commandhistory, application, flags, commandcount, lastadded, lastdisplayed, firstcommand, commandcountmax, processhandle, cmd1, cmd2, cmd3, cmd4 FROM cmdscan";
-$result = mysql_query($query);
+$result = mysqli_query($sqldb, $query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
     <thead>
@@ -55,10 +55,10 @@ $result = mysql_query($query);
 </thead>
 <tbody>
     <?php
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $_query = "SELECT COUNT(*) AS marked FROM preferences WHERE plugin='" . $plugin . "' AND row_id=" . $row['id'];
-        $_result = mysql_query($_query);
-        $_row = mysql_fetch_assoc($_result);
+        $_result = mysqli_query($sqldb, $_query);
+        $_row = mysqli_fetch_assoc($_result);
         $filter = apply_filter($row);
         $class = "";
         if (count($filter) > 0) {
@@ -93,5 +93,5 @@ $result = mysql_query($query);
 </tbody>
 </table>
 <?php
-mysql_select_db("lobotomy");
+mysqli_select_db($sqldb, "lobotomy");
 ?>

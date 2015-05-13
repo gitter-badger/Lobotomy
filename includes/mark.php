@@ -1,6 +1,6 @@
 <?php
 include 'database.php';
-mysql_select_db($_GET['db']);
+mysqli_select_db($sqldb, $_GET['db']);
 switch ($_GET['mode']) {
     case 0:
         $query = "DELETE FROM preferences WHERE `plugin`='".$_GET['plugin']."' AND action='mark' AND `row_id`='".$_GET['id']."'";
@@ -12,5 +12,5 @@ switch ($_GET['mode']) {
         $query = "UPDATE preferences SET action='done' WHERE plugin='".$_GET['plugin']."' AND row_id=".$_GET['id'];
         break;
 }
-mysql_query($query);
+mysqli_query($sqldb, $query);
 ?>

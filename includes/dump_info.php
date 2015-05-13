@@ -1,8 +1,8 @@
 <?php
 include_once './includes/database.php';
 $query = "SELECT id, location, dbase, added, case_assigned FROM dumps WHERE id=" . $_SESSION['dump']['id'];
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 
 $dump['id'] = $row['id'];
 $dump['location'] = $row['location'];

@@ -1,9 +1,9 @@
 <?php
 $query = "SELECT id, location, dbase, added FROM dumps WHERE case_assigned=" . $_SESSION['case']['id'];
-$result = mysql_query($query);
-$num = mysql_num_rows($result);
+$result = mysqli_query($sqldb, $query);
+$num = mysqli_num_rows($result);
 if ($num > 0) {
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         if ($_SESSION['dump']['id'] == $row['id']) {
             $style = 'pricing_promoted';
             $btn = False;
@@ -13,12 +13,12 @@ if ($num > 0) {
         }
         
         $pcquery = "SELECT COUNT(*) AS num FROM queue_archive WHERE command LIKE '%" . $row['dbase'] . "%'";
-        $pcresult = mysql_query($pcquery);
-        $pcrow = mysql_fetch_assoc($pcresult);
+        $pcresult = mysqli_query($sqldb, $pcquery);
+        $pcrow = mysqli_fetch_assoc($pcresult);
 
         $pqquery = "SELECT COUNT(*) AS num FROM queue WHERE command LIKE '%" . $row['dbase'] . "%'";
-        $pqresult = mysql_query($pqquery);
-        $pqrow = mysql_fetch_assoc($pqresult);
+        $pqresult = mysqli_query($sqldb, $pqquery);
+        $pqrow = mysqli_fetch_assoc($pqresult);
         ?>
         <div class="<?php echo $style; ?>">
             <div class="header">

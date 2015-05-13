@@ -2,8 +2,8 @@
 session_start();
 include_once './includes/database.php';
 $query = "SELECT id, command, priority, added FROM queue ORDER BY priority ASC, id ASC LIMIT 10";
-$result = mysql_query($query);
-$tasks = mysql_num_rows($result);
+$result = mysqli_query($sqldb, $query);
+$tasks = mysqli_num_rows($result);
 if ($tasks == 0) {
     echo '<h3 class="sepH_c">No remaining tasks</h1>';
 } else {
@@ -19,7 +19,7 @@ if ($tasks == 0) {
         </thead>
         <tbody>
             <?php
-            while ($row = mysql_fetch_assoc($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 switch ($row['priority']) {
                     case 1:
                         $style = 'error_bg';

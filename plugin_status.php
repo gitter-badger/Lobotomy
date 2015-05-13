@@ -129,10 +129,10 @@ include_once './includes/plugin_settings.php';
                                     <?php
                                     if ($img == '%' || $img == 'All images') {
                                         foreach ($_SESSION['case']['dumps'] as $database) {
-                                            mysql_select_db($database);
+                                            mysqli_select_db($sqldb, $database);
                                             $query = "SELECT name, status, started, stopped FROM plugins";
-                                            $result = mysql_query($query);
-                                            while ($row = mysql_fetch_assoc($result)) {
+                                            $result = mysqli_query($sqldb, $query);
+                                            while ($row = mysqli_fetch_assoc($result)) {
                                                 ?>
                                                 <tr>
                                                     <td><?php echo $database; ?></td>
@@ -145,10 +145,10 @@ include_once './includes/plugin_settings.php';
                                             }
                                         }
                                     } else {
-                                        mysql_select_db($img);
+                                        mysqli_select_db($sqldb, $img);
                                         $query = "SELECT name, status, started, stopped FROM plugins";
-                                        $result = mysql_query($query);
-                                        while ($row = mysql_fetch_assoc($result)) {
+                                        $result = mysqli_query($sqldb, $query);
+                                        while ($row = mysqli_fetch_assoc($result)) {
                                             ?>
                                             <tr>
                                                 <td><?php echo $img; ?></td>

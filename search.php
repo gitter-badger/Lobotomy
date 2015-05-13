@@ -114,9 +114,9 @@ include_once './includes/plugin_settings.php';
                                             echo '<table id="' . $key . '" class="display" cellpadding="0" cellspacing="0" border="0">' . PHP_EOL;
                                             echo '<thead>' . PHP_EOL;
                                             echo '<tr>' . PHP_EOL;
-                                            $cresult = mysql_query("SHOW COLUMNS FROM `" . $key . "`");
+                                            $cresult = mysqli_query($sqldb, "SHOW COLUMNS FROM `" . $key . "`");
                                             $i = 0;
-                                            while ($crow = mysql_fetch_assoc($cresult)) {
+                                            while ($crow = mysqli_fetch_assoc($cresult)) {
                                                 if ($i > 0) {
                                                     echo '<th class="chb_col"><div class="th_wrapp">' . $crow['Field'] . '</div></th>' . PHP_EOL;
                                                 }
@@ -127,8 +127,8 @@ include_once './includes/plugin_settings.php';
                                             echo '<tbody>' . PHP_EOL;
                                             foreach ($value as $num => $idnum) {
                                                 $rquery = "SELECT * FROM `" . $key . "` WHERE id=" . $idnum;
-                                                $rresult = mysql_query($rquery);
-                                                while ($rrow = mysql_fetch_row($rresult)) {
+                                                $rresult = mysqli_query($sqldb, $rquery);
+                                                while ($rrow = mysqli_fetch_row($rresult)) {
                                                     if (is_marked($key, $idnum)) {
                                                         echo '<tr id="' . $idnum . '" class="marked">' . PHP_EOL;
                                                     } else {

@@ -1,10 +1,10 @@
 <?php
 session_start();
 include './includes/database.php';
-mysql_select_db($_SESSION['dump']['dbase']);
+mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT filepath FROM settings";
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 
 $file = $row['filepath'].'-mactime.txt';
 

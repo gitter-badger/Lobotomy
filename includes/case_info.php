@@ -1,8 +1,8 @@
 <?php
 include_once './includes/database.php';
 $query = "SELECT id, name, description, creator, added FROM cases WHERE id=" . $_SESSION['case']['id'];
-$result = mysql_query($query);
-$row = mysql_fetch_assoc($result);
+$result = mysqli_query($sqldb, $query);
+$row = mysqli_fetch_assoc($result);
 
 $case['id'] = $row['id'];
 $case['name'] = $row['name'];
@@ -11,10 +11,10 @@ $case['creator'] = $row['creator'];
 $case['added'] = $row['added'];
 
 $query = "SELECT dbase FROM dumps WHERE case_assigned=" . $case['id'];
-$result = mysql_query($query);
-$case['num_dumps'] = mysql_num_rows($result);
+$result = mysqli_query($sqldb, $query);
+$case['num_dumps'] = mysqli_num_rows($result);
 if ($case['num_dumps'] > 0) {
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $case['dumps'][] = $row['dbase'];
     }
 }

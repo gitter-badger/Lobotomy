@@ -1,7 +1,7 @@
 <?php
-mysql_select_db($_SESSION['dump']['dbase']);
+mysqli_select_db($sqldb, $_SESSION['dump']['dbase']);
 $query = "SELECT id, `lastwritten`, `key` FROM hivedump";
-$result = mysql_query($query);
+$result = mysqli_query($sqldb, $query);
 ?>
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="data_table">
 <thead>
@@ -16,7 +16,7 @@ $result = mysql_query($query);
 </thead>
 <tbody>
     <?php
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $tr = '<tr id="'.$row['id'].'" data-key="'.$row['key'].'">';
         if (is_marked($plugin, $row['id'])) {
             $tr = '<tr id="'.$row['id'].'" data-key="'.$row['key'].'" class="marked">';
@@ -25,8 +25,8 @@ $result = mysql_query($query);
             $tr = '<tr id="'.$row['id'].'" data-key="'.$row['key'].'" class="done">';
         }
         $_query = "SELECT COUNT(*) AS marked FROM preferences WHERE plugin='".$plugin."' AND row_id=".$row['id'];
-        $_result = mysql_query($_query);
-        $_row = mysql_fetch_assoc($_result);
+        $_result = mysqli_query($sqldb, $_query);
+        $_row = mysqli_fetch_assoc($_result);
         echo $tr;
         ?>
             <td><?php echo $row['lastwritten']; ?></td>
@@ -39,5 +39,5 @@ $result = mysql_query($query);
 </table>
 <a id="printkey" class="btn btn_aL fl sepV_a"><span class="btnImg" style="background-image: url('images/icons/sign_post.png');">Run printkey for selected hives</span></a>
 <?php
-mysql_select_db("lobotomy");
+mysqli_select_db($sqldb, "lobotomy");
 ?>
