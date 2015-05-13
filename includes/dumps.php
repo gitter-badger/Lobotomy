@@ -4,7 +4,7 @@ $result = mysqli_query($sqldb, $query);
 $num = mysqli_num_rows($result);
 if ($num > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        if ($_SESSION['dump']['id'] == $row['id']) {
+        if (isset($_SESSION['dump']['id']) AND $_SESSION['dump']['id'] == $row['id']) {
             $style = 'pricing_promoted';
             $btn = False;
         } else {
