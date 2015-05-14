@@ -1,3 +1,5 @@
+# source: http://python-forensics.org/wp-content/uploads/2014/03/QHash.txt
+
 #
 # Forensic Utility
 # Python Quick Hash Utility
