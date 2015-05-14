@@ -1,7 +1,7 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
 # Script.version    0.1
-# Date:             05-05-2015
+# Date:             14-05-2015
 # Edited:           W Venhuizen
 # Plugin:
 #
@@ -31,6 +31,6 @@ def main(database, filename):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print "Usage: " + plugin + ".py <databasename>"
+        print "Usage: " + plugin + ".py <databasename> <filenaam>"
     else:
         main(sys.argv[1], sys.argv[2])
