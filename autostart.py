@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+#
+# Script.version    0.2
+# Date:             14-05-2015
+# Edited:           W Venhuizen
+# Plugin:           autostart
+#
+# PR_dump.py toegevoegd aan de queue
+#
 
 import sys
 import main
@@ -51,7 +59,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpproc.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpdll.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpfile.py {}'.format(database), 6)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'strings.py {}'.format(database), 5)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'PR_dump.py {}'.format(database), 5)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gditimers'.format(database), 10)
