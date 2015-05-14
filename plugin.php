@@ -89,7 +89,7 @@ include_once './includes/plugin_settings.php';
 
                     <div id="content_wrapper">
                         <div id="main_content" class="cf">
-                            <a href="javascript:copyToClipboard('<?php echo $_SERVER['SERVER_ADDR'] . $_SERVER['REQUEST_URI']; ?>&case=<?php echo $_SESSION['case']['id']; ?>&image=<?php echo $_SESSION['dump']['id']; ?>')" class="btn btn_a fl sepV_a"><span class="btnImg" style="background-image: url('images/icons/link.png');">Permalink</span></a>
+                            <a href="javascript:copyToClipboard('<?php echo $_SERVER['SERVER_ADDR'] . htmlentities($_SERVER['REQUEST_URI'], ENT_QUOTES); ?>&case=<?php echo $_SESSION['case']['id']; ?>&image=<?php echo $_SESSION['dump']['id']; ?>')" class="btn btn_a fl sepV_a"><span class="btnImg" style="background-image: url('images/icons/link.png');">Permalink</span></a>
                             <div class="cf">
                                 <h4 class="sepH_a"><?php echo $plugin; ?> - <?php echo $case['name']; ?> - 
                                     <select id="dump_select">
