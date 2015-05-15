@@ -1,6 +1,9 @@
 <?php
 include 'database.php';
 mysqli_select_db($sqldb, $_GET['db']);
+if ($_GET['plugin'] == "photorec") {
+    $_GET['plugin'] = 'PR_files';
+}
 switch ($_GET['mode']) {
     case 0:
         $query = "DELETE FROM preferences WHERE `plugin`='".$_GET['plugin']."' AND action='mark' AND `row_id`='".$_GET['id']."'";
