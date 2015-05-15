@@ -96,7 +96,7 @@ include_once './includes/plugin_settings.php';
                                 } else {
                                     $timeline = 0;
                                 }
-                                if ($_GET['type'] == 'PID') {
+                                if (isset($_GET['type']) AND $_GET['type'] == 'PID') {
                                     $res = search_pid($_GET['q']);
                                 } else {
                                     $res = search_image($_GET['q'], $timeline);
