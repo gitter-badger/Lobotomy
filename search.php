@@ -74,12 +74,11 @@ include_once './includes/plugin_settings.php';
                                 <h1 class="sepH_a">Search results</h1>
                                 <?php
                                 if (isset($_GET['q']) && !empty($_GET['q'])) {
-                                    $value = $_GET['q'];
+                                    $value = strip_tags($_GET['q']);
+                                    $value = htmlentities($value, ENT_QUOTES);
                                 } else {
                                     $value = '';
                                 }
-                                $value = strip_tags($_GET['q']);
-                                $value = htmlentities($value, ENT_QUOTES);
                                 ?>
                                 <form action="" method="get"><input type="text" name="q" value="<?php echo $value; ?>" size="80" /> Using &#37; as wildcard is allowed - Search as <input type="submit" value="String" name="type" /> <input type="submit" value="PID" name="type" /><br />
                                     <input type="checkbox" name="timeline" value="1" /> Include timeline in search - This can be slow!</form><br />
