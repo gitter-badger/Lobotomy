@@ -99,7 +99,9 @@ include_once './includes/plugin_settings.php';
                                 if (isset($_GET['type']) AND $_GET['type'] == 'PID') {
                                     $res = search_pid($_GET['q']);
                                 } else {
-                                    $res = search_image($_GET['q'], $timeline);
+                                    if (isset($_GET['q'])) {
+                                        $res = search_image($_GET['q'], $timeline);
+                                    }
                                 }
                                 if (count($res) > 0) {
                                     foreach ($res as $db => $table) {
