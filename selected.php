@@ -31,11 +31,6 @@ include_once './includes/plugin_settings.php';
 
         <div id="top_bar">
             <div class="wrapper cf">
-                <ul class="fl">
-                    <li class="sep">Welcome <a href="#">Admin</a></li>
-                    <li class="sep"><a href="login.php">Logout</a></li>
-                    <li><a href="#">Front End Preview</a></li>
-                </ul>
                 <ul class="new_items fr">
                     <li class="sep"><span class="count_el"><?php echo $counter['unassigned_dumps']; ?></span> <a href="#">unassigned memory dumps</a></li>
                     <li class="sep"><span class="count_el"><?php echo $counter['tasks_pending']; ?></span> <a href="#">tasks in queue</a></li>
