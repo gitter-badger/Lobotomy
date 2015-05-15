@@ -73,7 +73,7 @@ include_once './includes/plugin_settings.php';
                             <div class="cf">
                                 <h1 class="sepH_a">Search results</h1>
                                 <?php
-                                $res = 0;
+                                $res = array();
                                 if (isset($_GET['q']) && !empty($_GET['q'])) {
                                     $value = strip_tags($_GET['q']);
                                     $value = htmlentities($value, ENT_QUOTES);
