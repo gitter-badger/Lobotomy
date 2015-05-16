@@ -12,12 +12,19 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Date:             12-05-2015:
 # Edited:           W Venhuizen
 # kleine aanpassing in console output. Bij pct moet het processnaam staan. in de console staat nu alleen pct: ..
+#
+# Date:             17-05-2015:
+# Edited:           W Venhuizen
+# Aanpassing van de opgeslagen informatie. sha256 wordt berekend en de mac-time wordt opgeslagen.
 
 
 import sys
 import os
 import main
+import time
 import commands
+from dateutil.parser import parse
+
 Lobotomy = main.Lobotomy()
 plugin = "PhotoRec"
 
@@ -116,13 +123,25 @@ def main(database):
                         filemd5 = Lobotomy.md5Checksum(filenaam)
                     except:
                         pass
+
+                    try:
+                        filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(filenaam)
+                        mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
+                        atime = parse(time.ctime(fileatime)).strftime("%Y-%m-%d %H:%M:%S")
+                        ctime = parse(time.ctime(filectime)).strftime("%Y-%m-%d %H:%M:%S")
+                    except:
+                        pass
+
                     pct = str(31 + (float(1.0 * count / counter) * 25)).split(".")[0]
 
                     filename = filenaam.split("/")[-1]
+
                     try:
-                        SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}')".format(filenaam, filename, filemd5)
+                        SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
+                        #SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}')".format(filenaam, filename, filemd5)
                     except:
                         pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
+
                     try:
                         if DEBUG:
                             print SQL_cmd
@@ -140,7 +159,7 @@ def main(database):
     Lobotomy.plugin_pct(plugin, database, 50)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(50)
     # bereken md5 en sha1 hash over de files uit reports.log
-    # exif info over de files
+    # exiftool over de files
     Lobotomy.plugin_pct(plugin, database, 100)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(100)
     
