@@ -1,20 +1,34 @@
 #!/usr/bin/env python
 
 """ DESCRIPTION """
-__author__ = 'Jeroen'
-__copyright__ = 'Copyright 2014, COP Team 1'
+__author__ = 'Jeroen Hagebeek, Wim Venhuizen'
+__copyright__ = 'Copyright 2014, Fox Academy // Jeroen Hagebeek, Wim Venhuizen'
+
 #
-# Edit: Wim Venhuizen - File event handler: controleer of de file een binary is.
+# Script.version    0.1
+# Date:             05-05-2015
+# Edited:           W Venhuizen
+# Plugin:
 #
+# Edit:             Wim Venhuizen - File event handler: controleer of de file een binary is.
+#
+# edit:             15-05-2015
+# added sha256 and mac-time to the database
+#
+
+
 
 
 import os
 import sys
-sys.path.insert(0, '/home/solvent')
 import main
 import time
 import commands
 import pyinotify
+from dateutil.parser import parse
+
+sys.path.insert(0, '/home/solvent')
+DEBUG = False
 
 Lobotomy = main.Lobotomy()
 
@@ -38,6 +52,12 @@ class MyEventHandler(pyinotify.ProcessEvent):
                     dump = dump.split('/')
                     dump = dump[-1]
                     md5 = Lobotomy.md5Checksum(event.pathname)
+                    print md5
+                    filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(event.pathname)
+                    mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
+                    atime = parse(time.ctime(fileatime)).strftime("%Y-%m-%d %H:%M:%S")
+                    ctime = parse(time.ctime(filectime)).strftime("%Y-%m-%d %H:%M:%S")
+                    print filesha256
                     Lobotomy.write_to_main_log("DIRECTORY WATCHER", "Calculated {} MD5: {}".format(dump, md5))
                     random_string = Lobotomy.id_generator()
                     random_dir = Lobotomy.copy_dir + random_string
@@ -54,16 +74,32 @@ class MyEventHandler(pyinotify.ProcessEvent):
                     ini = ".".join(tmp)
                     database = Lobotomy.create_database(dump)
                     Lobotomy.populate_database(database)
-                    Lobotomy.write_to_main_log("DIRECTORY WATCHER", "Database created: {}".format(database))
-                    Lobotomy.exec_sql_query("UPDATE settings SET `md5hash`='{}'".format(md5), database)
-                    Lobotomy.write_to_main_log(database, "Database updated - md5hash={}".format(md5))
-                    Lobotomy.exec_sql_query("UPDATE settings SET `filename`='{}'".format(dump), database)
-                    Lobotomy.write_to_main_log(database, "Database updated - filename={}".format(dump))
-                    Lobotomy.exec_sql_query("UPDATE settings SET `directory`='{}'".format(random_dir), database)
-                    Lobotomy.write_to_main_log(database, "Database updated - directory={}".format(random_dir))
-                    Lobotomy.exec_sql_query("UPDATE settings SET `filepath`='{}'".format(random_dir + '/' + dump), database)
-                    Lobotomy.write_to_main_log(database, "Database updated - filepath={}".format(random_dir + '/' + dump))
-                    Lobotomy.exec_sql_query("UPDATE settings SET `initialized`=NOW()", database)
+                    print "database"
+
+                    SQL_cmd = "INSERT INTO settings VALUES " \
+                              "('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format\
+                        (md5, time.strftime("%Y-%m-%d %H:%M:%S"), dump, random_dir, random_dir + '/' + dump, 0, 0, 0, filesha256, mtime, atime, ctime)
+                    if DEBUG:
+                        print SQL_cmd
+                    else:
+                        Lobotomy.exec_sql_query(SQL_cmd, database)
+
+                    #Lobotomy.write_to_main_log("DIRECTORY WATCHER", "Database created: {}".format(database))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `md5hash`='{}'".format(md5), database)
+                    #Lobotomy.write_to_main_log(database, "Database updated - md5hash={}".format(md5))
+                    #Lobotomy.write_to_main_log(database, "Database updated - mactime from memdump".format(mtime))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `filename`='{}'".format(dump), database)
+                    #Lobotomy.write_to_main_log(database, "Database updated - filename={}".format(dump))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `directory`='{}'".format(random_dir), database)
+                    #Lobotomy.write_to_main_log(database, "Database updated - directory={}".format(random_dir))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `filepath`='{}'".format(random_dir + '/' + dump), database)
+                    #Lobotomy.write_to_main_log(database, "Database updated - filepath={}".format(random_dir + '/' + dump))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `initialized`=NOW()", database)
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `sha256hash`='{}'".format(filesha256), database)
+                    #Lobotomy.write_to_main_log(database, "Database updated - sha256hash={}".format(filesha256))
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `mtime`='{}'".format(mtime), database)
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `atime`='{}'".format(atime), database)
+                    #Lobotomy.exec_sql_query("UPDATE settings SET `ctime`='{}'".format(ctime), database)
                     Lobotomy.write_to_main_log(database, "Database updated - initialized=NOW() -- MySQL function NOW() inserts the current timestamp".format(database))
                     Lobotomy.exec_sql_query("INSERT INTO dumps (location, dbase, added, case_assigned) VALUES ('{}', '{}', NOW(), 0)".format(new_file, database), "lobotomy")
                     if os.path.isfile(Lobotomy.dump_dir + ini):

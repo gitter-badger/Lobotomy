@@ -126,15 +126,120 @@ class Lobotomy():
         sql.commit()
         sql.close()
 
+    #def md5Checksum(self, filePath):
+    #    with open(filePath, 'rb') as fh:
+    #        m = hashlib.md5()
+    #        while True:
+    #            data = fh.read(8192)
+    #            if not data:
+    #                break
+    #            m.update(data)
+    #        return m.hexdigest()
+
     def md5Checksum(self, filePath):
-        with open(filePath, 'rb') as fh:
-            m = hashlib.md5()
-            while True:
-                data = fh.read(8192)
-                if not data:
-                    break
-                m.update(data)
-            return m.hexdigest()
+        # Verify that the path is valid
+        if os.path.exists(filepath):
+
+            #Verify that the path is not a symbolic link
+            if not os.path.islink(filepath):
+
+                #Verify that the file is real
+                if os.path.isfile(filepath):
+
+                    try:
+                        #Attempt to open the file
+                        f = open(filepath, 'rb')
+                    except IOError:
+                        #if open fails report the error
+                        print "\nOpen Failed " + filepath + "\n"
+                        return
+
+                    try:
+                        with open(filePath, 'rb') as fh:
+                            m = hashlib.md5()
+                            while True:
+                                data = fh.read(8192)
+                                if not data:
+                                    break
+                                m.update(data)
+                            return m.hexdigest()
+                    except IOError:
+                        # if read fails, then close the file and report error
+                        f.close()
+                        print "\nFile Read Error " + filepath +" \n"
+                        return
+                else:
+                    print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
+                    return False
+            else:
+                print '[' + repr(simpleName) + ", Skipped Link Not a File" + ']'
+                return False
+        else:
+            return False
+            pass
+
+    def sha256checksum(self, filepath):
+        ONE_MB = 1024000  # 1 MB
+        # Verify that the path is valid
+        if os.path.exists(filepath):
+
+            #Verify that the path is not a symbolic link
+            if not os.path.islink(filepath):
+
+                #Verify that the file is real
+                if os.path.isfile(filepath):
+
+                    try:
+                        #Attempt to open the file
+                        f = open(filepath, 'rb')
+                    except IOError:
+                        #if open fails report the error
+                        print "\nOpen Failed " + filepath + "\n"
+                        return
+
+                    try:
+
+                        # Hash the file
+                        hash = hashlib.sha256()
+
+                        # Attempt to read the file and hash the contents
+
+                        rdBuffer = 'ok'
+
+                        while len(rdBuffer):
+                            rdBuffer = f.read(ONE_MB)
+                            hash.update(rdBuffer)
+
+                        #File processing completed
+                        #Close the Active File
+                        f.close()
+
+                        # Once complete obtain the hex digest
+                        hexOfHash = hash.hexdigest().upper()
+
+                    except IOError:
+                        # if read fails, then close the file and report error
+                        f.close()
+                        print "\nFile Read Error " + filepath +" \n"
+                        return
+
+                    #lets query the file stats
+
+                    theFileStats = os.stat(filepath)
+                    (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(filepath)
+
+                    return hexOfHash, mtime, atime, ctime, size
+                    #return True
+
+                else:
+                    print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
+                    return False
+            else:
+                print '[' + repr(simpleName) + ", Skipped Link Not a File" + ']'
+                return False
+        else:
+            return False
+            pass
 
     def create_database(self, dump):
         """
