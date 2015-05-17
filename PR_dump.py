@@ -87,10 +87,10 @@ def main(database):
         Lobotomy.write_to_case_log(casedir, " Stop : " + command)
     
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Stop:  Running Bulk_Extractor: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Stop:  Running PhotoRec: " + plugin + ")"
     else:
         Lobotomy.write_to_main_log(database, " Stop : " + command)
-        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  Running Bulk_Extractor: " + plugin)
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  Running PhotoRec: " + plugin)
 
     # parse reports.xml
     # parse photorec.log
@@ -132,7 +132,7 @@ def main(database):
                     except:
                         pass
 
-                    pct = str(31 + (float(1.0 * count / counter) * 25)).split(".")[0]
+                    pct = str(31 + (float(1.0 * count / counter) * 50)).split(".")[0]
 
                     filename = filenaam.split("/")[-1]
 
@@ -156,8 +156,8 @@ def main(database):
 
 
 
-    Lobotomy.plugin_pct(plugin, database, 50)
-    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(50)
+    #Lobotomy.plugin_pct(plugin, database, 50)
+    #print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(50)
     # bereken md5 en sha1 hash over de files uit reports.log
     # exiftool over de files
     Lobotomy.plugin_pct(plugin, database, 100)

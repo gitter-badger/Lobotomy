@@ -166,7 +166,7 @@ class Lobotomy():
                     except IOError:
                         # if read fails, then close the file and report error
                         f.close()
-                        print "\nFile Read Error " + filepath +" \n"
+                        print "\nFile Read Error " + filepath + " \n"
                         return
                 else:
                     print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
@@ -220,12 +220,12 @@ class Lobotomy():
                     except IOError:
                         # if read fails, then close the file and report error
                         f.close()
-                        print "\nFile Read Error " + filepath +" \n"
+                        print "\nFile Read Error " + filepath + " \n"
                         return
 
                     #lets query the file stats
 
-                    theFileStats = os.stat(filepath)
+                    #theFileStats = os.stat(filepath)
                     (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(filepath)
 
                     return hexOfHash, mtime, atime, ctime, size

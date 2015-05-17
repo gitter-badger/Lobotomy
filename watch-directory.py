@@ -31,22 +31,23 @@ sys.path.insert(0, '/home/solvent')
 DEBUG = False
 
 Lobotomy = main.Lobotomy()
-        """
-        Returns a dictionary containing all values from the 'settings' table for the given database
-        :param database: The name of the database from which to extract the settings. Returns a dictionary:
-        :return: md5hash        md5 hash
-        :return: initialized    time.strftime("%Y-%m-%d %H:%M:%S")
-        :return: filename       dump
-        :return: directory      random_dir
-        :return: filepath       random_dir + '/' + dump
-        :return: caseid         0
-        :return: profile        0
-        :return: description    0
-        :return: filesha256     sha256 hash
-        :return: mtime          Mac-time
-        :return: atime          mAc-time
-        :return: ctime          maC-time
-        """
+
+"""
+Returns a dictionary containing all values from the 'settings' table for the given database
+:param database: The name of the database from which to extract the settings. Returns a dictionary:
+:return: md5hash        md5 hash
+:return: initialized    time.strftime("%Y-%m-%d %H:%M:%S")
+:return: filename       dump
+:return: directory      random_dir
+:return: filepath       random_dir + '/' + dump
+:return: caseid         0
+:return: profile        0
+:return: description    0
+:return: filesha256     sha256 hash
+:return: mtime          Mac-time
+:return: atime          mAc-time
+:return: ctime          maC-time
+"""
 
 class MyEventHandler(pyinotify.ProcessEvent):
     def process_IN_CLOSE_WRITE(self, event):
