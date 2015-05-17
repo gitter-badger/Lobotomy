@@ -16,6 +16,12 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Date:             17-05-2015:
 # Edited:           W Venhuizen
 # Aanpassing van de opgeslagen informatie. sha256 wordt berekend en de mac-time wordt opgeslagen.
+#
+# Date:             17-05-2015:
+# Edited:           W Venhuizen
+# Door een mogelijke bug in photorec wordt niet altijd de juiste bestandnaam in de log vermeld.
+# Gefixed met glob.
+
 
 
 import sys
@@ -23,6 +29,7 @@ import os
 import main
 import time
 import commands
+import glob
 from dateutil.parser import parse
 
 Lobotomy = main.Lobotomy()
@@ -117,13 +124,27 @@ def main(database):
         for line in f:
             if line.startswith(casedir):
                 filenaam = line.split("\t")[0]
+                #print filenaam
+                filename = ''
+                filemd5 = ''
+                filesha256 = ''
+                mtime = ''
+                atime = ''
+                ctime = ''
+                #test of filenaam bestaat. mogelijke photorec bug.
+
                 if not filenaam.endswith("mft"):
+                    if not os.path.isfile(filenaam):
+                        tmp = len(filenaam.split("/")[-1])
+                        tmpfilename = filenaam.split("/")[-1].split(".")[0]
+                        tmpfilepath = filenaam[:-tmp]
+                        filenaam = glob.glob(tmpfilepath + tmpfilename + "*")[0]
+
                     count += 1
                     try:
                         filemd5 = Lobotomy.md5Checksum(filenaam)
                     except:
                         pass
-
                     try:
                         filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(filenaam)
                         mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
@@ -135,10 +156,10 @@ def main(database):
                     pct = str(31 + (float(1.0 * count / counter) * 50)).split(".")[0]
 
                     filename = filenaam.split("/")[-1]
+                    #print filename
 
                     try:
                         SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
-                        #SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}')".format(filenaam, filename, filemd5)
                     except:
                         pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
 
