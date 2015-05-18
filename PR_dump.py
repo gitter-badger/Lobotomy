@@ -1,6 +1,6 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
-# Script.version    0.2
+# Script.version    0.5
 # Date:             05-05-2015
 # Edited:           W Venhuizen
 #
@@ -17,11 +17,12 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Edited:           W Venhuizen
 # Aanpassing van de opgeslagen informatie. sha256 wordt berekend en de mac-time wordt opgeslagen.
 #
-# Date:             17-05-2015:
+# Date:             18-05-2015:
 # Edited:           W Venhuizen
-# Door een mogelijke bug in photorec wordt niet altijd de juiste bestandnaam in de log vermeld.
-# Gefixed met glob.
-
+# Eerste poging exifinfo toe te voegen.
+# Eerste volledige Testrun
+# Stuxnet truncate op 255 tekens op kolom waarde, ophogen naar 512. aanpassen in (template) database.
+# Error parse-ing file: /srv/lobotomy/dump/9XYG67O08Z3T/pr_dump.1/f0215056.exe
 
 import sys
 import os
@@ -43,7 +44,7 @@ def main(database):
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
-    dumpdir = casedir + "/pr_dump"
+    dumpdir = casedir + "/photorec_dump"
     pct = 0
 
     Lobotomy.plugin_pct(plugin, database, 0)
@@ -67,40 +68,37 @@ def main(database):
         Lobotomy.write_to_case_log(casedir, " Start: " + command)
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Start:  Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Start: Running PhotoRec: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start:  Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start: Running PhotoRec: " + plugin)
 
     if DEBUG:
         print command
     else:
-        print "Running Photorec, database: " + database + ". Please wait."
+        print "Running Photorec - database: " + database + " - Please wait."
         log = ""
         status, log = commands.getstatusoutput(command)
 
-    Lobotomy.plugin_pct(plugin, database, 25)
-    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(25)
+    Lobotomy.plugin_pct(plugin, database, 5)
+    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(5)
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Stop:  Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running PhotoRec: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Stop:  Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Stop: Running PhotoRec: " + plugin)
 
     if DEBUG:
         print "Write log: " + database + " Stop: " + command
         print "Write log: " + casedir + " Stop: " + command
     else:
         Lobotomy.write_to_case_log(casedir, " Stop : " + command)
-    
+
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Stop:  Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running PhotoRec: " + plugin + ")"
     else:
         Lobotomy.write_to_main_log(database, " Stop : " + command)
-        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop: Running PhotoRec: " + plugin)
 
-    # parse reports.xml
-    # parse photorec.log
-    # casedir + "/photorec.log
     counter = 0
     with open(casedir + "/photorec.log") as f:
         for line in f:
@@ -108,28 +106,23 @@ def main(database):
                 filenaam = line.split("\t")[0]
                 if not filenaam.endswith("mft"):
                     counter += 1
-    Lobotomy.plugin_pct(plugin, database, 30)
-    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(30)
+    Lobotomy.plugin_pct(plugin, database, 10)
+    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(10)
     print "Parsing Photorec logfile"
 
-    #
-    # percentage done = 25%
-    # bereken percentage van md5 sum e.d. tot 50%, dus 25 procent.
-    # counter is aantal te berekenen files. dus counter is 100% van de files.
-    # pct = 25 / counter * count
     count = 0
     pcttmp = 0
     with open(casedir + "/photorec.log") as f:
         for line in f:
             if line.startswith(casedir):
                 filenaam = line.split("\t")[0]
-                #print filenaam
                 filename = ''
                 filemd5 = ''
                 filesha256 = ''
                 mtime = ''
                 atime = ''
                 ctime = ''
+
                 #test of filenaam bestaat. mogelijke photorec bug.
 
                 if not filenaam.endswith("mft"):
@@ -153,7 +146,7 @@ def main(database):
                     except:
                         pass
 
-                    pct = str(31 + (float(1.0 * count / counter) * 50)).split(".")[0]
+                    pct = str(11 + (float(1.0 * count / counter) * 88)).split(".")[0]
 
                     filename = filenaam.split("/")[-1]
                     #print filename
@@ -161,16 +154,16 @@ def main(database):
                     try:
                         command = "exiftool " + filenaam
                         status, log = commands.getstatusoutput(command)
-                        exif_SQL_cmd = "INSERT INTO exiffileinfo VALUES (0, '{}', '{}')".format(filenaam, log)
+                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(filenaam, log)
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                     except:
                         print "Error parse-ing file: " + filenaam
-                        exif_SQL_cmd = "INSERT INTO exiffileinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
+                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                         pass
 
                     try:
-                        SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
+                        SQL_cmd = "INSERT INTO photorec_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
                     except:
                         pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
 
@@ -186,12 +179,6 @@ def main(database):
                         pass
                     pcttmp = pct
 
-
-
-    #Lobotomy.plugin_pct(plugin, database, 50)
-    #print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(50)
-    # bereken md5 en sha1 hash over de files uit reports.log
-    # exiftool over de files
     Lobotomy.plugin_pct(plugin, database, 100)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(100)
     
