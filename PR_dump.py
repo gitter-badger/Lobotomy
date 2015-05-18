@@ -23,7 +23,6 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Gefixed met glob.
 
 
-
 import sys
 import os
 import main
@@ -145,6 +144,7 @@ def main(database):
                         filemd5 = Lobotomy.md5Checksum(filenaam)
                     except:
                         pass
+
                     try:
                         filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(filenaam)
                         mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
@@ -157,6 +157,17 @@ def main(database):
 
                     filename = filenaam.split("/")[-1]
                     #print filename
+
+                    try:
+                        command = "exiftool " + filenaam
+                        status, log = commands.getstatusoutput(command)
+                        exif_SQL_cmd = "INSERT INTO exiffileinfo VALUES (0, '{}', '{}')".format(filenaam, log)
+                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                    except:
+                        print "Error parse-ing file: " + filenaam
+                        exif_SQL_cmd = "INSERT INTO exiffileinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
+                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                        pass
 
                     try:
                         SQL_cmd = "INSERT INTO PR_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
