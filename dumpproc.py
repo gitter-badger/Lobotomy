@@ -5,6 +5,8 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
 # 20-05: WV - Toevoegen van exiftool aan procdump.
 #             Toevoegen van enkele print commands en pct counter.
+#             moved exifinfo routine due to the msg: 'Error: PEB at ... is unavailable (possibly due to paging)'
+
 
 import sys
 import os
@@ -103,24 +105,25 @@ def main(database):
                     md5 = Lobotomy.md5Checksum(dumpdir + "/" + listitem[3].strip("OK: "))
                     md5filename = listitem[3].strip("OK: ")
                     fullfilename = dumpdir + "/" + listitem[3].strip("OK: ")
+
+                    # Exiftool routine
+                    # moved routine due to the msg: 'Error: PEB at ... is unavailable (possibly due to paging)'
+                    try:
+                        command = "exiftool " + fullfilename
+                        status, log = commands.getstatusoutput(command)
+                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, log)
+                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                    except:
+                        print "Error parse-ing file: " + fullfilename
+                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, 'Parse error')
+                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                        pass
                 else:
                     md5 = "0"
                     md5filename = ''
                     fullfilename = ''
             sql_line = sql_line + "'" + md5 + "','" + md5filename + "','" + fullfilename + "')"
             Lobotomy.exec_sql_query(sql_line, database)
-
-            # Exiftool routine
-            try:
-                command = "exiftool " + fullfilename
-                status, log = commands.getstatusoutput(command)
-                exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, log)
-                Lobotomy.exec_sql_query(exif_SQL_cmd, database)
-            except:
-                print "Error parse-ing file: " + fullfilename
-                exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, 'Parse error')
-                Lobotomy.exec_sql_query(exif_SQL_cmd, database)
-                pass
 
             try:
                 if pct != pcttmp:
