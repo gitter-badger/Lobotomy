@@ -149,8 +149,8 @@ def main(database):
                     pct = str(11 + (float(1.0 * count / counter) * 88)).split(".")[0]
 
                     filename = filenaam.split("/")[-1]
-                    #print filename
 
+                    # Exiftool routine
                     try:
                         command = "exiftool " + filenaam
                         status, log = commands.getstatusoutput(command)

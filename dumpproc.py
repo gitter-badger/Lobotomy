@@ -2,6 +2,9 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 ###
 ### 03-02: WV - Aanpassen SQL query tbv modificatie website en database
 ###
+#
+# 20-05: WV - Toevoegen van exiftool aan procdump.
+#             Toevoegen van enkele print commands en pct counter.
 
 import sys
 import os
@@ -40,6 +43,7 @@ def main(database):
     if DEBUGvol:
         print command
     else:
+        print "Running Volatility - Procdump, please wait."
         vollog = ""
         status, vollog = commands.getstatusoutput(command)
         
@@ -61,10 +65,6 @@ def main(database):
     lastLinePointer = 0
     pointers = []
 
-    #if DEBUG:
-    #    print vollog
-    #else:
-    #    vollog = vollog.split("\n")
     vollog = vollog.split("\n")
     for line in vollog:
         if counter == 2:
@@ -86,10 +86,15 @@ def main(database):
         counter += 1
         part = []
 
+    count = 0
+    counter = len(result)
     for listitem in result:
         if DEBUG:
            print listitem
         else:
+            count += 1
+            pct = str(float(1.0 * count / counter) * 99).split(".")[0]
+
             sql_line = "INSERT INTO " + plugin + " VALUES (0, "
             for item in listitem:
                 item = item.replace('\\', '\\\\')
@@ -102,11 +107,32 @@ def main(database):
                     md5 = "0"
                     md5filename = ''
                     fullfilename = ''
-                #sql_line = sql_line 
             sql_line = sql_line + "'" + md5 + "','" + md5filename + "','" + fullfilename + "')"
-            #sql_line = sql_line[:-1] + ")"
             Lobotomy.exec_sql_query(sql_line, database)
-    
+
+            # Exiftool routine
+            try:
+                command = "exiftool " + fullfilename
+                status, log = commands.getstatusoutput(command)
+                exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, log)
+                Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+            except:
+                print "Error parse-ing file: " + fullfilename
+                exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, 'Parse error')
+                Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                pass
+
+            try:
+                if pct != pcttmp:
+                    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
+                    Lobotomy.plugin_pct(plugin, database, pct)
+            except:
+                pass
+            pcttmp = pct
+
+    Lobotomy.plugin_pct(plugin, database, 100)
+    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(100)
+
     if DEBUG:
         print "Write log: (" + casedir + ", Database: " + database + " Stop:  Parsing volatility output: " + plugin + ")"
     else:
