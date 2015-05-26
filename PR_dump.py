@@ -154,16 +154,16 @@ def main(database):
                     try:
                         command = "exiftool " + filenaam
                         status, log = commands.getstatusoutput(command)
-                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(filenaam, log)
+                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, log)
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                     except:
                         print "Error parse-ing file: " + filenaam
-                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
+                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                         pass
 
                     try:
-                        SQL_cmd = "INSERT INTO photorec_files VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
+                        SQL_cmd = "INSERT INTO photorec VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
                     except:
                         pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
 

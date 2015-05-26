@@ -111,11 +111,11 @@ def main(database):
                     try:
                         command = "exiftool " + fullfilename
                         status, log = commands.getstatusoutput(command)
-                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, log)
+                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(fullfilename, log)
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                     except:
                         print "Error parse-ing file: " + fullfilename
-                        exif_SQL_cmd = "INSERT INTO exifinfo_fileinfo VALUES (0, '{}', '{}')".format(fullfilename, 'Parse error')
+                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(fullfilename, 'Parse error')
                         Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                         pass
                 else:
