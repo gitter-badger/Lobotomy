@@ -12,6 +12,7 @@ import hashlib
 import MySQLdb
 import MySQLdb.cursors
 import datetime
+import commands
 from configobj import ConfigObj
 
 
@@ -146,28 +147,31 @@ class Lobotomy():
                 #Verify that the file is real
                 if os.path.isfile(filepath):
 
-                    try:
-                        #Attempt to open the file
-                        f = open(filepath, 'rb')
-                    except IOError:
-                        #if open fails report the error
-                        print "\nOpen Failed " + filepath + "\n"
-                        return
+                    # try:
+                    #     #Attempt to open the file
+                    #     f = open(filepath, 'rb')
+                    # except IOError:
+                    #     #if open fails report the error
+                    #     print "\nOpen Failed " + filepath + "\n"
+                    #     return
 
-                    try:
-                        with open(filePath, 'rb') as fh:
-                            m = hashlib.md5()
-                            while True:
-                                data = fh.read(8192)
-                                if not data:
-                                    break
-                                m.update(data)
-                            return m.hexdigest()
-                    except IOError:
-                        # if read fails, then close the file and report error
-                        f.close()
-                        print "\nFile Read Error " + filepath + " \n"
-                        return
+                    #try:
+                    command = 'md5sum ' + filePath
+                    status, log = commands.getstatusoutput(command)
+                    return log.split(' ')[0]
+                        #with open(filePath, 'rb') as fh:
+                        #    m = hashlib.md5()
+                        #    while True:
+                        #        data = fh.read(8192)
+                        #        if not data:
+                        #            break
+                        #        m.update(data)
+                        #    return m.hexdigest()
+                    # except IOError:
+                    #     # if read fails, then close the file and report error
+                    #     f.close()
+                    #     print "\nFile Read Error " + filepath + " \n"
+                    #     return
                 else:
                     print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
                     return False
@@ -189,39 +193,42 @@ class Lobotomy():
                 #Verify that the file is real
                 if os.path.isfile(filepath):
 
-                    try:
-                        #Attempt to open the file
-                        f = open(filepath, 'rb')
-                    except IOError:
-                        #if open fails report the error
-                        print "\nOpen Failed " + filepath + "\n"
-                        return
+                    #try:
+                    #    #Attempt to open the file
+                    #    f = open(filepath, 'rb')
+                    #except IOError:
+                    #    #if open fails report the error
+                    #    print "\nOpen Failed " + filepath + "\n"
+                    #    return
 
-                    try:
+                    #try:
+                    command = 'sha256sum ' + filepath
+                    status, log = commands.getstatusoutput(command)
+                    hexOfHash = log.split(' ')[0]
 
                         # Hash the file
-                        hash = hashlib.sha256()
+                        #hash = hashlib.sha256()
 
                         # Attempt to read the file and hash the contents
 
-                        rdBuffer = 'ok'
+                        #rdBuffer = 'ok'
 
-                        while len(rdBuffer):
-                            rdBuffer = f.read(ONE_MB)
-                            hash.update(rdBuffer)
+                        #while len(rdBuffer):
+                        #    rdBuffer = f.read(ONE_MB)
+                        #    hash.update(rdBuffer)
 
                         #File processing completed
                         #Close the Active File
-                        f.close()
+                        #f.close()
 
                         # Once complete obtain the hex digest
-                        hexOfHash = hash.hexdigest().upper()
+                        #hexOfHash = hash.hexdigest().upper()
 
-                    except IOError:
+                    #except IOError:
                         # if read fails, then close the file and report error
-                        f.close()
-                        print "\nFile Read Error " + filepath + " \n"
-                        return
+                        #f.close()
+                        #print "\nFile Read Error " + filepath + " \n"
+                        #return
 
                     #lets query the file stats
 
