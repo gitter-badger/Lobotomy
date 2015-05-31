@@ -1,31 +1,29 @@
-# README #
+# Lobotomy #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This readme will give you a brief introduction about Lobotomy and us.
 
-### What is this repository for? ###
+## What is Lobotomy? ##
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Lobotomy consists of a web front-end and several Python scripts to allow easier analysis of a memory image. It was made to save time, work with multiple researchers on the same data simultaneously and get to easily spot suspicious data using basic filters.
 
-### How do I get set up? ###
+## The 'Lobotomy Workflow' ##
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+### Yourjob ###
+* Create a memory image
+* Upload the image to Lobotomy
 
-### Contribution guidelines ###
+### Lobotomy's job ###
+* Lobotomy automatically detects a new image
+* Lobotomy calculates md5 and sha256 hashes for the image
+* Lobotomy determines the profile
+* Lobotomy starts up volatility plugins, bulk extractor and photorec
+* Lobotomy stores all output in a database
+* Lobotomy puts all extracted files in a seperate folder and calculates md5 and sha256 hashes
 
-* Writing tests
-* Code review
-* Other guidelines
+### Yourjob (continued) ###
+* Open your webbrowser and start analyzing the data
 
-### Who do I talk to? ###
+### Contributors ###
 
-* Repo owner or admin
-* Other community or team contact
-
-
+* Wim Venhuizen <wim@lobotomy.nl>
+* Jeroen Hagebeek <jeroen@lobotomy.nl>
