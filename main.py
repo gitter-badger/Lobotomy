@@ -139,13 +139,13 @@ class Lobotomy():
 
     def md5Checksum(self, filePath):
         # Verify that the path is valid
-        if os.path.exists(filepath):
+        if os.path.exists(filePath):
 
             #Verify that the path is not a symbolic link
-            if not os.path.islink(filepath):
+            if not os.path.islink(filePath):
 
                 #Verify that the file is real
-                if os.path.isfile(filepath):
+                if os.path.isfile(filePath):
 
                     # try:
                     #     #Attempt to open the file
