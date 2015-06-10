@@ -147,8 +147,8 @@ class MyEventHandler(pyinotify.ProcessEvent):
             #else:
             #    Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'imageinfo.py {}'.format(database), 1)
             Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'autostart.py {}'.format(database))
-        #except:
-            #pass
+        except:
+            print "Some error occured"
 
 def _main():
     # watch manager
