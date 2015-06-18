@@ -145,7 +145,7 @@ class MyEventHandler(pyinotify.ProcessEvent):
             print "Database update. caseid={}".format(case_id)
         #else:
         #    Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'imageinfo.py {}'.format(database), 1)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'autostart.py {}'.format(database))
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'autostart.py {}'.format(database), 2)
 
 def _main():
     # watch manager
