@@ -16,7 +16,7 @@ def main(database, offset):
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " -o " + offset + " > " + imagename +  "-" + plugin + "-" + offset + ".txt"
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " -o " + offset + " > " + imagename + "-" + plugin + "-" + offset + ".txt"
     
     if DEBUG:
         print "Write log: " + database + " ,Start: " + command

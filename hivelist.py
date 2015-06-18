@@ -17,7 +17,7 @@ def main(database):
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " > " + imagename + plugin + ".txt"
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " > " + imagename + "-" + plugin + ".txt"
     
     if DEBUG:
         print "Write log: " + database + " ,Start: " + command
@@ -42,9 +42,9 @@ def main(database):
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Start:  running plugin: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Start:  running plugin: " + plugin)
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Start:  running plugin: " + plugin)
 
-    with open(imagename + plugin + ".txt") as f:
+    with open(imagename + "-" + plugin + ".txt") as f:
         for hiveitem in f:
         
             # Hivelist om de offsets te verkrijgen
