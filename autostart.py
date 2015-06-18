@@ -35,7 +35,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'memtimeliner.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} pslist'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'pstree.py {}'.format(database), 2)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'pstotal.py {}'.format(database), 3)
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'pstotal.py {}'.format(database), 3)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'consoles.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdline.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hivelist.py {}'.format(database), 2)
@@ -47,7 +47,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psxview'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} atoms'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dlllist.py {}'.format(database))
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdscan.py {}'.format(database), 3)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdscan.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'ssdt.py {}'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getsids.py {}'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} driverscan'.format(database))
@@ -80,8 +80,6 @@ def autostart(database):
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} vadwalk'.format(database), 10)
-
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdscan.py {}'.format(database), 10)
 
     #if 'XP' in profile:
     if profile.startswith("WinXP"):
