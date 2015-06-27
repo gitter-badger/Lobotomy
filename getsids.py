@@ -70,7 +70,8 @@ def main(database):
                 print SQL_cmd
             else:
                 Lobotomy.exec_sql_query(SQL_cmd, database)
-                Lobotomy.plugin_stop('getsids', database)
+                Lobotomy.plugin_stop(plugin, database)
+                Lobotomy.plugin_pct(plugin, database, 100)
 
     Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
             

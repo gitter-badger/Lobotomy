@@ -43,40 +43,7 @@ def main(database, offset):
     else:
         Lobotomy.write_to_case_log(casedir,"Database: " + database + " Start:  running plugin: " + plugin)
 
-    #with open(imagename + plugin + ".txt") as f:
-    #    for hiveitem in f:
-    #    
-    #        # Hivelist om de offsets te verkrijgen
-    #        # Hivedump om de hivelistings te verkrijgen
-    #        # printkeys om door de hives te itereren.
-    #
-    #        # hivelist > memfor3nov.vmemhivelist.txt
-    #        #Virtual    Physical   Name
-    #        #---------- ---------- ----
-    #        #0xe2273008 0x1684c008 \Device\HarddiskVolume1\Documents and Settings\Chris Balt\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-    #        #0xe229f008 0x1687e008 \Device\HarddiskVolume1\Documents and Settings\Chris Balt\NTUSER.DAT
-    #
-    #        
-    #        SQL_cmd = 0
-    #        if hiveitem.startswith("0x"):
-    #            virtual, physical, hivefilepath = hiveitem.split(" ", 2)
-    #            virtual = MySQLdb.escape_string(virtual)
-    #            physical = MySQLdb.escape_string(physical)
-    #            #hivefilepath = hivefilepath.replace('\\', '\\\\').strip("\n")
-    #            hivefilepath = hivefilepath.strip("\n")
-    #            hivefilepath = MySQLdb.escape_string(hivefilepath)
-    #            SQL_cmd = "INSERT INTO hivelist VALUES (0, '{}', '{}', '{}')".format(virtual, physical, hivefilepath)
-    #            if DEBUG:
-    #                print SQL_cmd
-    #            else:
-    #                Lobotomy.exec_sql_query(SQL_cmd, database)
-    #                pass
-    #            command = "vol.py -f " + imagename + " --profile=" + imagetype + "  hivedump -o " + virtual + " >> " + imagename + "hivedump.txt"
-    #            os.system(command)
-    #            
-    #
-    #try:
-    with open(imagename +  "-" + plugin + "-" + offset + ".txt") as f:
+    with open(imagename + "-" + plugin + "-" + offset + ".txt") as f:
         for hiveitemkey in f:
             SQL_cmd = 0
             if not hiveitemkey.startswith("Last Written"):
@@ -98,6 +65,9 @@ def main(database, offset):
                     print SQL_cmd
                 else:
                     Lobotomy.exec_sql_query(SQL_cmd, database)
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
+
 
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"

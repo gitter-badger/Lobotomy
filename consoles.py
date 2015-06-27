@@ -58,6 +58,7 @@ def main(database):
     else:
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
         Lobotomy.plugin_stop('consoles', database)
+        Lobotomy.plugin_pct(plugin, database, 100)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

@@ -66,12 +66,9 @@ def main(database):
             SQL_cmd = "0, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}". \
                 format(regel[3], regel[1], regel[5], regel[7], regel[9], regel[11], regel[13], regel[15], regel[17],
                        regel[19], regel[21], regel[22], regel[23], regel[24], regel[25], regel[26])
-#            Lobotomy.write_to_main_log(database, " Start: running plugin: CMDScan")
-#            Lobotomy.write_to_case_log(casedir, " Start: running plugin: CMDScan")
             input_sql(database, SQL_cmd)
-#            Lobotomy.write_to_main_log(database, " Stop : running plugin: CMDScan")
-#            Lobotomy.write_to_case_log(casedir, " Stop : running plugin: CMDScan")
     Lobotomy.plugin_stop('cmdscan', database)
+    Lobotomy.plugin_pct(plugin, database, 100)
 
 
 def input_sql(database, SQL_cmd):
