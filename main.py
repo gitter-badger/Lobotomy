@@ -127,16 +127,6 @@ class Lobotomy():
         sql.commit()
         sql.close()
 
-    #def md5Checksum(self, filePath):
-    #    with open(filePath, 'rb') as fh:
-    #        m = hashlib.md5()
-    #        while True:
-    #            data = fh.read(8192)
-    #            if not data:
-    #                break
-    #            m.update(data)
-    #        return m.hexdigest()
-
     def md5Checksum(self, filePath):
         # Verify that the path is valid
         if os.path.exists(filePath):
@@ -146,32 +136,10 @@ class Lobotomy():
 
                 #Verify that the file is real
                 if os.path.isfile(filePath):
-
-                    # try:
-                    #     #Attempt to open the file
-                    #     f = open(filepath, 'rb')
-                    # except IOError:
-                    #     #if open fails report the error
-                    #     print "\nOpen Failed " + filepath + "\n"
-                    #     return
-
-                    #try:
                     command = 'md5sum ' + filePath
                     status, log = commands.getstatusoutput(command)
                     return log.split(' ')[0]
-                        #with open(filePath, 'rb') as fh:
-                        #    m = hashlib.md5()
-                        #    while True:
-                        #        data = fh.read(8192)
-                        #        if not data:
-                        #            break
-                        #        m.update(data)
-                        #    return m.hexdigest()
-                    # except IOError:
-                    #     # if read fails, then close the file and report error
-                    #     f.close()
-                    #     print "\nFile Read Error " + filepath + " \n"
-                    #     return
+
                 else:
                     print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
                     return False
@@ -193,50 +161,13 @@ class Lobotomy():
                 #Verify that the file is real
                 if os.path.isfile(filepath):
 
-                    #try:
-                    #    #Attempt to open the file
-                    #    f = open(filepath, 'rb')
-                    #except IOError:
-                    #    #if open fails report the error
-                    #    print "\nOpen Failed " + filepath + "\n"
-                    #    return
-
-                    #try:
                     command = 'sha256sum ' + filepath
                     status, log = commands.getstatusoutput(command)
                     hexOfHash = log.split(' ')[0]
 
-                        # Hash the file
-                        #hash = hashlib.sha256()
-
-                        # Attempt to read the file and hash the contents
-
-                        #rdBuffer = 'ok'
-
-                        #while len(rdBuffer):
-                        #    rdBuffer = f.read(ONE_MB)
-                        #    hash.update(rdBuffer)
-
-                        #File processing completed
-                        #Close the Active File
-                        #f.close()
-
-                        # Once complete obtain the hex digest
-                        #hexOfHash = hash.hexdigest().upper()
-
-                    #except IOError:
-                        # if read fails, then close the file and report error
-                        #f.close()
-                        #print "\nFile Read Error " + filepath + " \n"
-                        #return
-
-                    #lets query the file stats
-
-                    #theFileStats = os.stat(filepath)
                     (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(filepath)
 
                     return hexOfHash, mtime, atime, ctime, size
-                    #return True
 
                 else:
                     print '[' + repr(simpleName) + ", Skipped Not a File" + ']'
@@ -301,6 +232,8 @@ class Lobotomy():
         return settings
 
     def plugin_start(self, plugin, database):
+        if self.exec_sql_query("SELECT name FROM plugins where name='{}'".format(plugin), database) == 'None':
+            self.exec_sql_query("INSERT INTO plugins VALUES (0, '{}', 0, 0, 0, 0)".format(plugin), database)
         self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
 
     def plugin_stop(self, plugin, database):
