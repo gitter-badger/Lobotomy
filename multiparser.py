@@ -21,6 +21,7 @@ def multiparser(database, plugin):
     allowed_plugings = allowed_plugings.split(",")
     if plugin in allowed_plugings:
         Lobotomy.plugin_start(plugin, database)
+        Lobotomy.plugin_pct(plugin, database, 1)
         case_settings = Lobotomy.get_settings(database)
         imagename = case_settings["filepath"]
         imagetype = case_settings["profile"]
@@ -77,6 +78,7 @@ def multiparser(database, plugin):
                     Lobotomy.exec_sql_query(sql_line, database)
             Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
             Lobotomy.plugin_stop(plugin, database)
+            Lobotomy.plugin_pct(plugin, database, 100)
     else:
         print "plugin " + sys.argv[2] + " not supported"
         print "Usage: multiparser.py [Database] [plugin]"
