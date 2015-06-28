@@ -8,12 +8,13 @@ import sys
 import os
 import main
 Lobotomy = main.Lobotomy()
+plugin = "cmdscan"
 
 DEBUG = False
 
 
 def main(database):
-    Lobotomy.plugin_start('cmdscan', database)
+    Lobotomy.plugin_start(plugin, database)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -67,7 +68,7 @@ def main(database):
                 format(regel[3], regel[1], regel[5], regel[7], regel[9], regel[11], regel[13], regel[15], regel[17],
                        regel[19], regel[21], regel[22], regel[23], regel[24], regel[25], regel[26])
             input_sql(database, SQL_cmd)
-    Lobotomy.plugin_stop('cmdscan', database)
+    Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
 
 
@@ -79,6 +80,6 @@ def input_sql(database, SQL_cmd):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print "Usage: cmdscanvar.py [databasename]"
+        print "Usage: cmdscan.py [databasename]"
     else:
         main(sys.argv[1])
