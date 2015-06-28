@@ -80,6 +80,6 @@ def input_sql(database, SQL_cmd):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print "Usage: cmdscan.py [databasename]"
+        print "Usage: " + plugin + ".py <databasename>"
     else:
         main(sys.argv[1])
