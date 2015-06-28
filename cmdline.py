@@ -52,7 +52,7 @@ def main(database):
                 pid = line.split(":")[1].strip(" ").strip("\n")
                 p = 1
             if line.startswith("Command line :"):
-                commandline = line.split(":",1)[1].strip("\n")
+                commandline = line.split(":", 1)[1].strip("\n")
                 commandline = commandline.replace('\\', '\\\\')
 
                 cmd = 1
