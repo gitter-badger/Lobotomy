@@ -236,7 +236,11 @@ class Lobotomy():
         try:
             self.exec_sql_query("SELECT * FROM {}".format(plugin), database)
         except:
-            self.exec_sql_query("CREATE TABLE {}.{} SELECT * from template.{}".format(database, plugin, plugin), database)
+            execute = "mysqldump -u {} -p{} template {} | mysql -u {} -p{} {}".format(self.mysql[1], self.mysql[2], plugin, self.mysql[1], self.mysql[2], database)
+            try:
+                os.system(execute)
+            except:
+                print "------ ERROR while populating database! ------"
 
         # Test if running plugin is in table plugins
         data = None
@@ -250,7 +254,8 @@ class Lobotomy():
         except:
             self.exec_sql_query("INSERT INTO plugins VALUES (0, '{}', 0, 0, 0, 0)".format(plugin), database)
 
-        # Set plugin start time
+        self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
+
         self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
 
     def plugin_stop(self, plugin, database):
