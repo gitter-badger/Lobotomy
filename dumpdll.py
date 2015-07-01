@@ -17,7 +17,8 @@ DEBUG = False
 
 
 def main(database):
-    Lobotomy.plugin_start('dlldump', database)
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -140,7 +141,8 @@ def main(database):
     else:
         Lobotomy.write_to_main_log(database, " Stop : " + command)
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  Parsing volatility output: " + plugin)
-        Lobotomy.plugin_stop('dlldump', database)
+        Lobotomy.plugin_stop(plugin, database)
+        Lobotomy.plugin_pct(plugin, database, 100)
 
     
 if __name__ == "__main__":

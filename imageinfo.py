@@ -19,12 +19,14 @@ import re
 import sys
 import time
 import main
-
+plugin = 'imageinfo'
 Lobotomy = main.Lobotomy()
 
 
 def imageinfo(database):
     settings = Lobotomy.get_settings(database)
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     Lobotomy.write_to_main_log(database, "Starting 'imageinfo' plugin...")
     Lobotomy.write_to_case_log(settings['directory'], "Starting 'imageinfo' plugin...")
     command = 'vol.py -f "{}" imageinfo > {}/imageinfo.txt'.format(settings['filepath'], settings['directory'])
@@ -60,6 +62,9 @@ def imageinfo(database):
                 count = 1
     Lobotomy.write_to_case_log(settings['directory'], "Stopping 'imageinfo' plugin...")
     Lobotomy.write_to_main_log(database, "Stopping 'imageinfo' plugin...")
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

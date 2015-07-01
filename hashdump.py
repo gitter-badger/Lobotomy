@@ -14,7 +14,8 @@ DEBUG = False
 
 
 def main(database):
-    Lobotomy.plugin_start('hashdump', database)
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]

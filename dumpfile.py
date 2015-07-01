@@ -12,6 +12,7 @@ DEBUG = False
 
 def main(database):
     case_settings = Lobotomy.get_settings(database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
@@ -104,6 +105,8 @@ def main(database):
     else:
         Lobotomy.write_to_main_log(database, " Stop : " + command)
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  Running Bulk_Extractor: " + plugin)
+        Lobotomy.plugin_stop(plugin, database)
+        Lobotomy.plugin_pct(plugin, database, 100)
 
     
 if __name__ == "__main__":

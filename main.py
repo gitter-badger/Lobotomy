@@ -232,6 +232,13 @@ class Lobotomy():
         return settings
 
     def plugin_start(self, plugin, database):
+        # Test if database.table exists
+        try:
+            self.exec_sql_query("select * FROM {}".format(plugin), database)
+        except:
+            self.exec_sql_query("CREATE TABLE {}.{} SELECT * from template.{}".format(database, plugin, plugin), database)
+
+        # Test if database.plugin.value exists
         if self.exec_sql_query("SELECT name FROM plugins where name='{}'".format(plugin), database) == 'None':
             self.exec_sql_query("INSERT INTO plugins VALUES (0, '{}', 0, 0, 0, 0)".format(plugin), database)
         self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
@@ -240,4 +247,4 @@ class Lobotomy():
         self.exec_sql_query("UPDATE plugins SET stopped=NOW(), `status`=1 WHERE `name`='{}'".format(plugin), database)
 
     def plugin_pct(self, plugin, database, pct):
-        self.exec_sql_query("UPDATE plugins SET pct={} WHERE name='{}'".format(pct, plugin), database)
+        self.exec_sql_query("UPDATE plugins SET pct='{}' WHERE `name`='{}'".format(pct, plugin), database)

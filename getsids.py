@@ -9,13 +9,15 @@ import sys
 import os
 import main
 Lobotomy = main.Lobotomy()
+plugin = 'getsids'
 
 DEBUG = False
 
 
 def main(database):
-    Lobotomy.plugin_start('getsids', database)
     plugin = "getsids"
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -77,6 +79,6 @@ def main(database):
             
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print "Usage: getsids.py [databasename]"
+        print "Usage: " + plugin + ".py <databasename>"
     else:
         main(sys.argv[1])
