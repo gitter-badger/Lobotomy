@@ -234,13 +234,23 @@ class Lobotomy():
     def plugin_start(self, plugin, database):
         # Test if database.table exists
         try:
-            self.exec_sql_query("select * FROM {}".format(plugin), database)
+            self.exec_sql_query("SELECT * FROM {}".format(plugin), database)
         except:
             self.exec_sql_query("CREATE TABLE {}.{} SELECT * from template.{}".format(database, plugin, plugin), database)
 
-        # Test if database.plugin.value exists
-        if self.exec_sql_query("SELECT name FROM plugins where name='{}'".format(plugin), database) == 'None':
+        # Test if running plugin is in table plugins
+        data = None
+        sql = MySQLdb.connect(self.mysql[0], self.mysql[1], self.mysql[2], database)
+        cur = sql.cursor()
+        cur.execute("SELECT name FROM plugins where name='{}'".format(plugin))
+        data = cur.fetchone()
+        try:
+            if plugin not in data:
+                pass
+        except:
             self.exec_sql_query("INSERT INTO plugins VALUES (0, '{}', 0, 0, 0, 0)".format(plugin), database)
+
+        # Set plugin start time
         self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
 
     def plugin_stop(self, plugin, database):
