@@ -21,14 +21,7 @@ def main(database):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
 
-    try:
-        log = ""
-        status, log = commands.getstatusoutput("mkdir " + dumpdir)
-        Lobotomy.write_to_main_log(database, " mkdir: " + log)
-        Lobotomy.write_to_case_log(casedir, " mkdir: " + log)
-    except:
-        pass
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin 
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin
     
     if DEBUG:
         print "Write log: " + database + ", Start: " + command
