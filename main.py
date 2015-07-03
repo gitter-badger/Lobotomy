@@ -278,3 +278,21 @@ class Lobotomy():
             return data
         else:
             return None
+
+    def get_databasedata(self, kolom, plugin, database):
+        try:
+            self.exec_sql_query("SELECT " + kolom + " FROM " + plugin, database)
+        except:
+            print "------ ERROR reading autostart! ------"
+            return None
+
+        # Test if running plugin is in table plugins
+        data = None
+        sql = MySQLdb.connect(self.mysql[0], self.mysql[1], self.mysql[2], database)
+        cur = sql.cursor()
+        cur.execute("SELECT " + kolom + " FROM " + plugin)
+        data = cur.fetchall()
+        if data is not None:
+            return data
+        else:
+            return None
