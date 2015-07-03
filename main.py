@@ -256,8 +256,6 @@ class Lobotomy():
 
         self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
 
-        self.exec_sql_query("UPDATE plugins SET started=NOW(), `status`=2 WHERE `name`='{}'".format(plugin), database)
-
     def plugin_stop(self, plugin, database):
         self.exec_sql_query("UPDATE plugins SET stopped=NOW(), `status`=1 WHERE `name`='{}'".format(plugin), database)
 
