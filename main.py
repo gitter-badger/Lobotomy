@@ -263,3 +263,20 @@ class Lobotomy():
 
     def plugin_pct(self, plugin, database, pct):
         self.exec_sql_query("UPDATE plugins SET pct='{}' WHERE `name`='{}'".format(pct, plugin), database)
+
+    def autostart_data(self, database):
+        try:
+            self.exec_sql_query("SELECT * FROM `autostart`", database)
+        except:
+            print "------ ERROR reading autostart! ------"
+
+        # Test if running plugin is in table plugins
+        data = None
+        sql = MySQLdb.connect(self.mysql[0], self.mysql[1], self.mysql[2], database)
+        cur = sql.cursor()
+        cur.execute("SELECT * FROM `autostart`")
+        data = cur.fetchall()
+        if data is not None:
+            return data
+        else:
+            return None

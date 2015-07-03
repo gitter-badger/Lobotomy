@@ -30,25 +30,17 @@ def autostart(database):
     """
 
     autostart_db = Lobotomy.autostart_data('template')
-    autorun_command = []
     for row in autostart_db:
         if row[3] == 1:
             try:
-                tmp = {}
                 profile_db = row[5].split('|')
                 for row_profile in profile_db:
                     if profile in row_profile:
-                        tmp[row[1]] = row[2]
-                        autorun_command.append(tmp)
+                        command = row[2].replace('#', database)
+                        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + command, row[6])
             except:
                 pass
 
-    for tmp in autorun_command:
-        for key, value in tmp.iteritems():
-            value = value.replace('#', database)
-            print 'Running plugin: {}\nFrom image: {}\nUsing command: {}'.format(key, database, value)
-            command = 'python ' + value
-            print command
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
