@@ -96,8 +96,7 @@ def main(database, folder):
             except:
                 string = ''
             try:
-                sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}'".format(filename, offset, description, \
-                    string, yara, yara_description + "')")[:-1]
+                sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}'".format(filename, offset, description, string, yara, yara_description + "')")[:-1]
                 Lobotomy.exec_sql_query(sql_line, database)
                 Lobotomy.plugin_pct(plugin, database, pct)
                 counter = 0
