@@ -54,7 +54,6 @@ def do_work(sample_path):
             'tag'               : tag
             }
 
-            print "*****"
             print "fullfilename " + sample_path.split(':')[0]
             for key, value in sample_info.iteritems():
                 print key, value
@@ -67,7 +66,7 @@ def do_work(sample_path):
             #    print "Sample stored and moved:\t",
             #else:
             #    print "Sample stored not moved:\t",
-            print general_info.get_filename()
+            #print general_info.get_filename()
 
 
         # else:
