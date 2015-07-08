@@ -14,7 +14,7 @@ import main
 import commands
 
 Lobotomy = main.Lobotomy()
-plugin = "Yarascan"
+plugin = "yarascan"
 
 DEBUG = False
 
