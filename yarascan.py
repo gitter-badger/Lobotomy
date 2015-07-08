@@ -65,6 +65,7 @@ def main(database, folder):
     count = 0
     b = ''
     c = ''
+    sql_line = ''
     sql_prefix = "INSERT INTO yarascan VALUES (0, "
 
     for item in log.split('\n'):
