@@ -19,20 +19,67 @@ plugin = "Yarascan"
 DEBUG = False
 
 
-def main(database, filename):
-    command = "yara /home/solvent/lob_scripts/yara_rules/index.yara " + filename + " -m -s"
-    print "Running yarascan on file: " + filename
-    log = ""
-    status, log = commands.getstatusoutput(command)
+def main(database, folder):
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
+    case_settings = Lobotomy.get_settings(database)
+    imagename = case_settings["filepath"]
+    imagetype = case_settings["profile"]
+    casedir = case_settings["directory"]
+
+    command = "yara yara_rules/index.yara " + folder + " -m -s"
+
+    if DEBUG:
+        print "Write log: " + database + ", Start: " + command
+        print "Write log: " + casedir + ", Start: " + command
+    else:
+        Lobotomy.write_to_main_log(database, " Start: " + command)
+        Lobotomy.write_to_case_log(casedir, " Start: " + command)
+
+    if DEBUG:
+        print command
+    else:
+        print "Running yarascan on folder: " + folder
+        log = ""
+        status, log = commands.getstatusoutput(command)
+    if DEBUG:
+        print "Write log: " + database + " Stop: " + command
+        print "Write log: " + casedir + " Stop: " + command
+    else:
+        Lobotomy.write_to_case_log(casedir, " Stop : " + command)
+
+    if DEBUG:
+        print "Write log: (" + casedir + ", Database: " + database + " Start: Parsing Yara output: " + plugin + ")"
+    else:
+        Lobotomy.write_to_case_log(casedir, " Database: " + database + " Start: Parsing Yara output: " + plugin)
+
+    try:
+        logcounter = 0
+        for loglines in log.split('\n'):
+            if folder in loglines:
+                logcounter += 1
+    except:
+        pass
+
     counter = 0
+    count = 0
     b = ''
     c = ''
+    sql_prefix = "INSERT INTO yarascan VALUES (0, "
+
     for item in log.split('\n'):
-        if item.endswith(filename):
+        try:
+            pct = str(float(1.0 * count / logcounter) * 99).split(".")[0]
+        except:
+            pass
+        if folder in item:
+            count += 1
             counter += 1
-            b = item.split('[')[0]
+            yara = item.split('[')[0]
             if 'description' in item:
-                c = item[int(item.find('description')+13):].split('"')[0]
+                start = int(item.find('description')+13)
+                yara_description = item[start:].split('"')[0]
+                filename = "/" + item.split('/', 1)[1].replace('//', '/')
         else:
             a = item.split(':')
             try:
@@ -40,46 +87,28 @@ def main(database, filename):
             except:
                 offset = ''
             try:
-                decription = a[1]
+                description = a[1]
             except:
-                decription = ''
+                description = ''
             try:
                 string = a[2]
             except:
                 string = ''
-            print filename, offset, decription, string, b, c
-
+            try:
+                sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}'".format(filename, offset, description, \
+                    string, yara, yara_description + "')")[:-1]
+                Lobotomy.exec_sql_query(sql_line, database)
+                Lobotomy.plugin_pct(plugin, database, pct)
+                counter = 0
+            except:
+                print 'Error sql query: ' + sql_line + " - " + database
+                counter = 0
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print "Usage: " + plugin + ".py <databasename> filename"
+        print "Usage: " + plugin + ".py <database> <folder>"
     else:
         main(sys.argv[1], sys.argv[2])
 
-# solvent@lobotomy:~/lob_scripts/ZooKeeper-master$ yara /home/solvent/lob_scripts/ZooKeeper-master/data/yara_rules/index.yara /home/solvent/dumps/9XYG67O08Z3T/photorec_dump.1/f0183240.dll -m -s
-# embedded_macho [author="nex",description="Contains an embedded Mach-O file"] /home/solvent/dumps/9XYG67O08Z3T/photorec_dump.1/f0183240.dll
-# 0x10382:$magic1: CA FE BA BE
-# 0x1056f:$magic1: CA FE BA BE
-# 0x10973:$magic1: CA FE BA BE
-# 0x10f2a:$magic1: CA FE BA BE
-# 0x21d9a:$magic1: CA FE BA BE
-# 0x22875:$magic1: CA FE BA BE
-# 0x22d92:$magic1: CA FE BA BE
-# 0x236b5:$magic1: CA FE BA BE
-# 0x2c41b:$magic1: CA FE BA BE
-# 0x2c773:$magic1: CA FE BA BE
-# 0x33bf8:$magic1: CA FE BA BE
-# 0x3d6ce:$magic1: CA FE BA BE
-# Stuxnet [description="Stuxnet",author="Wim Venhuizen",last_modified="2015-07-06"] /home/solvent/dumps/9XYG67O08Z3T/photorec_dump.1/f0183240.dll
-# 0x25dc3:$string1: mrx
-# 0x2623f:$string1: mrx
-# 0x26529:$string1: mrx
-# 0x26937:$string1: mrx
-# 0xd44a:$file4: oem7A.PNF
-# 0xd4f4:$file4: oem7A.PNF
-# 0xd5a2:$file4: oem7A.PNF
-# 0xd644:$file4: oem7A.PNF
-# 0x25dc3:$file6: mrxcls.sys
-# 0x2623f:$file6: mrxcls.sys
-# 0x26529:$file6: mrxcls.sys
-# 0x26937:$file6: mrxcls.sys
