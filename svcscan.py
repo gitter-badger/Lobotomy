@@ -149,11 +149,9 @@ def run_main(database):
                 db_service_state,
                 db_binary_path + "')")[:-1]
 
-            # sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}'".\
-            #     format(fullfilename, original_filename, pe_compiletime, pe_packer, filetype, pe_language, pe_dll,
-            #            filename, md5, sha, pehash, tag, filesize, yara_results + "')")[:-1]
             try:
                 Lobotomy.exec_sql_query(sql_line, database)
+                Lobotomy.plugin_pct(plugin, database, pct)
             except:
                 print 'Error sql query: ' + sql_line + " - " + database
 
