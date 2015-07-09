@@ -60,9 +60,10 @@ def main(database):
             sql_line = sql_line[:-1] + ")"
             try:
                 Lobotomy.exec_sql_query(sql_line, database)
-                Lobotomy.plugin_pct(plugin, database, 100)
             except:
                 print 'Error sql query: ' + sql_line + " - " + database
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
