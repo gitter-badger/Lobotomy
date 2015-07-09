@@ -23,6 +23,11 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Eerste volledige Testrun
 # Stuxnet truncate op 255 tekens op kolom waarde, ophogen naar 512. aanpassen in (template) database.
 # Error parse-ing file: /srv/lobotomy/dump/9XYG67O08Z3T/pr_dump.1/f0215056.exe
+# Date:             09-07-2015:
+# Edited:           W Venhuizen
+# Plugin naam was fout opgegeven, waardoor in de tabel plugins niet de juiste waarde werdt gezet.
+# Fix voor plugin end time
+
 
 import sys
 import os
@@ -33,7 +38,7 @@ import glob
 from dateutil.parser import parse
 
 Lobotomy = main.Lobotomy()
-plugin = "PhotoRec"
+plugin = "photorec"
 
 
 DEBUG = False
@@ -68,9 +73,9 @@ def main(database):
         Lobotomy.write_to_case_log(casedir, " Start: " + command)
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Start: Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Start: Running: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start: Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start: Running: " + plugin)
 
     if DEBUG:
         print command
@@ -83,9 +88,9 @@ def main(database):
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(5)
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Stop: Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Stop: Running: " + plugin)
 
     if DEBUG:
         print "Write log: " + database + " Stop: " + command
@@ -94,10 +99,10 @@ def main(database):
         Lobotomy.write_to_case_log(casedir, " Stop : " + command)
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running PhotoRec: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Stop: Running: " + plugin + ")"
     else:
         Lobotomy.write_to_main_log(database, " Stop : " + command)
-        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop: Running PhotoRec: " + plugin)
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop: Running: " + plugin)
 
     counter = 0
     with open(casedir + "/photorec.log") as f:
@@ -179,6 +184,7 @@ def main(database):
                         pass
                     pcttmp = pct
 
+    Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(100)
     
