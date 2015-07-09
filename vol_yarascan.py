@@ -17,8 +17,8 @@ DEBUG = False
 
 
 def run_main(database, yararule):
-    Lobotomy.plugin_start(plugin, database)
-    Lobotomy.plugin_pct(plugin, database, 1)
+    Lobotomy.plugin_start('volatility_' + plugin, database)
+    Lobotomy.plugin_pct('volatility_' + plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -53,9 +53,9 @@ def run_main(database, yararule):
         pass
 
     if DEBUG:
-        print "Write log: (" + casedir + ", Database: " + database + " Start: Parsing " + plugin + " output: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Start: Parsing " + plugin + " output: " + 'volatility_' + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir, " Database: " + database + " Start: Parsing " + plugin + " output: " + plugin)
+        Lobotomy.write_to_case_log(casedir, " Database: " + database + " Start: Parsing " + plugin + " output: " + 'volatility_' + plugin)
 
     sql_prefix = "INSERT INTO volatility_" + plugin + " VALUES (0, "
     sql_line = ''
@@ -80,7 +80,7 @@ def run_main(database, yararule):
         pass
 
     lines = log.split('\n')
-    print 'Parsing ' + plugin + ' data...'
+    print 'Parsing ' + 'volatility_' + plugin + ' data...'
     for line in lines:
         if not line.startswith('Volatility Foundation Volatility Framework'):
             try:
@@ -134,7 +134,7 @@ def run_main(database, yararule):
 
                 try:
                     Lobotomy.exec_sql_query(sql_line, database)
-                    Lobotomy.plugin_pct(plugin, database, pct)
+                    Lobotomy.plugin_pct('volatility_' + plugin, database, pct)
                 except:
                     print 'Error sql query: ' + sql_line + " - " + database
 
@@ -146,8 +146,8 @@ def run_main(database, yararule):
                 db_data_bytes = ''
                 db_data_txt = ''
 
-    Lobotomy.plugin_stop(plugin, database)
-    Lobotomy.plugin_pct(plugin, database, 100)
+    Lobotomy.plugin_stop('volatility_' + plugin, database)
+    Lobotomy.plugin_pct('volatility_' + plugin, database, 100)
 
 
 if __name__ == "__main__":
