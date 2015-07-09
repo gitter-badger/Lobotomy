@@ -27,6 +27,8 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Edited:           W Venhuizen
 # Plugin naam was fout opgegeven, waardoor in de tabel plugins niet de juiste waarde werdt gezet.
 # Fix voor plugin end time
+# Plugin Exifinfo meegenomen in de start-stop push naar de database.
+# in voorkomend geval zou het kunnen zijn dat de tabel exifinfo niet zichtbaar is, omdat de waarde mist in tabel plugin.
 
 
 import sys
@@ -51,8 +53,10 @@ def main(database):
     casedir = case_settings["directory"]
     dumpdir = casedir + "/photorec_dump"
     pct = 0
-
+    Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_start('exifinfo', database)
     Lobotomy.plugin_pct(plugin, database, 0)
+
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
 
     try:
@@ -185,6 +189,8 @@ def main(database):
                     pcttmp = pct
 
     Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_stop('exifinfo', database)
+    Lobotomy.plugin_pct('exifinfo', database, 100)
     Lobotomy.plugin_pct(plugin, database, 100)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(100)
     
