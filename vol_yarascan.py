@@ -24,8 +24,7 @@ def run_main(database, yararule):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
 
-
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + ' --yara-file=yara_rules/' + yararule
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + ' --yara-file=' + Lobotomy.yararules + yararule
     if DEBUG:
         print "Write log: " + database + ", Start: " + command
         print "Write log: " + casedir + ", Start: " + command
@@ -89,6 +88,32 @@ def run_main(database, yararule):
                 pass
             count += 1
 
+            if line.startswith('Rule:') and db_data_txt != '':
+                db_data_txt = db_data_txt.replace("'", "|").replace("`", "|").replace('"', '|')
+                sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}', '{}'".\
+                    format(
+                    db_rule,
+                    db_owner,
+                    db_owner_name,
+                    db_pid,
+                    db_data_offset,
+                    db_data_bytes,
+                    db_data_txt + "')")[:-1]
+
+                try:
+                    Lobotomy.exec_sql_query(sql_line, database)
+                    Lobotomy.plugin_pct('volatility_' + plugin, database, pct)
+                except:
+                    print 'Error sql query: ' + sql_line + " - " + database
+
+                db_rule = ''
+                db_owner = ''
+                db_owner_name = ''
+                db_pid = ''
+                db_data_offset = ''
+                db_data_bytes = ''
+                db_data_txt = ''
+
             if line.startswith('Rule:'):
                 blob = 0
                 try:
@@ -120,31 +145,6 @@ def run_main(database, yararule):
                     db_data_txt = db_data_txt + line[62:79] + "\n"
                 except:
                     pass
-
-            if line.startswith('Rule:') and db_data_txt != '':
-                sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}', '{}'".\
-                    format(
-                    db_rule,
-                    db_owner,
-                    db_owner_name,
-                    db_pid,
-                    db_data_offset,
-                    db_data_bytes,
-                    db_data_txt + "')")[:-1]
-
-                try:
-                    Lobotomy.exec_sql_query(sql_line, database)
-                    Lobotomy.plugin_pct('volatility_' + plugin, database, pct)
-                except:
-                    print 'Error sql query: ' + sql_line + " - " + database
-
-                db_rule = ''
-                db_owner = ''
-                db_owner_name = ''
-                db_pid = ''
-                db_data_offset = ''
-                db_data_bytes = ''
-                db_data_txt = ''
 
     Lobotomy.plugin_stop('volatility_' + plugin, database)
     Lobotomy.plugin_pct('volatility_' + plugin, database, 100)
