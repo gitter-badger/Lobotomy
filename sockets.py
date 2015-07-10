@@ -14,6 +14,7 @@ DEBUG = False
 
 def main(database):
     Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -77,7 +78,7 @@ def main(database):
                 if linestarts == 1 and memtype != "":
                     offset = line[0:10].strip(" ")
                     pid = line[11:19].strip(" ")
-                    port = line[20:25].strip(" ")
+                    port = line[20:26].strip(" ")
                     proto = line[26:34].strip(" ")
                     protocol = line[34:49].strip(" ")
                     adress = line[50:66].strip(" ")
@@ -106,7 +107,7 @@ def main(database):
                 if linestarts == 1 and memtype != "":
                     offset = line[0:10].strip(" ")
                     pid = line[11:19].strip(" ")
-                    port = line[20:25].strip(" ")
+                    port = line[20:26].strip(" ")
                     proto = line[26:34].strip(" ")
                     protocol = line[34:49].strip(" ")
                     adress = line[50:66].strip(" ")
@@ -129,7 +130,8 @@ def main(database):
         print "Write log: (" + casedir + ", Database: " + database + " Stop:  running plugin: " + plugin + ")"
     else:
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
-        Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
 
         
 if __name__ == "__main__":
