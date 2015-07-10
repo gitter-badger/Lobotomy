@@ -24,6 +24,7 @@ def run_main(database, yararule):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
 
+
     command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + ' --yara-file=' + Lobotomy.yararules + yararule
     if DEBUG:
         print "Write log: " + database + ", Start: " + command
@@ -89,7 +90,7 @@ def run_main(database, yararule):
             count += 1
 
             if line.startswith('Rule:') and db_data_txt != '':
-                db_data_txt = db_data_txt.replace("'", "|").replace("`", "|").replace('"', '|')
+                db_data_txt = db_data_txt.replace("'", "\\'").replace("`", "\`").replace('"', '\\"')
                 sql_line = sql_prefix + "'{}', '{}', '{}', '{}', '{}', '{}', '{}'".\
                     format(
                     db_rule,
