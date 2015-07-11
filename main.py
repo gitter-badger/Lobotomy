@@ -27,6 +27,7 @@ class Lobotomy():
                       'Fwgs91VpfRRH22K',  # Password
                       'template']  # Database
         self.logfile = '/home/solvent/lobotomy.log'  # What logfile to use
+        self.yararules = self.plugin_dir + 'yara_rules/'
         self.caselog = 'lobotomy.log'  # Filename to use for case log
 
     def write_to_main_log(self, database, message):
