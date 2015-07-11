@@ -6,7 +6,7 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Edited:           W Venhuizen
 #
 # Date:             06-05-2015:
-# Eerste opzet yarascan voor lobotomy.
+# Eerste opzet PE_Scanner voor lobotomy.
 #
 
 import os
@@ -21,8 +21,10 @@ DEBUG = False
 
 
 def main(database, folder):
-    Lobotomy.plugin_start(plugin, database)
-    Lobotomy.plugin_pct(plugin, database, 1)
+    Lobotomy.plugin_start('pe_scanner_beta', database)
+    #Lobotomy.plugin_start(plugin, database)
+    Lobotomy.plugin_pct('pe_scanner_beta', database, 1)
+    #Lobotomy.plugin_pct(plugin, database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -59,6 +61,15 @@ def main(database, folder):
                                 log = log.replace("'", "\\'").replace("`", "\`").replace('"', '\\"')
                                 sql_line = sql_prefix + "'{}', '{}''".format(filenaam, log + "')")[:-2]
                                 Lobotomy.exec_sql_query(sql_line, database)
+                                Lobotomy.plugin_pct('pe_scanner_beta', database, pct)
+                                #Lobotomy.plugin_pct(plugin, database, pct)
+
+
+
+    Lobotomy.plugin_stop('pe_scanner_beta', database)
+    Lobotomy.plugin_pct('pe_scanner_beta', database, 100)
+    # Lobotomy.plugin_stop(plugin, database)
+    # Lobotomy.plugin_pct(plugin, database, 100)
 
 
     #
