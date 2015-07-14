@@ -2,6 +2,9 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
 #   19-02   WV: Aanpassen filenaam en opschonen code.
 #
+#   14-07   WV: Fixen: Bij een volgend process werden de gegevens van het vorige process niet gescoond,
+#               waardoor er verkeerde waarde in de database geplaatst word.
+#
 
 import sys
 import os
@@ -54,11 +57,21 @@ def main(database):
     size = ""
     loadcount = ""
     path = ""
+    counter = 0
+    count = 0
 
     try:
         with open(imagename + "-" + plugin + ".txt") as f:
             for line in f:
+                counter += 1
+    except:
+        pass
 
+    try:
+        with open(imagename + "-" + plugin + ".txt") as f:
+            for line in f:
+                count += 1
+                pct = str(float(1.0 * count / counter) * 99).split(".")[0]
                 if line.startswith("**********************"):
                     linenr = 0
                     dll = 0
@@ -69,6 +82,19 @@ def main(database):
                         proc = a.split(" ")[0]
                         pid = b.strip(" ").strip("\n")
                     if linenr == 2:
+                        if line.startswith('Unable to read PEB for task'):
+                            cmd = line.strip('\n')
+                            SQL_cmd = "INSERT INTO dlllist VALUES (0, '{}', '{}', '{}', '', '', '', '', '')".\
+                            format(proc, pid, cmd)
+                            if DEBUG:
+                                print SQL_cmd
+                            else:
+                                Lobotomy.exec_sql_query(SQL_cmd, database)
+                                Lobotomy.plugin_pct(plugin, database, pct)
+                                base = ''
+                                size = ''
+                                loadcount = ''
+                                path = ''
                         if line.startswith("Command"):
                             cmd = line.split(": ")[1].strip("\n")
                         else:
@@ -87,12 +113,18 @@ def main(database):
                         path = path.replace('\\', '\\\\')
                     if line.startswith("----------"):
                         dll = 1
-                    if proc != "" and dll == 1:
-                        SQL_cmd = "INSERT INTO dlllist VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(proc, pid, cmd, sp, base, size, loadcount, path)
+                    if proc != "" and dll == 1 and path != '':
+                        SQL_cmd = "INSERT INTO dlllist VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".\
+                            format(proc, pid, cmd, sp, base, size, loadcount, path)
                         if DEBUG:
                             print SQL_cmd
                         else:
                             Lobotomy.exec_sql_query(SQL_cmd, database)
+                            Lobotomy.plugin_pct(plugin, database, pct)
+                            base = ''
+                            size = ''
+                            loadcount = ''
+                            path = ''
     except IOError:
         print "IOError, file not found."
         if DEBUG:
