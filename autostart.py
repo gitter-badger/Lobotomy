@@ -7,6 +7,9 @@
 #
 # PR_dump.py toegevoegd aan de queue
 #
+#   14-07:  WV: Toevoegen yarascan, vol_yarascan, svcscan, hashdump,
+#               wijzigen getservicesid (wordt niet ondersteund door multiparser.py).
+#
 
 import sys
 import main
@@ -63,7 +66,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gditimers'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gdt'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} getservicesids'.format(database), 10)
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getservicesids.py {}'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} idt'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} joblinks'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} memmap'.format(database), 10)
@@ -75,6 +78,10 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} shimcache'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} symlinkscan'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} timers'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_yarascan.py {} index.yara'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'yarascan.py {}'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 4)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hashdump.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
