@@ -3,6 +3,8 @@
 #
 #   19-02 WV:   Aanpassen filenaam
 #
+#   14-07 WV:   Toevoegen plugin mutantscan
+#
 
 #import re
 import sys
@@ -17,7 +19,10 @@ Lobotomy = main.Lobotomy()
 
 
 def multiparser(database, plugin):
-    allowed_plugings = "atoms,atomscan,callbacks,clipboard,deskscan,driverscan,envars,filescan,gahti,gditimers,gdt,handles,hivelist,hivescan,idt,impscan,ldrmodules,memmap,messagehooks,modscan,modules,multiscan,objtypescan,prefetchparser,privs,pslist,psscan,pstree,psxview,shimcache,symlinkscan,thrdscan,timers,unloadedmodules,sockscan,netscan"
+    allowed_plugings = "atoms,atomscan,callbacks,clipboard,deskscan,driverscan,envars,filescan,gahti,gditimers,gdt," \
+                       "handles,hivelist,hivescan,idt,impscan,ldrmodules,memmap,messagehooks,modscan,modules,multiscan," \
+                       "objtypescan,prefetchparser,privs,pslist,psscan,pstree,psxview,shimcache,symlinkscan,thrdscan," \
+                       "timers,unloadedmodules,sockscan,netscan,mutantscan"
     allowed_plugings = allowed_plugings.split(",")
     if plugin in allowed_plugings:
         Lobotomy.plugin_start(plugin, database)
