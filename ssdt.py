@@ -3,6 +3,9 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 ### 03-02: WV - Aanpassen SQL query tbv modificatie website en database
 ### 03-02: WV - Duidelijkere foutmelding. (print "catch IndexError, continue. (Swith between ssdt[0] and ssdt[1])") 
 ###
+#
+#   14-07:  WV  SSDT plugin end time toegevoegd.
+#
 
 import sys
 import os
@@ -89,7 +92,9 @@ def main(database):
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
     else:
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
-        Lobotomy.plugin_stop('ssdt', database)
+
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
         
 if __name__ == "__main__":
     if len(sys.argv) != 2:
