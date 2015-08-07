@@ -1,11 +1,14 @@
 __author__ = 'Wim Venhuizen'
 
 #
-# Script.version    0.1
+# Script.version    0.2
 # Date:             08-03-2015
 # Edited:           W Venhuizen
 #
 # Eerste opzet voor treatindex
+#
+# Date:             08-07-2015
+# Script haalt niet meer de hele lijst met hashes op, maar controleerd in de database of een hash bestaat.
 #
 
 import os
@@ -33,9 +36,8 @@ def main(database):
 
     starttime = time.time()
     print 'Reading Database, please wait'
-    print 'Script can run more then 30 minutes before its finished'
     print 'start-time: ', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    bad_hashes = Lobotomy.get_databasedata('md5hash,added', 'bad_hashes', 'lobotomy')
+    #bad_hashes = Lobotomy.get_databasedata('md5hash,added', 'bad_hashes', 'lobotomy')
     data_dlldump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
     data_procdump = Lobotomy.get_databasedata('fullfilename,name,filename,md5', 'procdump', database)
     data_photorec = Lobotomy.get_databasedata('fullfilename,filemd5', 'photorec', database)
@@ -53,28 +55,37 @@ def main(database):
     print 'Reading hashes from database'
     print 'And comparing bad_hashed with hashes from image, please wait.'
 
-    # Looking for a match where bad_hashed is the source.
-    # Compare the bad_hash with ddldump, procdump and photorec.
+    # Compare the hash from ddldump, procdump and photorec with the hashes in the database, bad_hashes
     # if there is no match, there will be no trigger for the program to collect data.
 
-    for a in bad_hashes:
-        hashlist, b = a
-        #bad_hashes_list.append(hashlist)
-        for line_dlldump in data_dlldump:
-            fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump = line_dlldump
-            if hashlist == md5hash_dlldump:
-                print 'Match - Volatility plugin: Dlldump. :', md5hash_dlldump
-                bad_hashes_list.append(['dlldump', fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump])
-        for line_procdump in data_procdump:
-            fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump = line_procdump
-            if hashlist == md5hash_procdump:
-                print 'Match - Volatility plugin: Procdump. :', md5hash_procdump
-                bad_hashes_list.append(['procdump', fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump])
-        for line_photorec in data_photorec:
-            fullfilename_photorec, md5hash_photorec = line_photorec
-            if hashlist == md5hash_photorec:
-                print 'Match - Lobotomy plugin: Photorec. :', md5hash_photorec
-                bad_hashes_list.append(['photorec', fullfilename_photorec, md5hash_photorec])
+    for line_dlldump in data_dlldump:
+        fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump = line_dlldump
+        sql_prefix = "bad_hashes where md5hash = '{}'".format(md5hash_dlldump.strip('\n'))
+        get_hash_from_db_tuple = Lobotomy.get_databasedata('md5hash', sql_prefix, 'lobotomy')
+        for get_hash_from_db in get_hash_from_db_tuple:
+            for db_hash in get_hash_from_db:
+                if db_hash == md5hash_dlldump:
+                    print 'Match - Volatility plugin: Dlldump. :', md5hash_dlldump
+                    bad_hashes_list.append(['dlldump', fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump])
+
+    for line_procdump in data_procdump:
+        fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump = line_procdump
+        sql_prefix = "bad_hashes where md5hash = '{}'".format(md5hash_procdump.strip('\n'))
+        get_hash_from_db_tuple = Lobotomy.get_databasedata('md5hash', sql_prefix, 'lobotomy')
+        for get_hash_from_db in get_hash_from_db_tuple:
+            for db_hash in get_hash_from_db:
+                if db_hash == md5hash_procdump:
+                    print 'Match - Volatility plugin: Procdump. :', md5hash_procdump
+                    bad_hashes_list.append(['procdump', fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump])
+    for line_photorec in data_photorec:
+        fullfilename_photorec, md5hash_photorec = line_photorec
+        sql_prefix = "bad_hashes where md5hash = '{}'".format(md5hash_photorec.strip('\n'))
+        get_hash_from_db_tuple = Lobotomy.get_databasedata('md5hash', sql_prefix, 'lobotomy')
+        for get_hash_from_db in get_hash_from_db_tuple:
+            for db_hash in get_hash_from_db:
+                if db_hash == md5hash_photorec:
+                    print 'Match - Lobotomy plugin: Photorec. :', md5hash_photorec
+                    bad_hashes_list.append(['photorec', fullfilename_photorec, md5hash_photorec])
 
     # bad_hashes_list.append(['dlldump', '/home/solvent/dumps/HPC62ZEFP5EK/dump/module.624.1fa5650.1000000.dll',
     #                          'winlogon.exe', 'module.624.1fa5650.1000000.dll', '3365db5fe22fca0eb673f4da22dedb3d'])
@@ -203,4 +214,3 @@ if __name__ == "__main__":
         print "Usage: " + plugin + ".py <database>"
     else:
         main(sys.argv[1])
-
