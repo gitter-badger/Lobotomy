@@ -1,11 +1,16 @@
 __author__ = 'Wim Venhuizen'
 
 #
-# Script.version    0.1
+# Script.version    0.2
 # Date:             08-03-2015
 # Edited:           W Venhuizen
 #
 # Eerste opzet om bad_hashes op te halen van virusshare
+#
+#
+# Date:             08-08-2015
+# Edited:           W Venhuizen
+# Wegschrijven logfile, lezen logfile en parsen website virusshare.
 #
 
 import os
@@ -16,38 +21,40 @@ import time
 from datetime import datetime
 
 Lobotomy = main.Lobotomy()
+plugin = 'get_hashes_from_virusshare'
 
 starttime = time.time()
 hashcount = 0
+test = 0
+get_from = 0
+get_to = 1
 
-# -rw-rw-r--  1 solvent solvent 4325574 Jul  9  2014 VirusShare_00135.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Jul 29  2014 VirusShare_00136.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Jul 29  2014 VirusShare_00137.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Sep 24  2014 VirusShare_00138.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Sep 24  2014 VirusShare_00139.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Oct 31  2014 VirusShare_00140.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Oct 31  2014 VirusShare_00141.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Oct 31  2014 VirusShare_00142.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Nov  4  2014 VirusShare_00143.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Nov 27  2014 VirusShare_00144.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Dec 10  2014 VirusShare_00145.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Jan  5  2015 VirusShare_00146.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Jan 16  2015 VirusShare_00147.md5
-# -rw-rw-r--  1 solvent solvent 4325574 Feb  6 04:17 VirusShare_00148.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Feb 19 04:25 VirusShare_00149.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Mar 20 02:56 VirusShare_00150.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Apr 17 03:18 VirusShare_00151.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Apr 17 03:18 VirusShare_00152.md5
-# -rw-rw-r--  1 solvent solvent 2162886 May  9 23:08 VirusShare_00153.md5
-# -rw-rw-r--  1 solvent solvent 2162886 May 12 16:34 VirusShare_00154.md5
-# -rw-rw-r--  1 solvent solvent 2162886 May 30 20:53 VirusShare_00155.md5
-# -rw-rw-r--  1 solvent solvent 2162886 May 30 20:54 VirusShare_00156.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Jun 19 05:12 VirusShare_00157.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Jun 30 04:09 VirusShare_00158.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Jul 25 04:44 VirusShare_00159.md5
-# -rw-rw-r--  1 solvent solvent 2162886 Jul 25 04:44 VirusShare_00160.md5
+try:
+    with open(plugin + '.txt', 'r') as f:
+        for line in f:
+            if line.startswith('VirusShare_'):
+                test = line.split('_')[1].split('.')[0]
+    get_from = int(test)
+    print 'Last updated at: ' + line.split('.')[1].split('\t')[2].strip('\n')
+except:
+    pass
 
-for i in range(144, 161):
+print "Parsing website virusshare, please wait."
+command = 'curl http://virusshare.com/hashes.4n6'
+log = ""
+status, log = commands.getstatusoutput(command)
+log = log.split('\n')
+
+for line in log:
+    if line.startswith('<a href="hashes/VirusShare_'):
+        test = line.split('_')[1].split('.')[0]
+    get_to = int(test)
+
+if get_from == get_to:
+    print 'No need to update, exit'
+    exit()
+
+for i in range(get_from + 1, get_to + 1):
     counter = 0
     count = 0
 
@@ -86,6 +93,17 @@ for i in range(144, 161):
         stopreadfiletime = time.time()
         print str(hashcount) + ' hashes addes to database so far.'
         print 'seconds to read file', round(stopreadfiletime - startreadfiletime)
+
+    try:
+        f = open(plugin + '.txt', 'a')
+        f.write(filenaam + '\t\t' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+        f.close()
+        print 'updating logfile'
+    except:
+        f = open(plugin + '.txt', 'w')
+        f.write(filenaam + '\t\t' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n')
+        f.close()
+        print 'Creating and updating logfile'
 
 stoptime = time.time()
 print 'seconds to complete', round(stoptime - starttime)
