@@ -1,18 +1,13 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
-###
-### 03-02: WV - Aanpassen SQL query tbv modificatie website en database
-### 19-02: WV - Kleine aanpassingen en een bug verholpen waardoor
-###             Windows 7 niet goed ingelezen werd.
-###
-### 03-09: WV - Parsing is fout. rijen zijn 'verschoven'.
-###
 #
-#   11-07: WV - plugin start/stop/pct gefixed.
+# Script.version    0.5
+# 08 aug 2015:  WV
+# Aanpasing van de huidige versie.
 #
 
 
 import sys
-import os
+import commands
 import main
 from dateutil.parser import parse
 Lobotomy = main.Lobotomy()
@@ -28,9 +23,8 @@ def main(database):
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " -v > " + imagename + "-" + plugin + "-v.txt"
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin + " -v"
 
-    
     if DEBUG:
         print "Write log: " + database + ", Start: " + command
         print "Write log: " + casedir + ", Start: " + command
@@ -41,113 +35,85 @@ def main(database):
     if DEBUG:
         print command
     else:
-        os.system(command)
-        
+        print "Running Volatility - PSTree including option 'v', please wait."
+        vollog = ""
+        status, vollog = commands.getstatusoutput(command)
+
     if DEBUG:
-        print "Write log: " + database + ", stop: " + command
-        print "Write log: " + casedir + ", Stop: " + command
+        print "Write log: " + database + " Stop: " + command
+        print "Write log: " + casedir + " Stop: " + command
     else:
-        Lobotomy.write_to_main_log(database, " Stop : " + command)
         Lobotomy.write_to_case_log(casedir, " Stop : " + command)
 
     if DEBUG:
-        print "Write log: (" + casedir + " ,Database: " + database + " Start:  running plugin: " + plugin + ")"
+        print "Write log: (" + casedir + ", Database: " + database + " Start: Parsing volatility output: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Start:  running plugin: " + plugin)
-    
-    a = 0
-    dots = 0
-    offset = 0
-    name = 0
-    pid = 0
-    ppid = 0
-    thrds = 0
-    hnds = 0
-    plugintime = 0
-    audit = 0
-    cmd = 0
-    path = 0
+        Lobotomy.write_to_case_log(casedir, " Database: " + database + " Start: Parsing volatility output: " + plugin)
 
-    with open(imagename + "-" + plugin + "-v.txt") as f:
-        for line in f:
-            if " 0x" in line and sql_change == 1:
-                SQL_cmd = "INSERT INTO pstree VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(dots, offset, name, pid, ppid, thrds, hnds, plugintime, audit, cmd, path)
-                if DEBUG:
-                    print SQL_cmd
-                else:
-                    Lobotomy.exec_sql_query(SQL_cmd, database)
-                dots = 0
-                offset = 0
-                pid = 0
-                ppid = 0
-                name = 0
-                thrds = 0
-                hnds = 0
-                plugintime = 0
-                audit = 0
-                cmd = 0
-                path = 0
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
 
-            sql_change = 0
-            # split op spatie en tel aantal dots
-            if 'path:' in line:
-                path = line.split(":", 1)[1].replace('\\', '\\\\')
-                path = path.strip("\n")
-                sql_change = 1
-            if 'cmd:' in line:
-                cmd = line.split(":", 1)[1].replace('\\', '\\\\')
-                cmd = cmd.strip("\n")
-                sql_change = 1
-            if 'audit:' in line:
-                audit = line.split(":", 1)[1].replace('\\', '\\\\')
-                audit = audit.strip("\n")
-                sql_change = 1
+    items = vollog.split('\n')
+    print 'Parsing ' + plugin + ' data...'
 
-            if " 0x" in line:
-                try:
-                    dots = len(line.split(" ")[0])
-                except ValueError:
-                    pass
-                try:
-                    offset, name = line.split(" ")[1].split(":")
-                except ValueError:
-                    pass
-                try:
-                    pid = line[52:58].strip(" ")
-                except ValueError:
-                    pass
-                try:
-                    ppid = line[59:64].strip(" ")
-                except ValueError:
-                    pass
-                try:
-                    thrds = line[65:72].strip(" ")
-                except ValueError:
-                    pass
-                try:
-                    hnds = line[73:79].strip(" ")
-                except ValueError:
-                    pass
-                try:
-                    plugintime = line[79:]
-                except ValueError:
-                    pass
-                try:
-                    plugintime = parse(plugintime).strftime("%Y-%m-%d %H:%M:%S")
-                except ValueError:
-                    pass
-            try:
-                a = int(hnds)
-            except:
-                hnds = 0
-
-            #SQL_cmd = "INSERT INTO pstree VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(dots, offset, name, pid, ppid, thrds, hnds, plugintime, audit, cmd, path)
-        # Save laatste regel.
-        SQL_cmd = "INSERT INTO pstree VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(dots, offset, name, pid, ppid, thrds, hnds, plugintime, audit, cmd, path)
-        if DEBUG:
-            print SQL_cmd
+    save_sql = 0
+    for line in items:
+        if line.startswith('Name') or line.startswith('-----'):
+            if line.startswith('-----'):
+                lenline = line.split(' ')
         else:
-            Lobotomy.exec_sql_query(SQL_cmd, database)
+            test = line.split(' ')
+            if test[0].startswith('.') or test[1].startswith('0x') and 'UTC' in line:
+                # Save SQl before we overwrite things with new values
+                if save_sql == 1:
+                    SQL_cmd = "INSERT INTO pstree VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', " \
+                              "'{}', '{}')".format(dots, offset, name, pid, ppid, thrds, hnds, plugintime, audit, cmd, path)
+                    if DEBUG:
+                        print SQL_cmd
+                    else:
+                        Lobotomy.exec_sql_query(SQL_cmd, database)
+                    save_sql = 0
+                audit = ''
+                cmd = ''
+                path = ''
+                dots = len(test[0])
+                offset = test[1].split(':')[0]
+                name = test[1].split(':')[1]
+                pid = line[len(lenline[0]):len(lenline[0] + lenline[1]) + 1].strip(' ')
+                ppid = line[len(lenline[0] + lenline[1]) + 1:len(lenline[0] + lenline[1] + lenline[2]) + 2].strip(' ')
+                thrds = line[len(lenline[0] + lenline[1] + lenline[2]) + 2:len(lenline[0] + lenline[1] +
+                                lenline[2] + lenline[3]) + 3].strip(' ')
+                hnds = line[len(lenline[0] + lenline[1] + lenline[2] + lenline[3]) + 3:len(lenline[0] + lenline[1] +
+                                lenline[2] + lenline[3] + lenline[4]) + 4].strip(' ')
+                plugintime = line[len(lenline[0] + lenline[1] + lenline[2] + lenline[3] + lenline[4]) + 4:]
+                plugintime = parse(plugintime).strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                line = line.replace('\\', '\\\\')
+                if line.strip(' ').startswith('audit:'):
+                    audit = line.split('audit: ')[1]
+                    save_sql = 1
+                if line.strip(' ').startswith('cmd:'):
+                    cmd = line.split('cmd: ')[1]
+                    save_sql = 1
+                if line.strip(' ').startswith('path:'):
+                    path = line.split('path: ')[1]
+                    save_sql = 1
+    # Save the last SQl line to the database
+    try:
+        if save_sql == 1:
+            SQL_cmd = "INSERT INTO pstree VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".\
+                format(dots, offset, name, pid, ppid, thrds, hnds, plugintime, audit, cmd, path)
+            if DEBUG:
+                print SQL_cmd
+            else:
+                Lobotomy.exec_sql_query(SQL_cmd, database)
+            save_sql = 0
+    except:
+        pass
 
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
@@ -155,7 +121,6 @@ def main(database):
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
     Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
-
 
 
 if __name__ == "__main__":
