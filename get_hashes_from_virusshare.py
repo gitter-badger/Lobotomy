@@ -11,7 +11,8 @@ __author__ = 'Wim Venhuizen'
 # Date:             08-08-2015
 # Edited:           W Venhuizen
 # Wegschrijven logfile, lezen logfile en parsen website virusshare.
-#
+# start script vanuit de folder met hashes.
+# hashes# python ../lob_scripts/get_hashes_from_virusshare.py
 
 import os
 import sys
