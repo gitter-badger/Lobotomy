@@ -69,7 +69,7 @@ def autostart(database):
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getservicesids.py {}'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} idt'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} joblinks'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} memmap'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_memmap.py {}'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} modscan'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} modules'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} mutantscan'.format(database), 10)
@@ -83,6 +83,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hashdump.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_pescanner.py {}'.format(database), 25)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} vadwalk'.format(database), 10)
