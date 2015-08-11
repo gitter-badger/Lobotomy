@@ -1,4 +1,10 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
+#
+# Script.version    0.5
+# 11 aug 2015:  WV
+# Aanpasing van de huidige versie.
+# Errormelding wordt gelogd in de case logfile
+# Test met stuxnet en Windows 7 ging goed.
 
 import sys
 import os
@@ -41,10 +47,12 @@ def main(database):
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Start:  running plugin: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Start:  running plugin: " + plugin)
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Start:  running plugin: " + plugin)
 
     p = 0
-    cmd = 0
+    process = ''
+    pid = ''
+    commandline = ''
     with open(imagename + "-" + plugin + ".txt") as f:
         for line in f:
             if "pid:" in line:
@@ -54,23 +62,47 @@ def main(database):
             if line.startswith("Command line :"):
                 commandline = line.split(":", 1)[1].strip("\n")
                 commandline = commandline.replace('\\', '\\\\')
-
-                cmd = 1
-            if p != 0 and cmd != 0:
+            if p != 0 and line.startswith('*****'):
                 SQL_cmd = "INSERT INTO cmdline VALUES (0, '{}', '{}', '{}')".format(process, pid, commandline)
                 if DEBUG:
                     print SQL_cmd
                 else:
-                    Lobotomy.exec_sql_query(SQL_cmd, database)
-                pid = 0
-                cmd = 0
+                    try:
+                        Lobotomy.exec_sql_query(SQL_cmd, database)
+                    except:
+                        print 'SQL Error in ', database, 'plugin: ', plugin
+                        print 'SQL Error: ',  SQL_cmd
+                        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
+                        Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + SQL_cmd)
+                p = 0
+                process = ''
+                pid = ''
+                commandline = ''
+
+    # write last line to database
+    SQL_cmd = "INSERT INTO cmdline VALUES (0, '{}', '{}', '{}')".format(process, pid, commandline)
+    if DEBUG:
+        print SQL_cmd
+    else:
+        try:
+            Lobotomy.exec_sql_query(SQL_cmd, database)
+        except:
+            print 'SQL Error in ', database, 'plugin: ', plugin
+            print 'SQL Error: ',  SQL_cmd
+            Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
+            Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + SQL_cmd)
+    p = 0
+    process = ''
+    pid = ''
+    commandline = ''
+
 
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
     else:
         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
-        Lobotomy.plugin_stop(plugin, database)
-        Lobotomy.plugin_pct(plugin, database, 100)
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
         
 if __name__ == "__main__":
     if len(sys.argv) != 2:
