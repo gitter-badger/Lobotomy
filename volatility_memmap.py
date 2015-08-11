@@ -8,7 +8,6 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 import sys
 import commands
 import main
-from dateutil.parser import parse
 Lobotomy = main.Lobotomy()
 plugin = "memmap"
 
