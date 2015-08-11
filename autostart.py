@@ -83,7 +83,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hashdump.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_pescanner.py {}'.format(database), 25)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_pescanner.py {}'.format(database), 25)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} vadwalk'.format(database), 10)
