@@ -65,16 +65,19 @@ def main(database):
                 last_update = line[len(test[0]) + 1:len(test[0]) + 1 + len(test[1])]
                 last_update = parse(last_update).strftime("%Y-%m-%d %H:%M:%S")
                 path = line[len(test[0]) + 1 + len(test[1]) +1:]
-                print line[len(test[0]) + 1 + len(test[1]) +1:]
                 sql_line = "INSERT INTO " + plugin + " VALUES ("
                 sql_line = sql_line + "0, '{}', '{}', '{}')".format\
                     (last_modified, last_update, path)
-            print last_modified, last_update, path
-            print sql_line
             if DEBUG:
                 print sql_line
             else:
-                Lobotomy.exec_sql_query(sql_line, database)
+                try:
+                    Lobotomy.exec_sql_query(sql_line, database)
+                except:
+                    print 'SQL Error in ', database, 'plugin: ', plugin
+                    print 'SQL Error: ',  sql_line
+                    Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
+                    Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + sql_line)
         if line.startswith('----'):
             test = line.split(' ')
             for tmp in test:
