@@ -10,6 +10,10 @@
 #   14-07:  WV: Toevoegen yarascan, vol_yarascan, svcscan, hashdump,
 #               wijzigen getservicesid (wordt niet ondersteund door multiparser.py).
 #
+#   12-08:  WV: Wijzigen GDT en IDT.
+#               Beide plugins werken alleen met XP.
+#
+
 
 import sys
 import main
@@ -65,9 +69,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gditimers'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gdt'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getservicesids.py {}'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} idt'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} joblinks'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_memmap.py {}'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} modscan'.format(database), 10)
@@ -92,6 +94,8 @@ def autostart(database):
     if profile.startswith("WinXP"):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'sockets.py {}'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'sockscan.py {}'.format(database))
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gdt'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} idt'.format(database), 10)
         pass # connections, connscan,  sockscan
 #    if profile == "WinVistax86" or profile == "Win7SP1x86" or profile == "Win7SP1x64" or profile == "Elke andere windows vista+ machine":
 #        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'netscan.py {}'.format(database))
