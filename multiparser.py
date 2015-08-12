@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 #
-#   19-02 WV:   Aanpassen filenaam
+# 19-02 WV:     Aanpassen filenaam
 #
-#   14-07 WV:   Toevoegen plugin mutantscan
+# 14-07 WV:     Toevoegen plugin mutantscan
+#
+# 12 aug 2015:  WV
+# Fix escaping character. replace ' for " in sql line
 #
 
-#import re
+
 import sys
 import main
 import os
@@ -78,9 +81,17 @@ def multiparser(database, plugin):
                     sql_line = "INSERT INTO " + plugin + " VALUES (0,"
                     for item in listitem:
                         item = item.replace('\\', '\\\\')
-                        sql_line = sql_line + "'{}',".format(item)
+                        item = item.replace('"', "'")
+                        sql_line = sql_line + '"{}",'.format(item)
                     sql_line = sql_line[:-1] + ")"
-                    Lobotomy.exec_sql_query(sql_line, database)
+                    try:
+                        Lobotomy.exec_sql_query(sql_line, database)
+                    except:
+                        print 'SQL Error in ', database, 'plugin: ', plugin
+                        print 'SQL Error: ',  sql_line
+                        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
+                        Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + sql_line)
+
             Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
             Lobotomy.plugin_stop(plugin, database)
             Lobotomy.plugin_pct(plugin, database, 100)
