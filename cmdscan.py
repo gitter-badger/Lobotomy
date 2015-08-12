@@ -1,11 +1,14 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
 #
-#   1902    Wv:     Aanpassen filenaam.
+# 1902    Wv:     Aanpassen filenaam.
+#
+# 12 aug 2015   WV
+# Werkend maken van de plugin.
 #
 
 import sys
-import os
+import commands
 import main
 Lobotomy = main.Lobotomy()
 plugin = "cmdscan"
@@ -21,62 +24,86 @@ def main(database):
     casedir = case_settings["directory"]
     case = database
 
-    command = "vol.py -f " + imagename + " --profile=" + imagetype + " cmdscan > " + imagename + "-cmdscan.txt"
+    command = "vol.py -f " + imagename + " --profile=" + imagetype + " cmdscan"
 
     Lobotomy.write_to_main_log(database, " Start: " + command)
     Lobotomy.write_to_case_log(casedir, " Start: " + command)
-    os.system(command)
+    if DEBUG:
+        print command
+    else:
+        print "Running Volatility - ", plugin, ", please wait."
+        vollog = ""
+        status, vollog = commands.getstatusoutput(command)
     Lobotomy.write_to_main_log(database, " Stop : " + command)
     Lobotomy.write_to_case_log(casedir, " Stop : " + command)
 
-    firstline = 0
-    cmdscanvar = []
-    cmdscanvartotal = []
-    cmdregel = []
-    cmdfound = 0
-    with open(imagename + "-cmdscan.txt") as f:
-        for line in f:
-            if line.startswith("**************"):
-                if firstline != 0:
-                    cmdscanvar.append("\n")
-                    cmdscanvartotal.append(cmdscanvar)
-                firstline += 1
-                cmdscanvar = []
-            else:
-                line = line.strip("\n").split(" ")
-                for x in line:
-                    if x == "Cmd":
-                        cmdscanvar.append(x)
-                        cmdfound = 1
-                    else:
-                        cmdscanvar.append(x)
-                        if cmdfound == 1 and x.startswith("Cmd"):
-                            cmdfound = 0
-        cmdscanvartotal.append(cmdscanvar)
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
 
-        for regel in cmdscanvartotal:
-            counter = 22
-            for a in regel:
+    items = vollog.split('\n')
+    print 'Parsing ' + plugin + ' data...'
+    pid = ''
+    CommandProcess = ''
+    CommandHistory = ''
+    Application = ''
+    Flags = ''
+    CommandCount = ''
+    LastAdded = ''
+    LastDisplayed = ''
+    FirstCommand = ''
+    CommandCountMax = ''
+    ProcessHandle = ''
+    cmd = ''
 
-                if a == "Cmd":
-                    tmp = " ".join(regel[0:22]) + " " + (regel[counter]) + " " + (regel[counter+1]) + " " + (regel[counter+2]) + " " + (regel[counter+3]) + " " + (regel[counter+4])
-                    cmdregel.append(tmp.split(" "))
-                    counter += 5
+    for line in items:
+        if line.startswith('*****'):
+            pid = ''
+            CommandProcess = ''
+            CommandHistory = ''
+            Application = ''
+            Flags = ''
+            CommandCount = ''
+            LastAdded = ''
+            LastDisplayed = ''
+            FirstCommand = ''
+            CommandCountMax = ''
+            ProcessHandle = ''
+            cmd = ''
+        else:
+            test = line.split(': ')
+            if line.startswith('CommandProcess'):
+                CommandProcess = test[1][:-4]
+                pid = test[2]
+            if line.startswith('CommandHistory'):
+                CommandHistory = test[1].split(' ')[0]
+                Application = test[2][:-6]
+                Flags = test[-1]
+            if line.startswith('CommandCount'):
+                CommandCount = line.split(' ')[1]
+                LastAdded = line.split(' ')[3]
+                LastDisplayed = line.split(' ')[5]
+            if line.startswith('FirstCommand'):
+                FirstCommand = line.split(' ')[1]
+                CommandCountMax  = line.split(' ')[3]
+            if line.startswith('ProcessHandle'):
+                ProcessHandle = test[1]
+            if line.startswith('Cmd'):
+                cmd = line
+                sql_line = "INSERT INTO cmdscan VALUES ("
+                sql_line = sql_line + "0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format\
+                    (pid, CommandProcess, CommandHistory, Application, Flags, CommandCount, LastAdded, LastDisplayed,
+                    FirstCommand, CommandCountMax, ProcessHandle, cmd)
+                if DEBUG:
+                    print sql_line
+                else:
+                    Lobotomy.exec_sql_query(sql_line, database)
 
-        for regel in cmdregel:
-            SQL_cmd = "0, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}". \
-                format(regel[3], regel[1], regel[5], regel[7], regel[9], regel[11], regel[13], regel[15], regel[17],
-                       regel[19], regel[21], regel[22], regel[23], regel[24], regel[25], regel[26])
-            input_sql(database, SQL_cmd)
     Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
-
-
-def input_sql(database, SQL_cmd):
-    if DEBUG:
-        print SQL_cmd
-    else:
-        Lobotomy.exec_sql_query("INSERT INTO cmdscan VALUES " + SQL_cmd, database)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
