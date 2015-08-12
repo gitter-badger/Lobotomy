@@ -4,6 +4,9 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # 08 aug 2015:  WV
 # Aanpasing van de huidige versie.
 #
+# 12 aug 2015:  WV
+# Fixed parsing error in handles when data is '------'.
+#
 
 
 import sys
@@ -89,6 +92,8 @@ def main(database):
                                 lenline[2] + lenline[3]) + 3].strip(' ')
                 hnds = line[len(lenline[0] + lenline[1] + lenline[2] + lenline[3]) + 3:len(lenline[0] + lenline[1] +
                                 lenline[2] + lenline[3] + lenline[4]) + 4].strip(' ')
+                if hnds.startswith('------'):
+                    hnds = '0'
                 plugintime = line[len(lenline[0] + lenline[1] + lenline[2] + lenline[3] + lenline[4]) + 4:]
                 plugintime = parse(plugintime).strftime("%Y-%m-%d %H:%M:%S")
             else:
