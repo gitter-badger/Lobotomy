@@ -48,6 +48,13 @@ def main(database):
     else:
         Lobotomy.write_to_case_log(casedir, " Database: " + database + " Start: Parsing volatility output: " + plugin)
 
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
+
     vollog = vollog.split("\n")
     for line in vollog:
         sql_line = "INSERT INTO " + plugin + " VALUES (0, "
