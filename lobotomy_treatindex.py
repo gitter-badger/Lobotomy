@@ -196,7 +196,29 @@ def main(database):
                     print Fullfilename_pe_beta, Pe_Blob_beta
 
 
+# To do:
+#   Get list from psxview or/and psscan and get offset. use this offset to carv exe hiding from active proc list.
+#   - (Art of memory forensics, page 243)
+#   volatility moddump. (we have procdump and dlldump)
+#   volatility mallfind, (we use it later here, Art of memory forensics, page 254)
+#   volatility vadinfo, (we use it later here, Art of memory forensics, page 260)
+#
 
+
+
+#   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
+#   - If Process in Mappedpath and Ininit = false, ignore.
+#   - (Art of memory forensics, page 238, you never find the process exe in the init order list.)
+#   - alert if ininit is false and mappedpath is empty!
+#
+#
+#
+#
+#
+#
+#   Compare ldrmodules -v (option -v yet to build) with path(s) from loaded dll's.
+#
+#
 
 #   Bron:   volatility-yara
 #           ownername
