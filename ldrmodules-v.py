@@ -74,7 +74,6 @@ def main(database):
     pidinmem = ''
     pidinload = ''
     for line in items:
-#        test = line.split(' ')
         #
         # Get the length of the columns
         #
@@ -126,7 +125,6 @@ def main(database):
                     tmpmem = 1
 
         if tmpload == 1 and tmpinit == 1 and tmpmem == 1 and pid == 1:
-            #print writesql
             Sql_cmd = ''
             Sql_prefix = "INSERT INTO ldrmodules_v VALUES (0,"
             for item in writesql:
@@ -141,7 +139,6 @@ def main(database):
                 print Sql_cmd
             else:
                 Lobotomy.exec_sql_query(Sql_cmd, database)
-                #print Sql_cmd
 
             pidininit = ''
             pidinmem = ''
@@ -158,14 +155,6 @@ def main(database):
 
         try:
             if int(line[:8].strip(' ')):
-                pidpid = int(line[:8].strip(' '))
-                pidprocess = line[lp[0]:lp[0] + lp[1]].strip(' ')
-                pidbase = line[lp[0]+lp[1]:lp[0]+lp[1]+lp[2]].strip(' ')
-                pidinload = line[lp[0]+lp[1]+lp[2]:lp[0]+lp[1]+lp[2]+lp[3]].strip(' ')
-                pidininit = line[lp[0]+lp[1]+lp[2]+lp[3]:lp[0]+lp[1]+lp[2]+lp[3]+lp[4]].strip(' ')
-                pidinmem = line[lp[0]+lp[1]+lp[2]+lp[3]+lp[4]:lp[0]+lp[1]+lp[2]+lp[3]+lp[4]+lp[5]].strip(' ')
-                pidpath = line[lp[0]+lp[1]+lp[2]+lp[3]+lp[4]+lp[5]:]
-
                 writesql.append(int(line[:8].strip(' ')))
                 writesql.append(line[lp[0]:lp[0] + lp[1]].strip(' '))
                 writesql.append(line[lp[0]+lp[1]:lp[0]+lp[1]+lp[2]].strip(' '))
@@ -176,26 +165,6 @@ def main(database):
                 pid = 1
         except:
             pass
-
-    # with open(imagename + plugin + ".txt") as f:
-    #     for line in f:
-    #         #comment = ""
-    #         #a, b = line.split(":")
-    #         #proc, pid = a.split("(")
-    #         #try:
-    #         #    sid, user = b.split("(")
-    #         #except ValueError:
-    #         #    sid, user, comment = b.split("(")
-    #         #pid = pid.strip(")")
-    #         #sid = sid.strip()
-    #         #user = user.strip("\n").strip(")")
-    #         #comment = comment.strip("\n").strip(")")
-    #         #
-    #         #SQL_cmd = "INSERT INTO getsids VALUES ('{}', '{}', '{}', '{}', '{}')".format(proc, pid, sid, user, comment)
-    #         if DEBUG:
-    #             print SQL_cmd
-    #         else:
-    #             Lobotomy.exec_sql_query(SQL_cmd, database)
 
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
