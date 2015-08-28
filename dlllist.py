@@ -109,7 +109,7 @@ def main(database):
                         base = line[0:10].strip(" ")
                         size = line[11:22].strip(" ")
                         loadcount = line[23:33].strip(" ")
-                        path = line[33:]
+                        path = line[33:].strip('\n')
                         path = path.replace('\\', '\\\\')
                     if line.startswith("----------"):
                         dll = 1
