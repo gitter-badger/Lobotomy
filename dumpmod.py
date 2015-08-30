@@ -1,8 +1,11 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
-# Date:     30 aug 2015:
-# Name:     W Venhuizen:
-# Detail:   Copy of dlldump, needed for treatindex.
+#
+# Script version    0.5
+# Plugin version:   1
+# 11 aug 2015:      Wim Venhuizen
+# Plugin:           procdump
+#  Detail:          Copy of dlldump, needed for treatindex.
 
 import sys
 import main
