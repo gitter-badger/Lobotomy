@@ -5,7 +5,6 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Detail:   Copy of dlldump, needed for treatindex.
 
 import sys
-import os
 import main
 import commands
 Lobotomy = main.Lobotomy()
