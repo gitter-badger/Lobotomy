@@ -1,7 +1,7 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
-#
-# Script.version    0.1
+# Script version    0.5
+# Plugin version    0.7.1
 # Date:             06-07-2015
 # Edited:           W Venhuizen
 #
@@ -12,6 +12,10 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Aanpassing yarascan zodat het ook met autostart kan werken. foldernaam is optioneel.
 # Als de folernaam niet is opgegeven worden alle files in alle subfolder(s) van de imagefolder gescaned.
 #
+# Date:             30 aug  2015
+# change line 61: print "Running yarascan on folder: " + filename : change to : subdir1
+# change line 77: Removing space char in output.
+
 
 
 import sys
@@ -55,7 +59,7 @@ def main(database, folder):
                         if DEBUG:
                             print command
                         else:
-                            print "Running yarascan on folder: " + filenaam
+                            print "Running yarascan on folder: " + subdir1
                             log = ""
                             status, log = commands.getstatusoutput(command)
                         if DEBUG:
@@ -70,7 +74,7 @@ def main(database, folder):
                         except:
                             pass
                         print "Yarascan - Files to go: " + str(counter) + " from " + str(count)
-                        print "Yarascan - Current filename: ", filenaam
+                        print "Yarascan - Current filename:", filenaam
                         if log != '':
                             for item in log.split('\n'):
                                 if filenaam in item:
