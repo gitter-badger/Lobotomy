@@ -1,15 +1,12 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
-###
-### 03-02: WV - Aanpassen SQL query tbv modificatie website en database
-###
-#
-# 20-05: WV - Toevoegen van exiftool aan procdump.
-#             Toevoegen van enkele print commands en pct counter.
-#             moved exifinfo routine due to the msg: 'Error: PEB at ... is unavailable (possibly due to paging)'
 
+#
+# Script version    0.5
+# Plugin version:   1
+# 11 aug 2015:      Wim Venhuizen
+# Plugin:           procdump
 
 import sys
-import os
 import main
 import commands
 Lobotomy = main.Lobotomy()
@@ -26,7 +23,7 @@ def main(database):
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
-    dumpdir = casedir + "/dump"
+    dumpdir = casedir + "/procdump"
     try:
         log = ""
         status, log = commands.getstatusoutput("mkdir " + dumpdir)
