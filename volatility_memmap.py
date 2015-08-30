@@ -1,8 +1,9 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
-# Script.version    0.2
-# 11 aug 2015:  WV
-# Plugin:   memmap.
+# Script version    0.5
+# Plugin version:   1
+# 11 aug 2015:      Wim Venhuizen
+# Plugin:           memmap
 
 
 import sys
@@ -58,7 +59,14 @@ def main(database):
     items = vollog.split('\n')
     print 'Parsing ' + plugin + ' data...'
 
+    count = 0
+    counter = 0
     for line in items:
+        counter += 1
+
+    for line in items:
+        count += 1
+        pct = str(float(1.0 * count / counter) * 99).split(".")[0]
         if 'pid' in line:
             test = line.split(' ')
             name = test[0]
@@ -91,6 +99,13 @@ def main(database):
                         physical = data
                     if virtual == '' and data.startswith('0x'):
                         virtual = data
+        try:
+            if pct != pcttmp:
+                print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
+                Lobotomy.plugin_pct(plugin, database, pct)
+        except:
+            pass
+        pcttmp = pct
 
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
