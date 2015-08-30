@@ -84,7 +84,7 @@ def main(database):
     if DEBUG:
         print command
     else:
-        print "Running Photorec - database: " + database + " - Please wait."
+        print "Running photorec - Database: " + database + " - Please wait."
         log = ""
         status, log = commands.getstatusoutput(command)
 
@@ -117,7 +117,7 @@ def main(database):
                     counter += 1
     Lobotomy.plugin_pct(plugin, database, 10)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(10)
-    print "Parsing Photorec logfile"
+    print "Parsing " + plugin + " logfile"
 
     count = 0
     pcttmp = 0
