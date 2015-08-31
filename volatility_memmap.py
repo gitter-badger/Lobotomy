@@ -34,7 +34,7 @@ def main(database):
     if DEBUG:
         print command
     else:
-        print "Running Volatility - ", plugin, ", please wait."
+        print "Running Volatility -", plugin, ", please wait."
         vollog = ""
         status, vollog = commands.getstatusoutput(command)
 
@@ -57,7 +57,7 @@ def main(database):
         pass
 
     items = vollog.split('\n')
-    print 'Parsing ' + plugin + ' data...'
+    print 'Parsing' + plugin + 'data...'
 
     count = 0
     counter = 0
