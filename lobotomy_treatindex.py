@@ -1,3 +1,4 @@
+# coding=utf-8
 __author__ = 'Wim Venhuizen'
 
 #
@@ -53,7 +54,7 @@ def main(database):
     starttime = time.time()
     print 'start-time: ', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print 'Reading hashes from database'
-    print 'And comparing bad_hashed with hashes from image, please wait.'
+    print 'Comparing bad_hashed with hashes from image, please wait.'
 
     # Compare the hash from ddldump, procdump and photorec with the hashes in the database, bad_hashes
     # if there is no match, there will be no trigger for the program to collect data.
@@ -183,17 +184,18 @@ def main(database):
                     print "Exifinfo filename \t\t:", filename_exifinfo
                     print exifinfo
 
-            for line_pe_scan in data_pe_scan:
-                Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
-                if Fullfilename_pe == fullfilename_photorec:
-                    print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
-                    print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+            # for line_pe_scan in data_pe_scan:
+            #     Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
+            #     if Fullfilename_pe == fullfilename_photorec:
+            #         print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
+            #         print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+            #
+            # for line_pe_scan_beta in data_pe_scan_beta:
+            #     Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
+            #     if Fullfilename_pe_beta == fullfilename_photorec:
+            #         print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
+            #         print Fullfilename_pe_beta, Pe_Blob_beta
 
-            for line_pe_scan_beta in data_pe_scan_beta:
-                Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
-                if Fullfilename_pe_beta == fullfilename_photorec:
-                    print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
-                    print Fullfilename_pe_beta, Pe_Blob_beta
 
 
 # To do:
@@ -205,20 +207,126 @@ def main(database):
 #
 
 
+    # data_modscan = Lobotomy.get_databasedata('offset,name,base,size,file', 'modscan', database)
+    # data_psxview = Lobotomy.get_databasedata('offset,name,pid,pslist,psscan,thrdproc,pspcid,csrss'
+    #                                          'session,deskthrd,exittime', 'psxview', database)
+    # data_psscan = Lobotomy.get_databasedata('offset,name,pid,ppid,pdb,timecreated,timeexited', 'psscan', database)
+
+
+
+#loadpathpath, loadpathprocess, initpathpathh, initpathprocess, mempathpath, mempathprocess
+
+    data_ldrmod = Lobotomy.get_databasedata('pid,process,base,inload,ininit,inmem,mappedpath,loadpathpath,'
+                                            'loadpathprocess, initpathpath, initpathprocess, mempathpath,'
+                                            'mempathprocess', 'ldrmodules_v', database)
+
+    for line_ldrmodules in data_ldrmod:
+        ldr_pid, ldr_process, ldr_base, ldr_inload, ldr_ininit, ldr_inmem, ldr_mappedpath, ldr_loadpathpath, \
+        ldr_loadpathprocess, ldr_initpathpath, ldr_initpathprocess, ldr_mempathpath, ldr_mempathprocess = line_ldrmodules
+
+        if ldr_mappedpath == '' and ldr_ininit == 'False':
+            print 'Empty Ldr_Mappedpath and Ldr_ininit is False: Alert '
+            print line_ldrmodules
+        if ldr_loadpathpath != ldr_initpathpath or ldr_mempathpath != ldr_initpathpath or ldr_mempathpath != ldr_loadpathpath:
+            print 'Non matching Paths, inmem, ininit and inload: Alert '
+            print line_ldrmodules
+
 
 #   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
+# SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND inmem = 'False';
+#
 #   - If Process in Mappedpath and Ininit = false, ignore.
 #   - (Art of memory forensics, page 238, you never find the process exe in the init order list.)
 #   - alert if ininit is false and mappedpath is empty!
+# SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND ininit = 'False';
 #
 #
 #
 #
 #
+#   Compare ldrmodules -v (option -v) with path(s) from loaded dll's.
 #
-#   Compare ldrmodules -v (option -v yet to build) with path(s) from loaded dll's.
+#
+# vadinfo:
 #
 #
+# VAD node @ 0x81ff1458 Start 0x00e50000 End 0x00ea9fff Tag Vad
+# VAD node @ 0x820935a0 Start 0x7ffde000 End 0x7ffdefff Tag Vadl
+# VAD node @ 0x82381188 Start 0x002b0000 End 0x002effff Tag VadS
+#
+# VadS
+# Flags: CommitCharge: 4, PrivateMemory: 1, Protection: 4
+# Protection: PAGE_READWRITE
+#
+# VadL
+# Flags: CommitCharge: 1, MemCommit: 1, NoChange: 1, PrivateMemory: 1, Protection: 4
+# Protection: PAGE_READWRITE
+# First prototype PTE: 00000000 Last contiguous PTE: 00003a00
+# Flags2: LongVad: 1, OneSecured: 1
+#
+# Vad
+# Flags: CommitCharge: 5, ImageMap: 1, Protection: 7
+# Protection: PAGE_EXECUTE_WRITECOPY
+# ControlArea @823c72d8 Segment e157a008
+# NumberOfSectionReferences:          1 NumberOfPfnReferences:         131
+# NumberOfMappedViews:               29 NumberOfUserReferences:         30
+# Control Flags: Accessed: 1, DebugSymbolsLoaded: 1, File: 1, HadUserReference: 1, Image: 1
+# FileObject @823df198, Name: \Device\HarddiskVolume1\WINDOWS\system32\ntdll.dll
+# First prototype PTE: e157a048 Last contiguous PTE: fffffffc
+# Flags2: Inherit: 1
+#
+# All:
+# Firstline: 	flag
+# Second line: 	Protection
+#
+# if Vad:
+# Incl FileObject and Name and
+#
+# Rest BLOB in DB
+#
+# Protection:
+# if Protection == PAGE_EXECUTE_WRITECOPY
+# if Protection == PAGE_EXECUTE_READWRITE
+#
+#
+# LDRmodules uses VADINFO to build lilst. No need to compare vadinfo with ldrmodules. Source: Art of memory forensics:
+# As an alternative to the multiple steps you just saw, you can also skip straight to ldrmodules.
+# Remember that the process executable is added to the load order and memory
+# order module lists in the PEB. Thus, when ldrmodules cross-references the information
+# with the memory-mapped files in the VAD, you see a discrepancy.
+#
+# ldrmodules
+# SELECT * FROM `ldrmodules_v` WHERE pid = '868' OR pid = '1928';
+# id	pid	process	base	inload	ininit	inmem	mappedpath	loadpath	loadpathpath	loadpathprocess	initpath	initpathpath	initpathprocess	mempath	mempathpath	mempathprocess
+# 1103	868	lsass.exe	0x01000000	True	False	True		Load Path	C:\\WINDOWS\\system32\\lsass.exe	lsass.exe				Mem Path	C:\\WINDOWS\\system32\\lsass.exe	lsass.exe
+#
+# dlllist
+# SELECT * FROM `dlllist` WHERE pid = '868' OR pid = '1928';
+# id	process	pid	cmd	servicepack	base	size	loadcount	dllpath
+# 1218	lsass.exe	868	"C:\\WINDOWS\\\\system32\\\\lsass.exe"	Service Pack 3
+# 	0x01000000	0x6000	0xffff	C:\\WINDOWS\\system32\\lsass.exe
+#
+# # DLLpath from pid 868 (Same base adress) and ldrmodules (ininit) does not match. Process hollowing.
+# Vadinfo give us:
+# Pid:    868
+# VAD node @ 0x81f1ef08 Start 0x01000000 End 0x01005fff Tag Vad
+# Flags: CommitCharge: 2, Protection: 6
+# Protection:
+# PAGE_EXECUTE_READWRITE
+# ControlArea @81fbeee0 Segment e24b4c10
+# NumberOfSectionReferences:          1 NumberOfPfnReferences:           0
+# NumberOfMappedViews:                1 NumberOfUserReferences:          2
+# Control Flags: Commit: 1, HadUserReference: 1
+# First prototype PTE: e24b4c50 Last contiguous PTE: e24b4c78
+# Flags2: Inherit: 1
+#
+# Because lsass.exe was unmapped, a name is no longer associated with the region at 0x01000000.
+# But calling NtUnmapViewOfSection (step 3) doesn’t cause the PEB to lose its
+# metadata, so those structures still have a record of the original mapping in the load order
+# and memory order lists.
+
+
+
 
 #   Bron:   volatility-yara
 #           ownername
