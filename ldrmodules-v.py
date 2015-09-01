@@ -92,12 +92,12 @@ def main(database):
             for item in testpath:
                 if item != '':
                     item = item.strip(' ')
-                    initpath.append(item.strip(' '))
+                    initpath.append(item)
         if 'Mem Path' in line:
             for item in testpath:
                 if item != '':
                     item = item.strip(' ')
-                    mempath.append(item.strip(' '))
+                    mempath.append(item)
         if pid == 1:
             if 'True' in pidinload and tmpload == 0:
                 for item in loadpath:
@@ -155,6 +155,14 @@ def main(database):
 
         try:
             if int(line[:8].strip(' ')):
+                pidpid = int(line[:8].strip(' '))
+                pidprocess = line[lp[0]:lp[0] + lp[1]].strip(' ')
+                pidbase = line[lp[0]+lp[1]:lp[0]+lp[1]+lp[2]].strip(' ')
+                pidinload = line[lp[0]+lp[1]+lp[2]:lp[0]+lp[1]+lp[2]+lp[3]].strip(' ')
+                pidininit = line[lp[0]+lp[1]+lp[2]+lp[3]:lp[0]+lp[1]+lp[2]+lp[3]+lp[4]].strip(' ')
+                pidinmem = line[lp[0]+lp[1]+lp[2]+lp[3]+lp[4]:lp[0]+lp[1]+lp[2]+lp[3]+lp[4]+lp[5]].strip(' ')
+                pidpath = line[lp[0]+lp[1]+lp[2]+lp[3]+lp[4]+lp[5]:]
+
                 writesql.append(int(line[:8].strip(' ')))
                 writesql.append(line[lp[0]:lp[0] + lp[1]].strip(' '))
                 writesql.append(line[lp[0]+lp[1]:lp[0]+lp[1]+lp[2]].strip(' '))
