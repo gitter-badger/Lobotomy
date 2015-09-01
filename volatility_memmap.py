@@ -4,6 +4,8 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Plugin version:   1
 # 11 aug 2015:      Wim Venhuizen
 # Plugin:           memmap
+# Edit:             01 sep 2015
+#                   Type in line 60: missing space char | print 'Parsing ...
 
 
 import sys
@@ -57,7 +59,7 @@ def main(database):
         pass
 
     items = vollog.split('\n')
-    print 'Parsing' + plugin + 'data...'
+    print 'Parsing ' + plugin + ' data...'
 
     count = 0
     counter = 0
