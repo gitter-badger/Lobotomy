@@ -228,8 +228,9 @@ def main(database):
             print 'Empty Ldr_Mappedpath and Ldr_ininit is False: Alert '
             print line_ldrmodules
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
-            print 'Non matching Paths, inmem, ininit and inload: Alert '
-            print line_ldrmodules
+            if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
+                print 'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert '
+                print line_ldrmodules
 
 
 #   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
