@@ -184,17 +184,17 @@ def main(database):
                     print "Exifinfo filename \t\t:", filename_exifinfo
                     print exifinfo
 
-            # for line_pe_scan in data_pe_scan:
-            #     Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
-            #     if Fullfilename_pe == fullfilename_photorec:
-            #         print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
-            #         print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
-            #
-            # for line_pe_scan_beta in data_pe_scan_beta:
-            #     Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
-            #     if Fullfilename_pe_beta == fullfilename_photorec:
-            #         print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
-            #         print Fullfilename_pe_beta, Pe_Blob_beta
+            for line_pe_scan in data_pe_scan:
+                Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
+                if Fullfilename_pe == fullfilename_photorec:
+                    print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
+                    print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+
+            for line_pe_scan_beta in data_pe_scan_beta:
+                Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
+                if Fullfilename_pe_beta == fullfilename_photorec:
+                    print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
+                    print Fullfilename_pe_beta, Pe_Blob_beta
 
 
 
