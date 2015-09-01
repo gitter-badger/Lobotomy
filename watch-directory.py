@@ -160,4 +160,5 @@ def _main():
     notifier.loop()
 
 if __name__ == '__main__':
+    print "Directory Watcher is running..."
     _main()
