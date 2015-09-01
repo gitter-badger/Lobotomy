@@ -227,7 +227,7 @@ def main(database):
         if ldr_mappedpath == '' and ldr_ininit == 'False':
             print 'Empty Ldr_Mappedpath and Ldr_ininit is False: Alert '
             print line_ldrmodules
-        if ldr_loadpathpath != ldr_initpathpath or ldr_mempathpath != ldr_initpathpath or ldr_mempathpath != ldr_loadpathpath:
+        if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             print 'Non matching Paths, inmem, ininit and inload: Alert '
             print line_ldrmodules
 
