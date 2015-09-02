@@ -89,8 +89,8 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_pescanner.py {}'.format(database), 25)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_shimcache.py {}'.format(database), 11)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 3)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'mftparser.py {}'.format(database), 3)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3)
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'mftparser.py {}'.format(database), 3) # MFTParser is niet af.
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3) # KDBGscan is niet af!
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpmod.py {}'.format(database), 3)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
