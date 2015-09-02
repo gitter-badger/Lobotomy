@@ -6,6 +6,9 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # 11 aug 2015:      Wim Venhuizen
 # Plugin:           procdump
 #  Detail:          Copy of dlldump, needed for treatindex.
+# 02 sep 2015:      Wim Venhuizen
+# Plugin:           procdump
+#  Detail:          Fixed: saving volatility output
 
 import sys
 import main
@@ -57,7 +60,14 @@ def main(database):
         print "Write log: (" + casedir + " ,Database: " + database + " Start:  Parsing volatility output: " + plugin + ")"
     else:
         Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start:  Parsing volatility output: " + plugin)
-        
+
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
+
     counter = 0
     result = []
     part = []
