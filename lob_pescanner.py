@@ -1,13 +1,18 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
-#
-# Script.version    0.1
+# Script version    0.5
+# Plugin version:   1
+# Plugin:           Lobotomy PE Scanner
 # Date:             06-07-2015
 # Edited:           W Venhuizen
 #
 # Date:             06-05-2015:
 # Eerste opzet PE_Scanner voor lobotomy.
 #
+# 02 sep 2015:      Wim Venhuizen
+#  Detail:          Fixed: An issue where the scripts try's to write a wrong sql query.
+#                   there can sometimes a ' in the text.
+
 
 import os
 import sys
@@ -58,9 +63,13 @@ def main(database, folder):
                             print "Files to go: " + str(counter) + " from " + str(count)
                             print "Current filename: ", filenaam
                             if log != '':
-                                log = log.replace("'", "\\'").replace("`", "\`").replace('"', '\\"')
+                                log = log.replace("'", '"').replace("`", "\`").replace('"', '\\"')
                                 sql_line = sql_prefix + "'{}', '{}''".format(filenaam, log + "')")[:-2]
-                                Lobotomy.exec_sql_query(sql_line, database)
+                                try:
+                                    Lobotomy.exec_sql_query(sql_line, database)
+                                except:
+                                    print sql_line
+                                    #Lobotomy.exec_sql_query(sql_line, database)
                                 Lobotomy.plugin_pct('pe_scanner_beta', database, pct)
                                 #Lobotomy.plugin_pct(plugin, database, pct)
 
