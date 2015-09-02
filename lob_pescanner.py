@@ -12,7 +12,7 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # 02 sep 2015:      Wim Venhuizen
 #  Detail:          Fixed: An issue where the scripts try's to write a wrong sql query.
 #                   there can sometimes a ' in the text.
-
+#                   Change: Add plugin name in output.
 
 import os
 import sys
@@ -57,11 +57,11 @@ def main(database, folder):
                             status, log = commands.getstatusoutput(command)
                             try:
                                 pct = str(float(1.0 * count / counter) * 99).split(".")[0]
-                                print "Percentage done: ", pct
+                                print "Lobotomy PEScanner - Percentage done: ", pct
                             except:
                                 pass
-                            print "Files to go: " + str(counter) + " from " + str(count)
-                            print "Current filename: ", filenaam
+                            print "Lobotomy PEScanner - Files to go: " + str(counter) + " from " + str(count)
+                            print "Lobotomy PEScanner - Current filename: ", filenaam
                             if log != '':
                                 log = log.replace("'", '"').replace("`", "\`").replace('"', '\\"')
                                 sql_line = sql_prefix + "'{}', '{}''".format(filenaam, log + "')")[:-2]
