@@ -7,7 +7,6 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Plugin:           procdump
 #  Detail:          Copy of dlldump, needed for treatindex.
 # 02 sep 2015:      Wim Venhuizen
-# Plugin:           procdump
 #  Detail:          Fixed: saving volatility output
 
 import sys
