@@ -2,15 +2,19 @@
 __author__ = 'Wim Venhuizen'
 
 #
-# Script.version    0.2
-# Date:             08-03-2015
-# Edited:           W Venhuizen
+# Script version    0.5
+# Plugin version:   1
+# 08 mrt 2015:      Wim Venhuizen
+# Plugin:           Lobotomy Treat scanner
 #
 # Eerste opzet voor treatindex
 #
 # Date:             08-07-2015
 # Script haalt niet meer de hele lijst met hashes op, maar controleerd in de database of een hash bestaat.
 #
+# 08 mrt 2015:      Wim Venhuizen
+#  Detail:          Add moddump to the scanner
+
 
 import os
 import sys
@@ -40,6 +44,7 @@ def main(database):
     print 'start-time: ', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     #bad_hashes = Lobotomy.get_databasedata('md5hash,added', 'bad_hashes', 'lobotomy')
     data_dlldump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
+    data_moddump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
     data_procdump = Lobotomy.get_databasedata('fullfilename,name,filename,md5', 'procdump', database)
     data_photorec = Lobotomy.get_databasedata('fullfilename,filemd5', 'photorec', database)
     data_vol_yara = Lobotomy.get_databasedata('owner_name,pid', 'volatility_yarascan', database)
@@ -68,6 +73,16 @@ def main(database):
                 if db_hash == md5hash_dlldump:
                     print 'Match - Volatility plugin: Dlldump. :', md5hash_dlldump
                     bad_hashes_list.append(['dlldump', fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump])
+
+    for line_moddump in data_moddump:
+        fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump = line_moddump
+        sql_prefix = "bad_hashes where md5hash = '{}'".format(md5hash_moddump.strip('\n'))
+        get_hash_from_db_tuple = Lobotomy.get_databasedata('md5hash', sql_prefix, 'lobotomy')
+        for get_hash_from_db in get_hash_from_db_tuple:
+            for db_hash in get_hash_from_db:
+                if db_hash == md5hash_moddump:
+                    print 'Match - Volatility plugin: Moddump. :', md5hash_moddump
+                    bad_hashes_list.append(['moddump', fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump])
 
     for line_procdump in data_procdump:
         fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump = line_procdump
@@ -201,7 +216,15 @@ def main(database):
 # To do:
 #   Get list from psxview or/and psscan and get offset. use this offset to carv exe hiding from active proc list.
 #   - (Art of memory forensics, page 243)
+
+#########################################################################################
+#########################################################################################
+#   Done
 #   volatility moddump. (we have procdump and dlldump)
+#########################################################################################
+#########################################################################################
+
+
 #   volatility mallfind, (we use it later here, Art of memory forensics, page 254)
 #   volatility vadinfo, (we use it later here, Art of memory forensics, page 260)
 #
@@ -225,21 +248,38 @@ def main(database):
         ldr_loadpathprocess, ldr_initpathpath, ldr_initpathprocess, ldr_mempathpath, ldr_mempathprocess = line_ldrmodules
 
         if ldr_mappedpath == '' and ldr_ininit == 'False':
-            print 'Empty Ldr_Mappedpath and Ldr_ininit is False: Alert '
+            print '\n***********************************\nEmpty Ldr_Mappedpath and Ldr_ininit is False: Alert \n***********************************'
             print line_ldrmodules
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
-                print 'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert '
+                print '\n***********************************\n' \
+                      'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert ' \
+                      '\n***********************************'
                 print line_ldrmodules
 
 
+#########################################################################################
+#########################################################################################
+# Done
+#########################################################################################
 #   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
 # SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND inmem = 'False';
+#########################################################################################
+#########################################################################################
+
+
 #
 #   - If Process in Mappedpath and Ininit = false, ignore.
 #   - (Art of memory forensics, page 238, you never find the process exe in the init order list.)
+#########################################################################################
+#########################################################################################
+# Done
+#########################################################################################
 #   - alert if ininit is false and mappedpath is empty!
 # SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND ininit = 'False';
+#########################################################################################
+#########################################################################################
+
 #
 #
 #
