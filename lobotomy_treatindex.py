@@ -12,9 +12,9 @@ __author__ = 'Wim Venhuizen'
 # Date:             08-07-2015
 # Script haalt niet meer de hele lijst met hashes op, maar controleerd in de database of een hash bestaat.
 #
-# 08 mrt 2015:      Wim Venhuizen
-#  Detail:          Add moddump to the scanner
-
+# 03 sep 2015:      Wim Venhuizen
+#  Detail:          Added: moddump
+#                   Change: Better output
 
 import os
 import sys
@@ -44,7 +44,7 @@ def main(database):
     print 'start-time: ', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     #bad_hashes = Lobotomy.get_databasedata('md5hash,added', 'bad_hashes', 'lobotomy')
     data_dlldump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
-    data_moddump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
+    data_moddump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5,modulebase', 'moddump', database)
     data_procdump = Lobotomy.get_databasedata('fullfilename,name,filename,md5', 'procdump', database)
     data_photorec = Lobotomy.get_databasedata('fullfilename,filemd5', 'photorec', database)
     data_vol_yara = Lobotomy.get_databasedata('owner_name,pid', 'volatility_yarascan', database)
@@ -71,18 +71,31 @@ def main(database):
         for get_hash_from_db in get_hash_from_db_tuple:
             for db_hash in get_hash_from_db:
                 if db_hash == md5hash_dlldump:
-                    print 'Match - Volatility plugin: Dlldump. :', md5hash_dlldump
+                    print '\n***********************************'
+                    print 'Match - Volatility plugin: Dlldump. '
+                    print 'Reason match - Table Bad_hashes'
+                    print '***********************************'
+                    print 'Hash:    ', md5hash_dlldump
+                    print 'Filename:', filename_dlldump
+                    print 'Module:  ', modulename_dlldump, '\n'
                     bad_hashes_list.append(['dlldump', fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump])
 
     for line_moddump in data_moddump:
-        fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump = line_moddump
+        fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump, modulebase_moddump = line_moddump
         sql_prefix = "bad_hashes where md5hash = '{}'".format(md5hash_moddump.strip('\n'))
         get_hash_from_db_tuple = Lobotomy.get_databasedata('md5hash', sql_prefix, 'lobotomy')
         for get_hash_from_db in get_hash_from_db_tuple:
             for db_hash in get_hash_from_db:
                 if db_hash == md5hash_moddump:
-                    print 'Match - Volatility plugin: Moddump. :', md5hash_moddump
-                    bad_hashes_list.append(['moddump', fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump])
+                    print '\n***********************************'
+                    print 'Match - Volatility plugin: Moddump. '
+                    print 'Reason match - Table Bad_hashes'
+                    print '***********************************'
+                    print 'Hash:    ', md5hash_moddump
+                    print 'Filename:', filename_moddump
+                    print 'Base:    ', modulebase_moddump
+                    print 'Module:  ', modulename_moddump, '\n'
+                    bad_hashes_list.append(['moddump', fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump, modulebase_moddump])
 
     for line_procdump in data_procdump:
         fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump = line_procdump
@@ -91,7 +104,13 @@ def main(database):
         for get_hash_from_db in get_hash_from_db_tuple:
             for db_hash in get_hash_from_db:
                 if db_hash == md5hash_procdump:
-                    print 'Match - Volatility plugin: Procdump. :', md5hash_procdump
+                    print '\n***********************************'
+                    print 'Match - Volatility plugin: Moddump. '
+                    print 'Reason match - Table Bad_hashes'
+                    print '***********************************'
+                    print 'Hash:    ', md5hash_procdump
+                    print 'Filename:', filename_procdump
+                    print 'Name:    ', name_procdump, '\n'
                     bad_hashes_list.append(['procdump', fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump])
     for line_photorec in data_photorec:
         fullfilename_photorec, md5hash_photorec = line_photorec
@@ -100,7 +119,12 @@ def main(database):
         for get_hash_from_db in get_hash_from_db_tuple:
             for db_hash in get_hash_from_db:
                 if db_hash == md5hash_photorec:
-                    print 'Match - Lobotomy plugin: Photorec. :', md5hash_photorec
+                    print '\n***********************************'
+                    print 'Match - Lobotomy plugin: Photorec. '
+                    print 'Reason match - Table Bad_hashes'
+                    print '***********************************'
+                    print 'Hash:    ', md5hash_photorec
+                    print 'Filename:', fullfilename_photorec, '\n'
                     bad_hashes_list.append(['photorec', fullfilename_photorec, md5hash_photorec])
 
     # bad_hashes_list.append(['dlldump', '/home/solvent/dumps/HPC62ZEFP5EK/dump/module.624.1fa5650.1000000.dll',
@@ -111,7 +135,8 @@ def main(database):
     #                         '00fa7854f212fcbfe8586f42186bc1d9'])
 
     stoptime = time.time()
-    print 'seconds to compare hashes database(s)', round(stoptime - starttime)
+    print 'seconds to compare hashes database(s)', round(stoptime - starttime), '\n\n'
+    print '***********************************\n***********************************\n\n'
 
     # Collect data where dlldump is the source (md5).
 
@@ -119,32 +144,67 @@ def main(database):
         if item[0] == 'dlldump':
             a, fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump = item
             pid_dlldump = filename_dlldump.split('.')[1]
-            print fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump, pid_dlldump
+            print '\n***********************************'
+            print 'collecting info of file: ', fullfilename_dlldump
+            print 'Name from dlldump:       ', modulename_dlldump
+            print 'Filename from dlldump:   ', filename_dlldump
+            print 'MD5 Hash from dlldump:   ', md5hash_dlldump
+            print 'Pid from dlldump:        ', pid_dlldump
+            print '\n***********************************\n'
+            #print fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump, pid_dlldump
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara = line_vol_yara
                 if str(pid_vol_yara) == str(pid_dlldump):
-                    print '\n\n\n***********************************\nmatch DLLDump vs volatility_Yara \n***********************************'
-                    print fullfilename_dlldump, modulename_dlldump, filename_dlldump, pid_dlldump
-                    print ownername_vol_yara, pid_vol_yara
+                    print '\n***********************************'
+                    print 'Match - DLLDump vs volatility_Yara'
+                    print '***********************************'
+                    print 'Fullfilename:       ', fullfilename_dlldump
+                    print 'Module:             ', modulename_dlldump
+                    print 'Filename:           ', filename_dlldump
+                    print 'Pid from dlldump:   ', pid_dlldump
+                    print 'Pid from yara:      ', pid_vol_yara
+                    print 'Ownername from yara:', ownername_vol_yara, '\n'
+                    # print '\n\n\n***********************************\nmatch DLLDump vs volatility_Yara \n***********************************'
+                    # print fullfilename_dlldump, modulename_dlldump, filename_dlldump, pid_dlldump
+                    # print ownername_vol_yara, pid_vol_yara
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
                 if filename_exifinfo == fullfilename_dlldump:
-                    print '\n***********************************\nmatch DLLDump vs Exifinfo \n***********************************'
-                    print "Exifinfo filename \t\t:", filename_exifinfo
-                    print exifinfo
+                    print '\n***********************************'
+                    print 'Match - DLLDump vs Exifinfo'
+                    print '***********************************'
+                    print 'Fullfilename:       ', filename_exifinfo
+                    print 'Exifinfo:         \n', exifinfo, '\n'
+                    # print '\n***********************************\nmatch DLLDump vs Exifinfo \n***********************************'
+                    # print "Exifinfo filename \t\t:", filename_exifinfo
+                    # print exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
                 if Fullfilename_pe == fullfilename_dlldump:
-                    print '\n***********************************\nmatch DLLDump vs PE_Scan \n***********************************'
-                    print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+                    print '\n***********************************'
+                    print 'Match - DLLDump vs PE_Scan'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe
+                    print 'PE Compile time     ', Pe_Compiletime
+                    print 'PE Packer           ', Pe_Packer
+                    print 'File type PE file:  ', Filetype_pe
+                    print 'Original Filename:  ', Original_Filename_pe
+                    print 'Yara Result:        ', Yara_Results_pe, '\n'
+                    # print '\n***********************************\nmatch DLLDump vs PE_Scan \n***********************************'
+                    # print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_dlldump:
-                    print '\n***********************************\nmatch DLLDump vs PE_Scan_beta \n***********************************'
-                    print Fullfilename_pe_beta, Pe_Blob_beta
+                    print 'Match - DLLDump vs PE_Scan_Beta'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe_beta
+                    print 'PE info:            ', Pe_Blob_beta, '\n'
+                    # print '\n***********************************\nmatch DLLDump vs PE_Scan_beta \n***********************************'
+                    # print '\n***********************************'
+                    # print Fullfilename_pe_beta, Pe_Blob_beta
 
 
         # Collect data where procdump is the source (md5).
@@ -152,33 +212,135 @@ def main(database):
         if item[0] == 'procdump':
             a, fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump = item
             pid_procdump = filename_procdump.split('.')[1]
-            print fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump, pid_procdump
+            print '\n***********************************'
+            print 'collecting info of file: ', fullfilename_procdump
+            print 'Name from procdump:      ', name_procdump
+            print 'Filename from procdump:  ', filename_procdump
+            print 'MD5 Hash from procdump:  ', md5hash_procdump
+            print 'Pid from procdump:       ', pid_procdump
+            print '\n***********************************\n'
+
+            #print fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump, pid_procdump
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara = line_vol_yara
                 if str(pid_vol_yara) == str(pid_procdump):
-                    print '\n\n\n***********************************\nmatch ProcDump vs volatility_Yara \n***********************************'
-                    print fullfilename_procdump, name_procdump, filename_procdump, pid_procdump
-                    print ownername_vol_yara, pid_vol_yara
+                    print '\n***********************************'
+                    print 'Match - ProcDump vs volatility_Yara'
+                    print '***********************************'
+                    print 'Fullfilename:       ', fullfilename_procdump
+                    print 'PE Compile time     ', name_procdump
+                    print 'Filename Procdmp:   ', filename_procdump
+                    print 'Pid from Procdump:  ', pid_procdump
+                    print 'Pid from yara:      ', pid_vol_yara
+                    print 'Ownername Yara:     ', ownername_vol_yara, '\n'
+                    #
+                    # print '\n\n\n***********************************\nmatch ProcDump vs volatility_Yara \n***********************************'
+                    # print fullfilename_procdump, name_procdump, filename_procdump, pid_procdump
+                    # print ownername_vol_yara, pid_vol_yara
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
                 if filename_exifinfo == fullfilename_procdump:
-                    print '\n***********************************\nmatch ProcDump vs Exifinfo \n***********************************'
-                    print "Exifinfo filename \t\t:", filename_exifinfo
-                    print exifinfo
+                    print '\n***********************************'
+                    print 'Match - Procdump vs Exifinfo'
+                    print '***********************************'
+                    print 'Fullfilename:       ', filename_exifinfo
+                    print 'Exifinfo:         \n', exifinfo, '\n'
+                    # print '\n***********************************\nmatch ProcDump vs Exifinfo \n***********************************'
+                    # print "Exifinfo filename \t\t:", filename_exifinfo
+                    # print exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
                 if Fullfilename_pe == fullfilename_procdump:
-                    print '\n***********************************\nmatch ProcDump vs PE_Scan \n***********************************'
-                    print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+                    print '\n***********************************'
+                    print 'Match - Procdump vs PE_Scan'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe
+                    print 'PE Compile time:    ', Pe_Compiletime
+                    print 'PE Packer:          ', Pe_Packer
+                    print 'File type PE file:  ', Filetype_pe
+                    print 'Original Filename:  ', Original_Filename_pe
+                    print 'Yara Result:        ', Yara_Results_pe, '\n'
+                    # print '\n***********************************\nmatch ProcDump vs PE_Scan \n***********************************'
+                    # print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_procdump:
-                    print '\n***********************************\nmatch ProcDump vs PE_Scan_beta \n***********************************'
-                    print Fullfilename_pe_beta, Pe_Blob_beta
+                    print 'Match - Procdump vs PE_Scan_Beta'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe_beta
+                    print 'PE info:            ', Pe_Blob_beta, '\n'
+                    # print '\n***********************************\nmatch ProcDump vs PE_Scan_beta \n***********************************'
+                    # print Fullfilename_pe_beta, Pe_Blob_beta
 
+        if item[0] == 'moddump':
+            a, fullfilename_moddump, name_moddump, filename_moddump, md5hash_moddump, modulename_moddump = item
+            pid_moddump = filename_moddump.split('.')[1]
+            print '\n***********************************'
+            print 'collecting info of file: ', fullfilename_moddump
+            print 'Name from moddump:      ', name_moddump
+            print 'Filename from moddump:  ', filename_moddump
+            print 'Filename from moddump:  ', modulename_moddump
+            print 'MD5 Hash from moddump:  ', md5hash_moddump
+            print 'Pid from moddump:       ', pid_moddump
+            print '\n***********************************\n'
+
+            #print fullfilename_moddump, name_moddump, filename_moddump, md5hash_moddump, pid_moddump
+            for line_vol_yara in data_vol_yara:
+                ownername_vol_yara, pid_vol_yara = line_vol_yara
+                if str(pid_vol_yara) == str(pid_moddump):
+                    print '\n***********************************'
+                    print 'Match - Moddump vs volatility_Yara'
+                    print '***********************************'
+                    print 'Fullfilename:       ', fullfilename_moddump
+                    print 'PE Compile time     ', name_moddump
+                    print 'Filename moddmp:   ', filename_moddump
+                    print 'Pid from moddump:  ', pid_moddump
+                    print 'Pid from yara:      ', pid_vol_yara
+                    print 'Ownername Yara:     ', ownername_vol_yara, '\n'
+                    #
+                    # print '\n\n\n***********************************\nmatch modDump vs volatility_Yara \n***********************************'
+                    # print fullfilename_moddump, name_moddump, filename_moddump, pid_moddump
+                    # print ownername_vol_yara, pid_vol_yara
+
+            for line_exifinfo in data_exifinfo:
+                filename_exifinfo,exifinfo = line_exifinfo
+                if filename_exifinfo == fullfilename_moddump:
+                    print '\n***********************************'
+                    print 'Match - Moddump vs Exifinfo'
+                    print '***********************************'
+                    print 'Fullfilename:       ', filename_exifinfo
+                    print 'Exifinfo:         \n', exifinfo, '\n'
+                    # print '\n***********************************\nmatch modDump vs Exifinfo \n***********************************'
+                    # print "Exifinfo filename \t\t:", filename_exifinfo
+                    # print exifinfo
+
+            for line_pe_scan in data_pe_scan:
+                Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
+                if Fullfilename_pe == fullfilename_moddump:
+                    print '\n***********************************'
+                    print 'Match - Moddump vs PE_Scan'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe
+                    print 'PE Compile time:    ', Pe_Compiletime
+                    print 'PE Packer:          ', Pe_Packer
+                    print 'File type PE file:  ', Filetype_pe
+                    print 'Original Filename:  ', Original_Filename_pe
+                    print 'Yara Result:        ', Yara_Results_pe, '\n'
+                    # print '\n***********************************\nmatch modDump vs PE_Scan \n***********************************'
+                    # print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+
+            for line_pe_scan_beta in data_pe_scan_beta:
+                Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
+                if Fullfilename_pe_beta == fullfilename_moddump:
+                    print 'Match - moddump vs PE_Scan_Beta'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe_beta
+                    print 'PE info:            ', Pe_Blob_beta, '\n'
+                    # print '\n***********************************\nmatch modDump vs PE_Scan_beta \n***********************************'
+                    # print Fullfilename_pe_beta, Pe_Blob_beta
 
         # Collect data where photorec is the source (md5).
 
@@ -188,28 +350,55 @@ def main(database):
             for line_yara in data_yara:
                 filename_yara, string_yara, yara_yara, yara_description_yara = line_yara
                 if filename_yara == fullfilename_photorec:
-                    print '\n\n\n***********************************\nmatch Photorec vs Yara \n***********************************'
-                    print fullfilename_photorec, md5hash_photorec
-                    print filename_yara, string_yara, yara_yara, yara_description_yara
+                    print '\n***********************************'
+                    print 'Match - Photorec vs volatility_Yara'
+                    print '***********************************'
+                    print 'Fullfilename:       ', fullfilename_photorec
+                    print 'MD5 Hash:           ', md5hash_photorec
+                    print 'Filename Yara:      ', filename_yara
+                    print 'Yara string:        ', string_yara
+                    print 'yara:               ', yara_yara
+                    print 'Yara description:    ', yara_description_yara, '\n'
+                    # print '\n\n\n***********************************\nmatch Photorec vs Yara \n***********************************'
+                    # print fullfilename_photorec, md5hash_photorec
+                    # print filename_yara, string_yara, yara_yara, yara_description_yara
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
                 if filename_exifinfo == fullfilename_photorec:
-                    print '\n***********************************\nmatch Photorec vs Exifinfo \n***********************************'
-                    print "Exifinfo filename \t\t:", filename_exifinfo
-                    print exifinfo
+                    print '\n***********************************'
+                    print 'Match - Photorec vs Exifinfo'
+                    print '***********************************'
+                    print 'Fullfilename:       ', filename_exifinfo
+                    print 'Exifinfo:         \n', exifinfo, '\n'
+                    # print '\n***********************************\nmatch Photorec vs Exifinfo \n***********************************'
+                    # print "Exifinfo filename \t\t:", filename_exifinfo
+                    # print exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
                 if Fullfilename_pe == fullfilename_photorec:
-                    print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
-                    print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
+                    print '\n***********************************'
+                    print 'Match - Photorec vs PE_Scan'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe
+                    print 'PE Compile time:    ', Pe_Compiletime
+                    print 'PE Packer:          ', Pe_Packer
+                    print 'File type PE file:  ', Filetype_pe
+                    print 'Original Filename:  ', Original_Filename_pe
+                    print 'Yara Result:        ', Yara_Results_pe, '\n'
+                    # print '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
+                    # print Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_photorec:
-                    print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
-                    print Fullfilename_pe_beta, Pe_Blob_beta
+                    print 'Match - Photorec vs PE_Scan_Beta'
+                    print '***********************************'
+                    print 'Fullfilename:       ', Fullfilename_pe_beta
+                    print 'PE info:            ', Pe_Blob_beta, '\n'
+                    # print '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
+                    # print Fullfilename_pe_beta, Pe_Blob_beta
 
 
 
@@ -248,14 +437,47 @@ def main(database):
         ldr_loadpathprocess, ldr_initpathpath, ldr_initpathprocess, ldr_mempathpath, ldr_mempathprocess = line_ldrmodules
 
         if ldr_mappedpath == '' and ldr_ininit == 'False':
-            print '\n***********************************\nEmpty Ldr_Mappedpath and Ldr_ininit is False: Alert \n***********************************'
-            print line_ldrmodules
+            print '\n***********************************'
+            print 'Empty Ldr_Mappedpath and Ldr_ininit is False: Alert'
+            print '***********************************'
+            print 'Process        :', ldr_process
+            print 'Mapped Path    :', ldr_mappedpath
+            print 'Base           :', ldr_base
+            print 'Pid Ldrmodules :', ldr_pid
+            print 'Inload         :', ldr_inload
+            print 'Inload process :', ldr_loadpathprocess
+            print 'Inload path    :', ldr_loadpathpath
+            print 'Ininint        :', ldr_ininit
+            print 'Ininint process:', ldr_initpathprocess
+            print 'Ininint path   :', ldr_initpathpath
+            print 'Inmem          :', ldr_inmem
+            print 'Inmem process  :', ldr_mempathprocess
+            print 'Inmem path     :', ldr_mempathpath, '\n'
+
+            # print '\n***********************************\nEmpty Ldr_Mappedpath and Ldr_ininit is False: Alert \n***********************************'
+            # print line_ldrmodules
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
-                print '\n***********************************\n' \
-                      'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert ' \
-                      '\n***********************************'
-                print line_ldrmodules
+                # print '\n***********************************\n' \
+                #       'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert ' \
+                #       '\n***********************************'
+                print '\n***********************************'
+                print 'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert'
+                print '***********************************'
+                print 'Process        :', ldr_process
+                print 'Mapped Path    :', ldr_mappedpath
+                print 'Base           :', ldr_base
+                print 'Pid Ldrmodules :', ldr_pid
+                print 'Inload         :', ldr_inload
+                print 'Inload process :', ldr_loadpathprocess
+                print 'Inload path    :', ldr_loadpathpath
+                print 'Ininint        :', ldr_ininit
+                print 'Ininint process:', ldr_initpathprocess
+                print 'Ininint path   :', ldr_initpathpath
+                print 'Inmem          :', ldr_inmem
+                print 'Inmem process  :', ldr_mempathprocess
+                print 'Inmem path     :', ldr_mempathpath, '\n'
+#                print line_ldrmodules
 
 
 #########################################################################################
