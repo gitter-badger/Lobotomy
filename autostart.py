@@ -47,7 +47,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hivelist.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} handles'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 2)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'ldrmodules.py{}'.format(database), 2)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} ldrmodules'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'ldrmodules_v.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psscan'.format(database), 2)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'prefetchparser.py {}'.format(database), 3) # not yet supported
