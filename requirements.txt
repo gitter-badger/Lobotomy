@@ -1,0 +1,24 @@
+apt-get install python-pip
+apt-get install libmysqlclient-dev
+apt-get install python-mysqldb
+pip install configobj
+pip install pyinotify
+pip install python-dateutil
+mkdir /dumps
+chown lobotomy:lobotomy /dumps
+mkdir /srv/lobotomy/dumps
+wget http://malwarecookbook.googlecode.com/svn/trunk/stuxnet.vmem.zip -O /tmp/stuxnet.vmem.zip
+mkdir sampels
+cd sampels
+unzip /tmp/stuxnet.vmem.zip
+cd ..
+apt-get install volatility
+mkdir installs
+cd install
+wget http://downloads.volatilityfoundation.org/releases/2.4/volatility-2.4.zip
+unzip volatility-2.4.zip
+cd volatility-2.4
+python setup.py install # volatility
+cd ../..
+apt-get install yara
+apt-get install exiftool
