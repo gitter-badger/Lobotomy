@@ -159,7 +159,7 @@ def main(database):
         if item[0] == 'dlldump':
             a, fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump = item
             pid_dlldump = filename_dlldump.split('.')[1]
-            line_print += '\n***********************************'
+            line_print += '\n***********************************\n'
             line_print += 'collecting info for file : ' + fullfilename_dlldump + '\n'
             line_print += 'Name from dlldump        : ' + modulename_dlldump + '\n'
             line_print += 'Filename from dlldump    : ' + filename_dlldump + '\n'
