@@ -40,6 +40,7 @@ def main(database):
     # Read database
 
     starttime = time.time()
+    sprint = ''
     lprintstart = ''
     lprintstart = 'Reading Database, please wait\n'
     lprintstart += 'start-time: ' + str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + '\n'
@@ -62,6 +63,7 @@ def main(database):
     lprintstart += 'Comparing bad_hashed with hashes from image, please wait.' + '\n'
     lprint = lprintstart
     print lprintstart
+    sprint += lprintstart
     
     # Compare the hash from ddldump, procdump and photorec with the hashes in the database, bad_hashes
     # if there is no match, there will be no trigger for the program to collect data.
@@ -84,6 +86,7 @@ def main(database):
                     bad_hashes_list.append(['dlldump', fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump])
     lprint += lprintdlldump
     print lprintdlldump
+    sprint += lprintdlldump
 
     lprintmoddump = ''
     for line_moddump in data_moddump:
@@ -104,6 +107,7 @@ def main(database):
                     bad_hashes_list.append(['moddump', fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump, modulebase_moddump])
     lprint += lprintmoddump
     print lprintmoddump
+    sprint += lprintdlldump
 
     lprintprocdump = ''
     for line_procdump in data_procdump:
@@ -123,7 +127,8 @@ def main(database):
                     bad_hashes_list.append(['procdump', fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump])
     lprint += lprintprocdump
     print lprintprocdump
-    
+    sprint += lprintprocdump
+
     lprintphoto = ''
     for line_photorec in data_photorec:
         fullfilename_photorec, md5hash_photorec = line_photorec
@@ -141,6 +146,7 @@ def main(database):
                     bad_hashes_list.append(['photorec', fullfilename_photorec, md5hash_photorec])
     lprint += lprintphoto
     print lprintphoto
+    sprint += lprintphoto
 
     stoptime = time.time()
     lprint += 'seconds to compare hashes database(s)' + str(round(stoptime - starttime)) + '\n\n'
@@ -412,6 +418,7 @@ def main(database):
 
     lprint += line_print
     print line_print
+    sprint += line_print
     line_print = ''
 
 # To do:
@@ -494,13 +501,15 @@ def main(database):
 
     lprint += line_print
     print line_print
+    sprint += line_print
+    line_print = ''
     try:
         f = open(imagename + '-' + plugin + '.txt', 'w')
-        f.write(line_print)
+        f.write(sprint)
         f.close()
     except:
         pass
-    line_print = ''
+
 
 #########################################################################################
 #########################################################################################
