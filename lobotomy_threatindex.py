@@ -637,6 +637,6 @@ def main(database):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        line_print += "Usage: " + plugin + ".py <database>"
+        print "Usage: " + plugin + ".py <database>"
     else:
         main(sys.argv[1])
