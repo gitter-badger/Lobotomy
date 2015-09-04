@@ -22,3 +22,16 @@ python setup.py install # volatility
 cd ../..
 apt-get install yara
 apt-get install exiftool
+pip install pefile
+pip install python-magic
+apt-get install ssdeep
+apt-get install python-pyrex python-all python-all-dev
+apt-get install libfuzzy-dev libfuzzy2
+pip install pyssdeep
+cd installs
+apt-get install subversion -y
+svn checkout http://pyssdeep.googlecode.com/svn/trunk/ pyssdeep
+cd pyssdeep
+python setup.py build
+python setup.py install # run as root user
+cd ../..
