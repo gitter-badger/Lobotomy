@@ -54,7 +54,7 @@ alerts = ['OpenProcess', 'VirtualAllocEx', 'WriteProcessMemory', 'CreateRemoteTh
 # legit entry point sections
 good_ep_sections = ['.text', '.code', 'INIT', 'PAGE']
 # path to clamscan (optional)
-clamscan_path = '/usr/bin/clamscanx'
+clamscan_path = '/usr/bin/clamscan'
 
 def convert_char(char):
     if char in string.ascii_letters or \
