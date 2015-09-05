@@ -41,6 +41,22 @@ def main(database, folder):
     count = 0
     sql_line = ''
 
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write('')
+        f.close()
+    except:
+        pass
+
+
+    command = "yara yara_rules/index.yara " + database
+    if DEBUG:
+        print "Write log: " + database + ", Start: " + command
+        print "Write log: " + casedir + ", Start: " + command
+    else:
+        Lobotomy.write_to_main_log(database, " Start: " + command)
+        Lobotomy.write_to_case_log(casedir, " Start: " + command)
+
     if folder == '':
 
         for subdir, dirs, files in os.walk(casedir):
@@ -52,22 +68,34 @@ def main(database, folder):
         for subdir, dirs, files in os.walk(casedir):
             for folders in dirs:
                 for subdir1, dirs1, files1 in os.walk(subdir + '/' + folders):
+                    print "Running yarascan on folder: " + subdir1
                     for file in files1:
+                        filename = ''
+                        offset = ''
+                        description = ''
+                        string = ''
+                        yara = ''
+                        yara_description = ''
                         count = count +1
                         filenaam = os.path.join(subdir1, file)
-                        command = "yara yara_rules/index.yara " + filenaam + " -m -s"
+                        command = "yara yara_rules/index.yara " + filenaam + " -m -s -w"
+                        # Yara -w: disable warnings
+                        # Yara -m: print metadata.
+                        # Yara -s: print matching strings.
                         if DEBUG:
                             print command
                         else:
-                            print "Running yarascan on folder: " + subdir1
                             log = ""
                             status, log = commands.getstatusoutput(command)
-                        if DEBUG:
-                            print "Write log: " + database + ", Start: " + command
-                            print "Write log: " + casedir + ", Start: " + command
-                        else:
-                            Lobotomy.write_to_main_log(database, " Start: " + command)
-                            Lobotomy.write_to_case_log(casedir, " Start: " + command)
+                        try:
+                            f = open(imagename + '-' + plugin + '.txt', 'a')
+                            f.write(log)
+                            if log != '':
+                                f.write('\n')
+                            f.close()
+                        except:
+                            pass
+
                         try:
                             pct = str(float(1.0 * count / counter) * 99).split(".")[0]
                             print "Yarascan - Percentage done: ", pct
@@ -105,6 +133,7 @@ def main(database, folder):
                                         Lobotomy.exec_sql_query(sql_line, database)
                                         Lobotomy.plugin_pct(plugin, database, pct)
                                     except:
+
                                         print 'Error sql query: ' + sql_line + " - " + database
 
     if DEBUG:
