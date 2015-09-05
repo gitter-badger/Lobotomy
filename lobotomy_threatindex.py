@@ -15,6 +15,10 @@ __author__ = 'Wim Venhuizen'
 # 03 sep 2015:      Wim Venhuizen
 #  Detail:          Added: moddump
 #                   Change: Better output
+# 05 sep 2015:      Wim Venhuizen
+#  Detail:          Change: More volatility Yara output
+#                   Add: Check pid in psxview
+#                   Add: Display if ClamAV gives other then 'OK' on scaned files
 
 import os
 import sys
@@ -57,6 +61,8 @@ def main(database):
     data_pe_scan = Lobotomy.get_databasedata('Fullfilename,Pe_Compiletime,Pe_Packer,Filetype,Original_Filename,Yara_Results'
                                              , 'pe_scan', database)
     data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
+    data_psxview = Lobotomy.get_databasedata('offset,name,pid,pslist,psscan,thrdproc,pspcid,csrss,session,deskthrd,'
+                                             'exittime', 'psxview', database)
 
     bad_hashes_list = []
     stoptime = time.time()
@@ -169,9 +175,29 @@ def main(database):
             line_print += 'MD5 Hash from dlldump    : ' + md5hash_dlldump + '\n'
             line_print += 'Pid from dlldump         : ' + pid_dlldump + '\n'
             line_print += '***********************************\n' + '\n'
-            #line_print += fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump, pid_dlldump
-            # data_vol_yara = Lobotomy.get_databasedata('owner_name,pid,rule,name,data_offset,data_bytes,data_txt',
-            #                               'volatility_yarascan', database)
+
+            for line_psxview in data_psxview:
+                offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
+                pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
+                if str(pid_psxview) == str(pid_dlldump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Match - Pid from PSXview vs Dlldump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
+                    tmpcounter = 0
+                    for tmplen in line_psxview:
+                        if len(str(tmp[tmpcounter])) < len(str(line_psxview[tmpcounter])):
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        else:
+                            line_print += tmp[tmpcounter] + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    for tmplen in line_psxview:
+                        line_print += str(line_psxview[tmpcounter]) + \
+                                      ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
+                        tmpcounter += 1
+                    line_print += '\n'
 
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
@@ -190,14 +216,12 @@ def main(database):
                     data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
                     data_txt_vol_yara = data_txt_vol_yara.split('\n')
                     linenr = 0
+                    line_print += '=' * 88 + '\nYaradata\n' + '=' * 88
                     for test in data_offset_vol_yara:
-                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
-                                      data_txt_vol_yara[linenr] + '\n'
+                        line_print += '\n' + data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr]
                         linenr += 1
-
-                    # line_print += '\n\n\n***********************************\nmatch DLLDump vs volatility_Yara \n***********************************'
-                    # line_print += fullfilename_dlldump, modulename_dlldump, filename_dlldump, pid_dlldump
-                    # line_print += ownername_vol_yara, pid_vol_yara
+                    line_print += '\n' + '=' * 88 + '\n'
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
@@ -207,9 +231,6 @@ def main(database):
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename:                  ' + filename_exifinfo + '\n'
                     line_print += exifinfo + '\n'
-                    # line_print += '\n***********************************\nmatch DLLDump vs Exifinfo \n***********************************'
-                    # line_print += "Exifinfo filename \t\t:", filename_exifinfo
-                    # line_print += exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
@@ -223,20 +244,15 @@ def main(database):
                     line_print += 'File type PE file   : ' + Filetype_pe + '\n'
                     line_print += 'Original Filename   : ' + Original_Filename_pe + '\n'
                     line_print += 'Yara Result         : ' + Yara_Results_pe + '\n' + '\n'
-                    # line_print += '\n***********************************\nmatch DLLDump vs PE_Scan \n***********************************'
-                    # line_print += Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_dlldump:
+                    line_print += '\n***********************************' + '\n'
                     line_print += 'Match - DLLDump vs PE_Scan_Beta' + '\n'
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename        : ' + Fullfilename_pe_beta + '\n'
                     line_print += 'PE info             :\n' + Pe_Blob_beta + '\n' + '\n'
-                    # line_print += '\n***********************************\nmatch DLLDump vs PE_Scan_beta \n***********************************'
-                    # line_print += '\n***********************************'
-                    # line_print += Fullfilename_pe_beta, Pe_Blob_beta
-
 
         # Collect data where procdump is the source (md5).
 
@@ -250,6 +266,29 @@ def main(database):
             line_print += 'MD5 Hash from procdump   : ' + md5hash_procdump + '\n'
             line_print += 'Pid from procdump        : ' + pid_procdump + '\n'
             line_print += '***********************************\n' + '\n'
+
+            for line_psxview in data_psxview:
+                offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
+                pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
+                if str(pid_psxview) == str(pid_procdump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Match - Pid from PSXview vs Procdump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
+                    tmpcounter = 0
+                    for tmplen in line_psxview:
+                        if len(str(tmp[tmpcounter])) < len(str(line_psxview[tmpcounter])):
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        else:
+                            line_print += tmp[tmpcounter] + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    for tmplen in line_psxview:
+                        line_print += str(line_psxview[tmpcounter]) + \
+                                      ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
+                        tmpcounter += 1
+                    line_print += '\n'
 
             #line_print += fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump, pid_procdump
             for line_vol_yara in data_vol_yara:
@@ -269,14 +308,12 @@ def main(database):
                     data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
                     data_txt_vol_yara = data_txt_vol_yara.split('\n')
                     linenr = 0
+                    line_print += '=' * 88 + '\nYaradata\n' + '=' * 88
                     for test in data_offset_vol_yara:
-                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
-                                      data_txt_vol_yara[linenr] + '\n'
+                        line_print += '\n' + data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr]
                         linenr += 1
-                    #
-                    # line_print += '\n\n\n***********************************\nmatch ProcDump vs volatility_Yara \n***********************************'
-                    # line_print += fullfilename_procdump, name_procdump, filename_procdump, pid_procdump
-                    # line_print += ownername_vol_yara, pid_vol_yara
+                    line_print += '\n' + '=' * 88 + '\n'
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
@@ -286,9 +323,6 @@ def main(database):
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename:                  ' + filename_exifinfo + '\n'
                     line_print += exifinfo + '\n\n'
-                    # line_print += '\n***********************************\nmatch ProcDump vs Exifinfo \n***********************************'
-                    # line_print += "Exifinfo filename \t\t:", filename_exifinfo
-                    # line_print += exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
@@ -302,8 +336,6 @@ def main(database):
                     line_print += 'File type PE file   : ' + Filetype_pe + '\n'
                     line_print += 'Original Filename   : ' + Original_Filename_pe + '\n'
                     line_print += 'Yara Result         : ' + Yara_Results_pe + '\n' + '\n'
-                    # line_print += '\n***********************************\nmatch ProcDump vs PE_Scan \n***********************************'
-                    # line_print += Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
@@ -313,8 +345,6 @@ def main(database):
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename:       ' + Fullfilename_pe_beta + '\n'
                     line_print += 'PE info:            \n' + Pe_Blob_beta + '\n\n'
-                    # line_print += '\n***********************************\nmatch ProcDump vs PE_Scan_beta \n***********************************'
-                    # line_print += Fullfilename_pe_beta, Pe_Blob_beta
 
         if item[0] == 'moddump':
             a, fullfilename_moddump, name_moddump, filename_moddump, md5hash_moddump, modulename_moddump = item
@@ -328,7 +358,29 @@ def main(database):
             line_print += 'Pid from moddump         : ' + pid_moddump + '\n'
             line_print += '***********************************\n\n'
 
-            #line_print += fullfilename_moddump, name_moddump, filename_moddump, md5hash_moddump, pid_moddump
+            for line_psxview in data_psxview:
+                offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
+                pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
+                if str(pid_psxview) == str(pid_moddump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Match - Pid from PSXview vs Moddump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
+                    tmpcounter = 0
+                    for tmplen in line_psxview:
+                        if len(str(tmp[tmpcounter])) < len(str(line_psxview[tmpcounter])):
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        else:
+                            line_print += tmp[tmpcounter] + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    for tmplen in line_psxview:
+                        line_print += str(line_psxview[tmpcounter]) + \
+                                      ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
+                        tmpcounter += 1
+                    line_print += '\n'
+
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
                 data_bytes_vol_yara, data_txt_vol_yara = line_vol_yara
@@ -347,14 +399,12 @@ def main(database):
                     data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
                     data_txt_vol_yara = data_txt_vol_yara.split('\n')
                     linenr = 0
+                    line_print += '=' * 88 + '\nYaradata\n' + '=' * 88
                     for test in data_offset_vol_yara:
-                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
-                                      data_txt_vol_yara[linenr] + '\n'
+                        line_print += '\n' + data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr]
                         linenr += 1
-                    #
-                    # line_print += '\n\n\n***********************************\nmatch modDump vs volatility_Yara \n***********************************'
-                    # line_print += fullfilename_moddump, name_moddump, filename_moddump, pid_moddump
-                    # line_print += ownername_vol_yara, pid_vol_yara
+                    line_print += '\n' + '=' * 88 + '\n'
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
@@ -364,9 +414,6 @@ def main(database):
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename:                  ' + filename_exifinfo + '\n'
                     line_print += exifinfo + '\n\n'
-                    # line_print += '\n***********************************\nmatch modDump vs Exifinfo \n***********************************'
-                    # line_print += "Exifinfo filename \t\t:", filename_exifinfo
-                    # line_print += exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
@@ -380,18 +427,15 @@ def main(database):
                     line_print += 'File type PE file   : ' + Filetype_pe + '\n'
                     line_print += 'Original Filename   : ' + Original_Filename_pe + '\n'
                     line_print += 'Yara Result         : ' + Yara_Results_pe + '\n\n'
-                    # line_print += '\n***********************************\nmatch modDump vs PE_Scan \n***********************************'
-                    # line_print += Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_moddump:
+                    line_print += '\n***********************************' + '\n'
                     line_print += 'Match - moddump vs PE_Scan_Beta' + '\n'
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename        : ' + Fullfilename_pe_beta + '\n'
                     line_print += 'PE info             :\n' + Pe_Blob_beta + '\n\n'
-                    # line_print += '\n***********************************\nmatch modDump vs PE_Scan_beta \n***********************************'
-                    # line_print += Fullfilename_pe_beta, Pe_Blob_beta
 
         # Collect data where photorec is the source (md5).
 
@@ -410,9 +454,6 @@ def main(database):
                     line_print += 'Yara string         : ' + string_yara + '\n'
                     line_print += 'yara                : ' + yara_yara + '\n'
                     line_print += 'Yara description    : ' + yara_description_yara + '\n\n'
-                    # line_print += '\n\n\n***********************************\nmatch Photorec vs Yara \n***********************************'
-                    # line_print += fullfilename_photorec, md5hash_photorec
-                    # line_print += filename_yara, string_yara, yara_yara, yara_description_yara
 
             for line_exifinfo in data_exifinfo:
                 filename_exifinfo,exifinfo = line_exifinfo
@@ -422,9 +463,6 @@ def main(database):
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename:                  ' + filename_exifinfo + '\n'
                     line_print += exifinfo + '\n\n'
-                    # line_print += '\n***********************************\nmatch Photorec vs Exifinfo \n***********************************'
-                    # line_print += "Exifinfo filename \t\t:", filename_exifinfo
-                    # line_print += exifinfo
 
             for line_pe_scan in data_pe_scan:
                 Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe = line_pe_scan
@@ -438,18 +476,15 @@ def main(database):
                     line_print += 'File type PE file   : ' + Filetype_pe + '\n'
                     line_print += 'Original Filename   : ' + Original_Filename_pe + '\n'
                     line_print += 'Yara Result         : ' + Yara_Results_pe + '\n\n'
-                    # line_print += '\n***********************************\nmatch Photorec vs PE_Scan \n***********************************'
-                    # line_print += Fullfilename_pe, Pe_Compiletime, Pe_Packer, Filetype_pe, Original_Filename_pe, Yara_Results_pe
 
             for line_pe_scan_beta in data_pe_scan_beta:
                 Fullfilename_pe_beta,Pe_Blob_beta = line_pe_scan_beta
                 if Fullfilename_pe_beta == fullfilename_photorec:
+                    line_print += '\n***********************************' + '\n'
                     line_print += 'Match - Photorec vs PE_Scan_Beta' + '\n'
                     line_print += '***********************************' + '\n'
                     line_print += 'Fullfilename        : ' + Fullfilename_pe_beta + '\n'
                     line_print += 'PE info             :\n' + Pe_Blob_beta + '\n\n'
-                    # line_print += '\n***********************************\nmatch Photorec vs PE_Scan_beta \n***********************************'
-                    # line_print += Fullfilename_pe_beta, Pe_Blob_beta
 
     lprint += line_print
     print line_print
@@ -462,44 +497,29 @@ def main(database):
 #   ClamAV Scan
 #########################################################################################
 #########################################################################################
-
-# data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
+    cprint += '\n***********************************' + '\n'
+    cprint += 'ClamAV findings'
+    cprint += '\n***********************************' + '\n'
     for line_pe_scan_beta in data_pe_scan_beta:
         pe_scan_beta_filename, pe_scan_beta_pe_blob = line_pe_scan_beta
+        pe_scan_beta_pe_blob = pe_scan_beta_pe_blob.split('\n')
         for test_clam in pe_scan_beta_pe_blob:
-            if 'clamav' in test_clam:
+            if 'Clamav' in test_clam:
                 clam_line = test_clam.split(':')
-                if clam_line[2] != 'OK':
-                    cprint += clam_line
-
-#
-#
-
-# To do:
-#   Get list from psxview or/and psscan and get offset. use this offset to carv exe hiding from active proc list.
-#   - (Art of memory forensics, page 243)
+                if clam_line[0] == 'Clamav' and clam_line[2].strip(' ') != 'OK':
+                    for item in clam_line:
+                        cprint += item + '\t'
+                    cprint += '\n'
 
 #########################################################################################
 #########################################################################################
-#   Done
-#   volatility moddump. (we have procdump and dlldump)
+# Done
+#########################################################################################
+#   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
+#   - alert if ininit is false and mappedpath is empty!
+#   SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND ininit = 'False';
 #########################################################################################
 #########################################################################################
-
-
-#   volatility mallfind, (we use it later here, Art of memory forensics, page 254)
-#   volatility vadinfo, (we use it later here, Art of memory forensics, page 260)
-#
-
-
-    # data_modscan = Lobotomy.get_databasedata('offset,name,base,size,file', 'modscan', database)
-    # data_psxview = Lobotomy.get_databasedata('offset,name,pid,pslist,psscan,thrdproc,pspcid,csrss'
-    #                                          'session,deskthrd,exittime', 'psxview', database)
-    # data_psscan = Lobotomy.get_databasedata('offset,name,pid,ppid,pdb,timecreated,timeexited', 'psscan', database)
-
-
-
-#loadpathpath, loadpathprocess, initpathpathh, initpathprocess, mempathpath, mempathprocess
 
     data_ldrmod = Lobotomy.get_databasedata('pid,process,base,inload,ininit,inmem,mappedpath,loadpathpath,'
                                             'loadpathprocess, initpathpath, initpathprocess, mempathpath,'
@@ -528,13 +548,31 @@ def main(database):
             line_print += 'Inmem process   : ' + ldr_mempathprocess + '\n'
             line_print += 'Inmem path      : ' + ldr_mempathpath + '\n\n'
 
-            # line_print += '\n***********************************\nEmpty Ldr_Mappedpath and Ldr_ininit is False: Alert \n***********************************'
-            # line_print += line_ldrmodules
+            for line_psxview in data_psxview:
+                offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
+                pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
+                if str(pid_psxview) == str(ldr_pid):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Match - Pid from PSXview vs Ldrmodules'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
+                    tmpcounter = 0
+                    for tmplen in line_psxview:
+                        if len(str(tmp[tmpcounter])) <= 8 and len(str(line_psxview[tmpcounter])) <= 8:# or len(str(tmp[tmpcounter])) <= len(str(line_psxview[tmpcounter])):
+                            line_print += tmp[tmpcounter] + '\t'
+                        else:
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    for tmplen in line_psxview:
+                        line_print += str(line_psxview[tmpcounter]) + \
+                                      ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
+                        tmpcounter += 1
+                    line_print += '\n'
+
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
-                # line_print += '\n***********************************\n' \
-                #       'Non matching Paths, inmem, ininit and inload while Inload, Inmem and Ininit are True: Alert ' \
-                #       '\n***********************************'
                 line_print += '\n***********************************' + '\n'
                 line_print += 'Non matching Paths + inmem + ininit and inload while Inload + Inmem and Ininit are True: Alert' + '\n'
                 line_print += '***********************************' + '\n'
@@ -551,7 +589,28 @@ def main(database):
                 line_print += 'Inmem           : ' + ldr_inmem + '\n'
                 line_print += 'Inmem process   : ' + ldr_mempathprocess + '\n'
                 line_print += 'Inmem path      : ' + ldr_mempathpath + '\n\n'
-#                line_print += line_ldrmodules
+                for line_psxview in data_psxview:
+                    offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
+                    pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
+                    if str(pid_psxview) == str(ldr_pid):
+                        line_print += '\n' + '*' * 120 + '\n'
+                        line_print += 'Match - Pid from PSXview vs Ldrmodules'
+                        line_print += '\n' + '*' * 120 + '\n'
+                        tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
+                        tmpcounter = 0
+                        for tmplen in line_psxview:
+                            if len(str(tmp[tmpcounter])) <= 8 and len(str(line_psxview[tmpcounter])) <= 8:# or len(str(tmp[tmpcounter])) <= len(str(line_psxview[tmpcounter])):
+                                line_print += tmp[tmpcounter] + '\t'
+                            else:
+                                line_print += tmp[tmpcounter] + '\t\t'
+                            tmpcounter += 1
+                        tmpcounter = 0
+                        line_print += '\n'
+                        for tmplen in line_psxview:
+                            line_print += str(line_psxview[tmpcounter]) + \
+                                          ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
+                            tmpcounter += 1
+                        line_print += '\n'
 
     try:
         lprint += line_print
@@ -575,28 +634,31 @@ def main(database):
         pass
 
 
-#########################################################################################
-#########################################################################################
-# Done
-#########################################################################################
-#   Find unlinked dll's with ldrmodules. (inload, Ininit, Inmem = false)
-# SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND inmem = 'False';
-#########################################################################################
-#########################################################################################
 
 
 #
 #   - If Process in Mappedpath and Ininit = false, ignore.
 #   - (Art of memory forensics, page 238, you never find the process exe in the init order list.)
+
+#
+#
+# data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
+
+# To do:
+#   Get list from psxview or/and psscan and get offset. use this offset to carv exe hiding from active proc list.
+#   - (Art of memory forensics, page 243)
+
 #########################################################################################
 #########################################################################################
-# Done
-#########################################################################################
-#   - alert if ininit is false and mappedpath is empty!
-# SELECT * FROM `ldrmodules_v` WHERE mappedpath = '' AND ininit = 'False';
+#   Done
+#   volatility moddump. (we have procdump and dlldump)
 #########################################################################################
 #########################################################################################
 
+
+#   volatility mallfind, (we use it later here, Art of memory forensics, page 254)
+#   volatility vadinfo, (we use it later here, Art of memory forensics, page 260)
+#
 #
 #
 #
