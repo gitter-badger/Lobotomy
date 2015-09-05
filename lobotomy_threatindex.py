@@ -41,6 +41,7 @@ def main(database):
 
     starttime = time.time()
     sprint = ''
+    cprint = ''
     lprintstart = ''
     lprintstart = 'Reading Database, please wait\n'
     lprintstart += 'start-time: ' + str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + '\n'
@@ -421,6 +422,25 @@ def main(database):
     sprint += line_print
     line_print = ''
 
+#########################################################################################
+#########################################################################################
+#
+#   ClamAV Scan
+#########################################################################################
+#########################################################################################
+
+# data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
+    for line_pe_scan_beta in data_pe_scan_beta:
+        pe_scan_beta_filename, pe_scan_beta_pe_blob = line_pe_scan_beta
+        for test_clam in pe_scan_beta_pe_blob:
+            if 'clamav' in test_clam:
+                clam_line = test_clam.split(':')
+                if clam_line[2] != 'OK':
+                    cprint += clam_line
+
+#
+#
+
 # To do:
 #   Get list from psxview or/and psscan and get offset. use this offset to carv exe hiding from active proc list.
 #   - (Art of memory forensics, page 243)
@@ -499,10 +519,20 @@ def main(database):
                 line_print += 'Inmem path      : ' + ldr_mempathpath + '\n\n'
 #                line_print += line_ldrmodules
 
-    lprint += line_print
-    print line_print
-    sprint += line_print
+    try:
+        lprint += line_print
+    except:
+        pass
+    try:
+        sprint += line_print
+    except:
+        pass
+    try:
+        sprint += cprint
+    except:
+        pass
     line_print = ''
+    print sprint
     try:
         f = open(imagename + '-' + plugin + '.txt', 'w')
         f.write(sprint)
