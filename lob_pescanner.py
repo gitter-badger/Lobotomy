@@ -44,15 +44,17 @@ def main(database, folder):
             for folders in dirs:
                 for subdir1, dirs1, files1 in os.walk(subdir + '/' + folders):
                     for file in files1:
-                        counter = counter + 1
+                        filenaam = os.path.join(subdir1, file)
+                        if not filenaam.endswith('.txt'):
+                            counter = counter + 1
 
         for subdir, dirs, files in os.walk(casedir):
             for folders in dirs:
                 for subdir1, dirs1, files1 in os.walk(subdir + '/' + folders):
                     for file in files1:
-                        count = count +1
                         filenaam = os.path.join(subdir1, file)
                         if not filenaam.endswith('.txt'):
+                            count = count +1
                             command = "python mcb_pescanner1.py " + filenaam
                             status, log = commands.getstatusoutput(command)
                             try:
