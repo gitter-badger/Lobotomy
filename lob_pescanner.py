@@ -53,7 +53,7 @@ def main(database, folder):
                         count = count +1
                         filenaam = os.path.join(subdir1, file)
                         if not filenaam.endswith('.txt'):
-                            command = "python mcb_pescanner.py " + filenaam
+                            command = "python mcb_pescanner1.py " + filenaam
                             status, log = commands.getstatusoutput(command)
                             try:
                                 pct = str(float(1.0 * count / counter) * 99).split(".")[0]
