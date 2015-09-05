@@ -50,10 +50,12 @@ def main(database):
     data_moddump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5,modulebase', 'moddump', database)
     data_procdump = Lobotomy.get_databasedata('fullfilename,name,filename,md5', 'procdump', database)
     data_photorec = Lobotomy.get_databasedata('fullfilename,filemd5', 'photorec', database)
-    data_vol_yara = Lobotomy.get_databasedata('owner_name,pid', 'volatility_yarascan', database)
+    data_vol_yara = Lobotomy.get_databasedata('owner_name,pid,rule,data_offset,data_bytes,data_txt',
+                                              'volatility_yarascan', database)
     data_yara = Lobotomy.get_databasedata('filename,string,yara,yara_description', 'yarascan', database)
     data_exifinfo = Lobotomy.get_databasedata('Filename,Exifinfo', 'exifinfo', database)
-    data_pe_scan = Lobotomy.get_databasedata('Fullfilename,Pe_Compiletime,Pe_Packer,Filetype,Original_Filename,Yara_Results', 'pe_scan', database)
+    data_pe_scan = Lobotomy.get_databasedata('Fullfilename,Pe_Compiletime,Pe_Packer,Filetype,Original_Filename,Yara_Results'
+                                             , 'pe_scan', database)
     data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
 
     bad_hashes_list = []
@@ -168,8 +170,12 @@ def main(database):
             line_print += 'Pid from dlldump         : ' + pid_dlldump + '\n'
             line_print += '***********************************\n' + '\n'
             #line_print += fullfilename_dlldump, modulename_dlldump, filename_dlldump, md5hash_dlldump, pid_dlldump
+            # data_vol_yara = Lobotomy.get_databasedata('owner_name,pid,rule,name,data_offset,data_bytes,data_txt',
+            #                               'volatility_yarascan', database)
+
             for line_vol_yara in data_vol_yara:
-                ownername_vol_yara, pid_vol_yara = line_vol_yara
+                ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
+                data_bytes_vol_yara, data_txt_vol_yara = line_vol_yara
                 if str(pid_vol_yara) == str(pid_dlldump):
                     line_print += '\n***********************************' + '\n'
                     line_print += 'Match - DLLDump vs volatility_Yara' + '\n'
@@ -180,6 +186,15 @@ def main(database):
                     line_print += 'Pid from dlldump    : ' + pid_dlldump + '\n'
                     line_print += 'Pid from yara       : ' + str(pid_vol_yara) + '\n'
                     line_print += 'Ownername from yara : ' + ownername_vol_yara + '\n' + '\n'
+                    data_offset_vol_yara = data_offset_vol_yara.split('\n')
+                    data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
+                    data_txt_vol_yara = data_txt_vol_yara.split('\n')
+                    linenr = 0
+                    for test in data_offset_vol_yara:
+                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr] + '\n'
+                        linenr += 1
+
                     # line_print += '\n\n\n***********************************\nmatch DLLDump vs volatility_Yara \n***********************************'
                     # line_print += fullfilename_dlldump, modulename_dlldump, filename_dlldump, pid_dlldump
                     # line_print += ownername_vol_yara, pid_vol_yara
@@ -238,7 +253,8 @@ def main(database):
 
             #line_print += fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump, pid_procdump
             for line_vol_yara in data_vol_yara:
-                ownername_vol_yara, pid_vol_yara = line_vol_yara
+                ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
+                data_bytes_vol_yara, data_txt_vol_yara = line_vol_yara
                 if str(pid_vol_yara) == str(pid_procdump):
                     line_print += '\n***********************************' + '\n'
                     line_print += 'Match - ProcDump vs volatility_Yara' + '\n'
@@ -249,6 +265,14 @@ def main(database):
                     line_print += 'Pid from Procdump   : ' + pid_procdump + '\n'
                     line_print += 'Pid from yara       : ' + str(pid_vol_yara) + '\n'
                     line_print += 'Ownername Yara      : ' + ownername_vol_yara + '\n' + '\n'
+                    data_offset_vol_yara = data_offset_vol_yara.split('\n')
+                    data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
+                    data_txt_vol_yara = data_txt_vol_yara.split('\n')
+                    linenr = 0
+                    for test in data_offset_vol_yara:
+                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr] + '\n'
+                        linenr += 1
                     #
                     # line_print += '\n\n\n***********************************\nmatch ProcDump vs volatility_Yara \n***********************************'
                     # line_print += fullfilename_procdump, name_procdump, filename_procdump, pid_procdump
@@ -306,7 +330,8 @@ def main(database):
 
             #line_print += fullfilename_moddump, name_moddump, filename_moddump, md5hash_moddump, pid_moddump
             for line_vol_yara in data_vol_yara:
-                ownername_vol_yara, pid_vol_yara = line_vol_yara
+                ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
+                data_bytes_vol_yara, data_txt_vol_yara = line_vol_yara
                 if str(pid_vol_yara) == str(pid_moddump):
                     line_print += '\n***********************************' + '\n'
                     line_print += 'Match - Moddump vs volatility_Yara' + '\n'
@@ -316,7 +341,16 @@ def main(database):
                     line_print += 'Filename moddmp     : ' + filename_moddump + '\n'
                     line_print += 'Pid from moddump    : ' + pid_moddump + '\n'
                     line_print += 'Pid from yara       : ' + pid_vol_yara + '\n'
-                    line_print += 'Ownername Yara      : ' + ownername_vol_yara + '\n\n'
+                    line_print += 'Ownername Yara      : ' + name_vol_yara + '\n'
+                    line_print += 'Ownername Yara      : ' + rule_vol_yara + '\n'
+                    data_offset_vol_yara = data_offset_vol_yara.split('\n')
+                    data_bytes_vol_yara = data_bytes_vol_yara.split('\n')
+                    data_txt_vol_yara = data_txt_vol_yara.split('\n')
+                    linenr = 0
+                    for test in data_offset_vol_yara:
+                        line_print += data_offset_vol_yara[linenr] + '\t' + data_bytes_vol_yara[linenr] + '\t' + \
+                                      data_txt_vol_yara[linenr] + '\n'
+                        linenr += 1
                     #
                     # line_print += '\n\n\n***********************************\nmatch modDump vs volatility_Yara \n***********************************'
                     # line_print += fullfilename_moddump, name_moddump, filename_moddump, pid_moddump
