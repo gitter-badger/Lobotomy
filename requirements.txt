@@ -8,8 +8,8 @@ mkdir /dumps
 chown lobotomy:lobotomy /dumps
 mkdir /srv/lobotomy/dumps
 wget http://malwarecookbook.googlecode.com/svn/trunk/stuxnet.vmem.zip -O /tmp/stuxnet.vmem.zip
-mkdir sampels
-cd sampels
+mkdir samples
+cd samples
 unzip /tmp/stuxnet.vmem.zip
 cd ..
 apt-get install volatility
