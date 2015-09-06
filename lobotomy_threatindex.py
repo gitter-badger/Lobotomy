@@ -2,7 +2,7 @@
 __author__ = 'Wim Venhuizen'
 
 #
-# Script version    0.5
+# Script version    0.6
 # Plugin version:   1
 # 08 mrt 2015:      Wim Venhuizen
 # Plugin:           Lobotomy threat scanner
@@ -18,7 +18,11 @@ __author__ = 'Wim Venhuizen'
 # 05 sep 2015:      Wim Venhuizen
 #  Detail:          Change: More volatility Yara output
 #                   Add: Check pid in psxview
-#                   Add: Display if ClamAV gives other then 'OK' on scaned files
+#                   Add: Display if ClamAV gives other then 'OK' on scanned files
+# 06 sep 2015:      Wim Venhuizen
+#  Detail:          Change: Minor fixes in output
+#                   Add: Build pstree from pid: Note: Not sure what happens if the pid tree is broken.
+#                   Change: Changed output filename to [image]-threatreport.txt
 
 import os
 import sys
@@ -28,8 +32,7 @@ import time
 from datetime import datetime
 
 Lobotomy = main.Lobotomy()
-plugin = "threatscanner"
-
+plugin = "threatreport"
 DEBUG = False
 
 
@@ -63,12 +66,14 @@ def main(database):
     data_pe_scan_beta = Lobotomy.get_databasedata('Filename,Pe_Blob', 'pe_scanner_beta', database)
     data_psxview = Lobotomy.get_databasedata('offset,name,pid,pslist,psscan,thrdproc,pspcid,csrss,session,deskthrd,'
                                              'exittime', 'psxview', database)
+    data_pstree  = Lobotomy.get_databasedata('depth,offset,name,pid,ppid,thds,hnds,plugin_time,audit,cmd,path',
+                                             'pstree', database)
 
     bad_hashes_list = []
     stoptime = time.time()
     lprintstart += 'seconds to read database(s)' +str(round(stoptime - starttime)) + '\n'
     starttime = time.time()
-    lprintstart += 'start-time: ' + str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + '\n'
+    lprintstart += 'stop-time: ' + str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + '\n'
     lprintstart += 'Comparing bad_hashed with hashes from image, please wait.' + '\n'
     lprint = lprintstart
     print lprintstart
@@ -199,6 +204,73 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
+            print 'Running pstree for Dlldump'
+            list_pstree = []
+            for line_pstree in data_pstree:
+                depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+                plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+                list_pstree.append(line_pstree)
+                if str(pid_pstree) == str(pid_dlldump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Build pidtree - Pid from PSTree vs Dlldump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+                    tmpcounter = 0
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if tmpcounter >= 2:
+                            line_print += str(tmp[tmpcounter]) + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += line_pstree[tmpcounter + 1] + '\t'
+                        if tmpcounter >= 2:
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                        tmpcounter += 1
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+                    tree = str(line_pstree[4])
+                    while tree != '0':
+                        tmpcounter = 0
+                        for tmptree in list_pstree:
+                            #line_print += str(tmptree[4]) + '\t' + str(line_pstree[3]) + '\n'
+                            # pid  = 3
+                            # ppid = 4
+                            #if str(tmptree[4]) != '0':
+                            if str(tmptree[3]) == tree:
+                                line_print += '\n' + '-' * 120 + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' '
+                                for tmplen in tmp:
+                                    if str(tmp[tmpcounter]) == 'offset':
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                    if str(tmp[tmpcounter]) == 'name':
+                                        line_print += tmptree[tmpcounter + 1] + '\t'
+                                        if tmptree[tmpcounter + 1] == 'System':
+                                            line_print += '\t'
+
+                                    if tmpcounter >= 2:
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t'
+
+                                    tmpcounter += 1
+                                line_print += '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                                tree = str(tmptree[4])
+            line_print += '\n' + '*' * 120 + '\n'
+
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
                 data_bytes_vol_yara, data_txt_vol_yara = line_vol_yara
@@ -290,6 +362,72 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
+            print 'Running pstree for Procdump'
+            list_pstree = []
+            for line_pstree in data_pstree:
+                depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+                plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+                list_pstree.append(line_pstree)
+                if str(pid_pstree) == str(pid_procdump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Build pidtree - Pid from PSTree vs Procdump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+                    tmpcounter = 0
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if tmpcounter >= 2:
+                            line_print += str(tmp[tmpcounter]) + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += line_pstree[tmpcounter + 1] + '\t'
+                        if tmpcounter >= 2:
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                        tmpcounter += 1
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+                    tree = str(line_pstree[4])
+                    while tree != '0':
+                        tmpcounter = 0
+                        for tmptree in list_pstree:
+                            #line_print += str(tmptree[4]) + '\t' + str(line_pstree[3]) + '\n'
+                            # pid  = 3
+                            # ppid = 4
+                            #if str(tmptree[4]) != '0':
+                            if str(tmptree[3]) == tree:
+                                line_print += '\n' + '-' * 120 + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' '
+                                for tmplen in tmp:
+                                    if str(tmp[tmpcounter]) == 'offset':
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                    if str(tmp[tmpcounter]) == 'name':
+                                        line_print += tmptree[tmpcounter + 1] + '\t'
+                                        if tmptree[tmpcounter + 1] == 'System':
+                                            line_print += '\t'
+                                    if tmpcounter >= 2:
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t'
+            
+                                    tmpcounter += 1
+                                line_print += '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                                tree = str(tmptree[4])
+            line_print += '\n' + '*' * 120 + '\n'
+
             #line_print += fullfilename_procdump, name_procdump, filename_procdump, md5hash_procdump, pid_procdump
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
@@ -380,6 +518,73 @@ def main(database):
                                       ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
                         tmpcounter += 1
                     line_print += '\n'
+
+            print 'Running pstree for Moddump'
+            list_pstree = []
+            for line_pstree in data_pstree:
+                depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+                plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+                list_pstree.append(line_pstree)
+                if str(pid_pstree) == str(pid_moddump):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Build pidtree - Pid from PSTree vs Moddump'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+                    tmpcounter = 0
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if tmpcounter >= 2:
+                            line_print += str(tmp[tmpcounter]) + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += line_pstree[tmpcounter + 1] + '\t'
+                        if tmpcounter >= 2:
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                        tmpcounter += 1
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+                    tree = str(line_pstree[4])
+                    while tree != '0':
+                        tmpcounter = 0
+                        for tmptree in list_pstree:
+                            #line_print += str(tmptree[4]) + '\t' + str(line_pstree[3]) + '\n'
+                            # pid  = 3
+                            # ppid = 4
+                            #if str(tmptree[4]) != '0':
+                            if str(tmptree[3]) == tree:
+                                line_print += '\n' + '-' * 120 + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' '
+                                for tmplen in tmp:
+                                    if str(tmp[tmpcounter]) == 'offset':
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                    if str(tmp[tmpcounter]) == 'name':
+                                        line_print += tmptree[tmpcounter + 1] + '\t'
+                                        if tmptree[tmpcounter + 1] == 'System':
+                                            line_print += '\t'
+
+                                    if tmpcounter >= 2:
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t'
+
+                                    tmpcounter += 1
+                                line_print += '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                                tree = str(tmptree[4])
+            line_print += '\n' + '*' * 120 + '\n'
 
             for line_vol_yara in data_vol_yara:
                 ownername_vol_yara, pid_vol_yara, rule_vol_yara, data_offset_vol_yara,\
@@ -502,14 +707,15 @@ def main(database):
     cprint += '\n***********************************' + '\n'
     for line_pe_scan_beta in data_pe_scan_beta:
         pe_scan_beta_filename, pe_scan_beta_pe_blob = line_pe_scan_beta
-        pe_scan_beta_pe_blob = pe_scan_beta_pe_blob.split('\n')
-        for test_clam in pe_scan_beta_pe_blob:
+        tmp_pe_scan_beta_pe_blob = pe_scan_beta_pe_blob.split('\n')
+        for test_clam in tmp_pe_scan_beta_pe_blob:
             if 'Clamav' in test_clam:
                 clam_line = test_clam.split(':')
                 if clam_line[0] == 'Clamav' and clam_line[2].strip(' ') != 'OK':
                     for item in clam_line:
                         cprint += item + '\t'
                     cprint += '\n'
+                    cprint += pe_scan_beta_pe_blob + '\n'
 
 #########################################################################################
 #########################################################################################
@@ -571,6 +777,71 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
+            list_pstree = []
+            for line_pstree in data_pstree:
+                depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+                plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+                list_pstree.append(line_pstree)
+                if str(pid_pstree) == str(ldr_pid):
+                    line_print += '\n' + '*' * 120 + '\n'
+                    line_print += 'Build pidtree - Pid from PSTree vs Ldrmodues'
+                    line_print += '\n' + '*' * 120 + '\n'
+                    tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+                    tmpcounter = 0
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += tmp[tmpcounter] + '\t\t'
+                        if tmpcounter >= 2:
+                            line_print += str(tmp[tmpcounter]) + '\t'
+                        tmpcounter += 1
+                    tmpcounter = 0
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' '
+                    for tmplen in tmp:
+                        if str(tmp[tmpcounter]) == 'offset':
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                        if str(tmp[tmpcounter]) == 'name':
+                            line_print += line_pstree[tmpcounter + 1] + '\t'
+                        if tmpcounter >= 2:
+                            line_print += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                        tmpcounter += 1
+                    line_print += '\n'
+                    line_print += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+                    line_print += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+                    tree = str(line_pstree[4])
+                    while tree != '0':
+                        tmpcounter = 0
+                        for tmptree in list_pstree:
+                            #line_print += str(tmptree[4]) + '\t' + str(line_pstree[3]) + '\n'
+                            # pid  = 3
+                            # ppid = 4
+                            #if str(tmptree[4]) != '0':
+                            if str(tmptree[3]) == tree:
+                                line_print += '\n' + '-' * 120 + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' '
+                                for tmplen in tmp:
+                                    if str(tmp[tmpcounter]) == 'offset':
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                    if str(tmp[tmpcounter]) == 'name':
+                                        line_print += tmptree[tmpcounter + 1] + '\t'
+                                        if tmptree[tmpcounter + 1] == 'System':
+                                            line_print += '\t'
+                                    if tmpcounter >= 2:
+                                        line_print += str(tmptree[tmpcounter + 1]) + '\t'
+
+                                    tmpcounter += 1
+                                line_print += '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                                line_print += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                                tree = str(tmptree[4])
+                    line_print += '\n' + '*' * 120 + '\n'
+
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
                 line_print += '\n***********************************' + '\n'
@@ -611,6 +882,76 @@ def main(database):
                                           ' ' * (len(str(tmp[tmpcounter])) - len(str(line_psxview[tmpcounter]))) + '\t'
                             tmpcounter += 1
                         line_print += '\n'
+
+                list_pstree = []
+                for line_pstree in data_pstree:
+                    depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+                    plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+                    list_pstree.append(line_pstree)
+                    print pid_pstree, ldr_pid
+                    if str(pid_pstree) == str(ldr_pid):
+                        line_print += '\n' + '*' * 120 + '\n'
+                        line_print += 'Build pidtree - Pid from PSTree vs Ldrmodules'
+                        line_print += '\n' + '*' * 120 + '\n'
+                        tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+                        tmpcounter = 0
+                        line_print += '-' * int(depth_pstree) + ' '
+                        for tmplen in tmp:
+                            if str(tmp[tmpcounter]) == 'offset':
+                                line_print += tmp[tmpcounter] + '\t\t'
+                            if str(tmp[tmpcounter]) == 'name':
+                                line_print += tmp[tmpcounter] + '\t\t'
+                            if tmpcounter >= 2:
+                                line_print += str(tmp[tmpcounter]) + '\t'
+                            tmpcounter += 1
+                        tmpcounter = 0
+                        line_print += '\n'
+                        line_print += '-' * int(depth_pstree) + ' '
+                        for tmplen in tmp:
+                            if str(tmp[tmpcounter]) == 'offset':
+                                line_print += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                            if str(tmp[tmpcounter]) == 'name':
+                                line_print += line_pstree[tmpcounter + 1] + '\t'
+                            if tmpcounter >= 2:
+                                line_print += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                            tmpcounter += 1
+                        line_print += '\n'
+                        line_print += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+                        line_print += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+                        line_print += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+                        tree = str(line_pstree[4])
+                        # counter = 0
+                        while tree != '0':
+                        #     counter += 1
+                        #     if counter == 500:
+                        #         tree = 0
+                            tmpcounter = 0
+                            for tmptree in list_pstree:
+                                #line_print += str(tmptree[4]) + '\t' + str(line_pstree[3]) + '\n'
+                                # pid  = 3
+                                # ppid = 4
+                                #if str(tmptree[4]) != '0':
+                                if str(tmptree[3]) == tree:
+                                    line_print += '\n' + '-' * 120 + '\n'
+                                    line_print += '-' * int(tmptree[0]) + ' '
+                                    for tmplen in tmp:
+                                        if str(tmp[tmpcounter]) == 'offset':
+                                            line_print += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                        if str(tmp[tmpcounter]) == 'name':
+                                            line_print += tmptree[tmpcounter + 1] + '\t'
+                                            if tmptree[tmpcounter + 1] == 'System':
+                                                line_print += '\t'
+                                        if tmpcounter >= 2:
+                                            line_print += str(tmptree[tmpcounter + 1]) + '\t'
+
+                                        tmpcounter += 1
+                                    line_print += '\n'
+                                    line_print += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                                    line_print += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                                    line_print += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                                    tree = str(tmptree[4])
+                        line_print += '\n' + '*' * 120 + '\n'
 
     try:
         lprint += line_print
