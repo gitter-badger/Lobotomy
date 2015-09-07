@@ -121,7 +121,7 @@ def main(database):
                     bad_hashes_list.append(['moddump', fullfilename_moddump, modulename_moddump, filename_moddump, md5hash_moddump, modulebase_moddump])
     lprint += lprintmoddump
     print lprintmoddump
-    sprint += lprintdlldump
+    sprint += lprintmoddump
 
     lprintprocdump = ''
     for line_procdump in data_procdump:
@@ -132,7 +132,7 @@ def main(database):
             for db_hash in get_hash_from_db:
                 if db_hash == md5hash_procdump:
                     lprintprocdump += '\n***********************************' + '\n'
-                    lprintprocdump += 'Match - Volatility plugin: Moddump. ' + '\n'
+                    lprintprocdump += 'Match - Volatility plugin: Procdump. ' + '\n'
                     lprintprocdump += 'Reason match - Table Bad_hashes' + '\n'
                     lprintprocdump += '***********************************' + '\n'
                     lprintprocdump += 'Hash     : ' + md5hash_procdump + '\n'
@@ -493,7 +493,7 @@ def main(database):
             line_print += 'Filename from moddump    : ' + filename_moddump + '\n'
             line_print += 'Module from moddump      : ' + modulename_moddump + '\n'
             line_print += 'MD5 Hash from moddump    : ' + md5hash_moddump + '\n'
-            line_print += 'Pid from moddump         : ' + pid_moddump + '\n'
+            #line_print += 'Pid from moddump         : ' + pid_moddump + '\n' # Moddump heeft geen PID
             line_print += '***********************************\n\n'
 
             for line_psxview in data_psxview:
