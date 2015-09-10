@@ -44,7 +44,22 @@ def main(database):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
 
-    # Read database
+
+    lobotomy_threatlist = []
+    # Read Local lobotomy_threatlist.txt (case folder) for extra IOC's or custom searches.
+    try:
+        with open(casedir + '/lobotomy_threatlist.txt') as f:
+            for line in f:
+                if not line.startswith('#'):
+                    lobotomy_threatlist.append(line)
+    except:
+        pass # No lobotomy_threatlist.txt found in case folder. Continue.
+
+    # Read Global lobotomy_threatlist.txt for extra IOC's or custom searches.
+    with open('lobotomy_threatlist.txt') as f:
+        for line in f:
+            if not line.startswith('#'):
+                lobotomy_threatlist.append(line)
 
     starttime = time.time()
     sprint = ''
@@ -52,6 +67,8 @@ def main(database):
     lprintstart = ''
     lprintstart = 'Reading Database, please wait\n'
     lprintstart += 'start-time: ' + str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + '\n'
+
+    # Read database
     #bad_hashes = Lobotomy.get_databasedata('md5hash,added', 'bad_hashes', 'lobotomy')
     data_dlldump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5', 'dlldump', database)
     data_moddump = Lobotomy.get_databasedata('fullfilename,modulename,filename,md5,modulebase', 'moddump', database)
@@ -953,6 +970,59 @@ def main(database):
                                     tree = str(tmptree[4])
                         line_print += '\n' + '*' * 120 + '\n'
 
+#########################################################################################
+#########################################################################################
+# Malicious Callbacks
+#########################################################################################
+# Malicious Callbacks
+# Many high-profile rootkits such as Mebroot, ZeroAccess, Rustock, Ascesso, Tigger, Stuxnet,
+# Blackenergy, and TDL3 leverage kernel callbacks. In most cases, they also try to hide by
+# unlinking the KLDR_DATA_TABLE_ENTRY or by running as an orphan thread from a kernel
+# pool. This behavior makes the malicious callbacks easy to spot because the Module column
+# in the output of Volatility’s callbacks plugin displays UNKNOWN . In other cases, malware
+# authors don’t hide their module at all, but they use a hard-coded (and thus predictable)
+# name with which you can build indicators of compromise (IOCs).
+# The first example is from Stuxnet. It loads two modules: mrxnet.sys and mrxcls.sys .
+# The first one installs a file system registration change callback to receive notification when
+# new file systems become available (so it can immediately spread or hide files). The second
+# one installs an image load callback, which it uses to inject code into processes when they
+# try to load other dynamic link libraries (DLLs).
+#########################################################################################
+#########################################################################################
+
+    callbacktype_from_file = []
+    callbackmodule_from_file = []
+    data_callbacks = Lobotomy.get_databasedata('type,callback,module,details', 'callbacks', database)
+
+    # with open('lobotomy_threatlist.txt') as f:
+    #     for line in f:
+
+    for line in lobotomy_threatlist:
+        if not line.startswith('#'):
+            if line.startswith('callbacks:type'):
+                callbacktype_from_file.append(line.strip('\n').split(':')[2])
+            if line.startswith('callbacks:module'):
+                callbackmodule_from_file.append(line.strip('\n').split(':')[2])
+
+    cprint += '\n' + '*' * 120 + '\n'
+    cprint += 'Searching for: Malicious Callbacks'
+    cprint += '\n' + '*' * 120 + '\n'
+
+    for line_callbacks in data_callbacks:
+        type_callbacks, callback_callbacks, module_callbacks, details_callbacks = line_callbacks
+        if module_callbacks == 'UNKNOWN':
+            print 'Alert: Unknown Module in Callback: \n ', line_callbacks
+            cprint += 'Alert: Unknown Module in Callback: \n ' + str(line_callbacks)
+        for callback_alert in callbacktype_from_file:
+            if type_callbacks == callback_alert:
+                print "Alert: Callback 'Type' from Lobotomy Threatlist: \n", line_callbacks
+                cprint += "Alert: Callback 'Type' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+        for callback_alert in callbackmodule_from_file:
+            if module_callbacks == callback_alert:
+                print "Alert: Callback 'Module' from Lobotomy Threatlist: \n", line_callbacks
+                cprint += "Alert: Callback 'Module' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+
+
     try:
         lprint += line_print
     except:
@@ -966,7 +1036,7 @@ def main(database):
     except:
         pass
     line_print = ''
-    print sprint
+    #print sprint
     try:
         f = open(imagename + '-' + plugin + '.txt', 'w')
         f.write(sprint)
