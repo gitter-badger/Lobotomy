@@ -3,3 +3,5 @@
 #########################################################################################
 callbacks:type:KeBugCheckCallbackListHead
 callbacks:type:CmRegisterCallback
+callbacks:module:UNKNOWN
+timers:module:UNKNOWN
