@@ -992,7 +992,11 @@ def main(database):
 
     callbacktype_from_file = []
     callbackmodule_from_file = []
+    timersmodule_from_file = []
+    call_timer = []
     data_callbacks = Lobotomy.get_databasedata('type,callback,module,details', 'callbacks', database)
+    data_timers = Lobotomy.get_databasedata('offset,duetime,period,signaled,routine,module', 'timers', database)
+    data_driverscan = Lobotomy.get_databasedata('offset,ptr,hnd,start,size,servicekey,name,drivername', 'driverscan', database)
 
     # with open('lobotomy_threatlist.txt') as f:
     #     for line in f:
@@ -1003,6 +1007,8 @@ def main(database):
                 callbacktype_from_file.append(line.strip('\n').split(':')[2])
             if line.startswith('callbacks:module'):
                 callbackmodule_from_file.append(line.strip('\n').split(':')[2])
+            if line.startswith('timers:module'):
+                timersmodule_from_file.append(line.strip('\n').split(':')[2])
 
     cprint += '\n' + '*' * 120 + '\n'
     cprint += 'Searching for: Malicious Callbacks'
@@ -1011,16 +1017,234 @@ def main(database):
     for line_callbacks in data_callbacks:
         type_callbacks, callback_callbacks, module_callbacks, details_callbacks = line_callbacks
         if module_callbacks == 'UNKNOWN':
-            print 'Alert: Unknown Module in Callback: \n ', line_callbacks
-            cprint += 'Alert: Unknown Module in Callback: \n ' + str(line_callbacks)
+            print 'Alert: Unknown Module in Callback: \n', line_callbacks
+            cprint += 'Alert: Unknown Module in Callback: \n' + str(line_callbacks)
+            tmp = module_callbacks, line_callbacks
+            call_timer.append(tmp)
         for callback_alert in callbacktype_from_file:
             if type_callbacks == callback_alert:
                 print "Alert: Callback 'Type' from Lobotomy Threatlist: \n", line_callbacks
                 cprint += "Alert: Callback 'Type' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+                tmp = module_callbacks, line_callbacks
+                call_timer.append(tmp)
         for callback_alert in callbackmodule_from_file:
             if module_callbacks == callback_alert:
                 print "Alert: Callback 'Module' from Lobotomy Threatlist: \n", line_callbacks
                 cprint += "Alert: Callback 'Module' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+                tmp = module_callbacks, line_callbacks
+                call_timer.append(tmp)
+
+    cprint += '\n' + '*' * 120 + '\n'
+    cprint += 'Searching for: Malicious Timers'
+    cprint += '\n' + '*' * 120 + '\n'
+
+    for line_timers in data_timers:
+        offset_timers, duetime_timers, period_timers, signaled_timers, routine_timers, module_timers = line_timers
+        if module_timers == 'UNKNOWN':
+            print 'Alert: Unknown Module in Timers: \n', line_timers
+            cprint += 'Alert: Unknown Module in Timers: \n' + str(line_timers)
+            for tmp_callbacks in call_timer:
+                for item in tmp_callbacks:
+                    if item == module_timers:
+                        print 'Alert: Match between timers en callbacks\n' + str(tmp_callbacks[1]) + '\n' + str(line_timers)
+                        for line_driverscan in data_driverscan:
+                            offset_driverscan, ptr_driverscan, hnd_driverscan, start_driverscan, size_driverscan, \
+                                servicekey_driverscan, name_driverscan, drivername_driverscan = line_driverscan
+                            if str(tmp_callbacks[1][3]) == str(name_driverscan):   # callbacks.details matches driverscan.drivername
+                                print 'Now we have also the name: ' + str(drivername_driverscan)
+                                print line_driverscan
+
+# Putting It All Together
+# Now that you’ve been exposed to the various methods of finding and analyzing malicious
+# code in the kernel, we’ll show you an example of how to put all the pieces together. In
+# this case, we first noticed the rootkit’s presence due to its timers and callbacks that point
+# into memory that isn’t owned by a module in the loaded module list. Here is the relevant
+# output from those two plugins:
+# $ python vol.py -f spark.mem --profile=WinXPSP3x86 timers
+# Volatility Foundation Volatility Framework 2.4
+# Offset(V)     DueTime                     Period(ms)  Signaled    Routine     Module
+# ----------    ------------------------    ----------  --------    ----------  ------
+# 0x8055b200    0x00000086:0x1c631c38       0           -           0x80534a2a  ntoskrnl.exe
+# 0x805516d0    0x00000083:0xe04693bc       60000       Yes         0x804f3eae  ntoskrnl.exe
+# 0x81dc52a0    0x00000083:0xe2d175b6       60000       Yes         0xf83fb6bc  NDIS.sys
+# 0x81eb8e28    0x00000083:0xd94cd26a       0           -           0x80534e48  ntoskrnl.exe
+# [snip]
+# 0x80550ce0    0x00000083:0xc731f6fa       0           -           0x8053b8fc  ntoskrnl.exe
+# 0x81b9f790    0x00000084:0x290c9ad8       60000       -           0x81b99db0  UNKNOWN
+# 0x822771a0    0x00000131:0x2e8701a8       0           -           0xf83faf6f  NDIS.sys
+
+# $ python vol.py -f spark.mem --profile=WinXPSP3x86 callbacks
+# Volatility Foundation Volatility Framework 2.4
+# Type                              Callback   Module       Details
+# --------------------------------- ---------- -----------  -------
+# IoRegisterFsRegistrationChange    0xf84be876 sr.sys       -
+# KeBugCheckCallbackListHead        0xf83e65ef NDIS.sys     Ndis miniport
+# KeBugCheckCallbackListHead        0x806d77cc hal.dll      ACPI 1.0 - APIC
+# IoRegisterShutdownNotification    0x81b934e0 UNKNOWN      \Driver\03621276
+# IoRegisterShutdownNotification    0xf88ddc74 Cdfs.SYS     \FileSystem\Cdfs
+# [snip]
+# PsSetCreateProcessNotifyRoutine   0xf87ad194 vmci.sys     -
+# CmRegisterCallback                0x81b92d60 UNKNOWN      -
+
+# A procedure at 0x81b99db0 is set to execute every 60,000 milliseconds, a function at
+# 0x81b934e0 is set to call when the system shuts down, and a function at 0x81b92d60 gets
+# notified of all registry operations. This rootkit has clearly “planted some seeds” into the
+# kernel of this victim system. At this point, you don’t know the name of its module, but you
+# can see that the shutdown callback is associated with a driver named \Driver\03621276 .
+# Given that information, you can seek more details with the driverscan plugin:
+#
+# $ python vol.py -f spark.mem --profile=WinXPSP3x86 driverscan
+# Volatility Foundation Volatility Framework 2.4
+
+# Offset(P)     Ptr     Start       Size        ServiceKey          Driver Name
+# ----------    ----    ----------  --------    -----------------   -----------
+# 0x01e109b8    1       0x00000000  0x0         \Driver\03621276    \Driver\03621276
+# 0x0214f4c8    1       0x00000000  0x0         \Driver\03621275    \Driver\03621275
+# [snip]
+#
+# Kernel Forensics and Rootkits
+# According to this output, the starting address for the kernel module that created the
+# suspect driver object is zero. It could be an anti-forensics technique to prevent analysts
+# from dumping the malicious code. Indeed, it is working so far because to extract the
+# module, you either need the module’s name or base address, and you already know that
+# the name is not available. However, there are various pointers inside the malicious mod-
+# ule’s code; you just need to find out where the PE file starts. You can do this with a little
+# scripting inside volshell , using one of the following techniques:
+# •	 Take one of the addresses and scan backward looking for a valid MZ signature.
+# If the malicious PE file has several other binaries embedded, the first result might
+# not be the right one.
+# •	 Set your starting address somewhere between 20KB and 1MB behind the lowest
+# pointer that you have; then walk forward looking for a valid MZ signature.
+# The following code shows how to perform the second method:
+# $ python vol.py -f spark.mem volshell
+# [snip]
+# >>> start = 0x81b99db0 - 0x100000
+# >>> end = 0x81b93690
+# >>> while start < end:
+# ...
+# if addrspace().zread(start, 4) == "MZ\x90\x00":
+# ...
+# print hex(start)
+# ...
+# break
+# ...
+# start += 1
+# ...
+# 0x81b91b80
+# NOTE
+# Alternatively, you can translate the virtual address into a physical offset by calling the
+# addrspace().vtop(ADDR) function. Provided you have a raw, padded memory dump,
+# you can open it in a hex editor and seek to the physical offset—then scroll up to find
+# the MZ signature.
+# You found an MZ signature at 0x81b91b80 , which is about 8KB above the timers and
+# callbacks procedures. You can also verify the PE header in volshell :
+# >>> db(0x81b91b80)
+# 0x81b91b80 4d5a 9000 0300 0000 0400 0000 ffff 0000
+# 0x81b91b90 b800 0000 0000 0000 4000 0000 0000 0000
+# 0x81b91ba0 0000 0000 0000 0000 0000 0000 0000 0000
+# MZ..............
+# ........@.......
+# ................
+# 403404 Part II: Windows Memory Forensics
+# 0x81b91bb0
+# 0x81b91bc0
+# 0x81b91bd0
+# 0x81b91be0
+# 0x81b91bf0
+# 0000
+# 0e1f
+# 6973
+# 7420
+# 6d6f
+# 0000
+# ba0e
+# 2070
+# 6265
+# 6465
+# 0000
+# 00b4
+# 726f
+# 2072
+# 2e0d
+# 0000
+# 09cd
+# 6772
+# 756e
+# 0d0a
+# 0000
+# 21b8
+# 616d
+# 2069
+# 2400
+# 0000
+# 014c
+# 2063
+# 6e20
+# 0000
+# d000
+# cd21
+# 616e
+# 444f
+# 0000
+# 0000
+# 5468
+# 6e6f
+# 5320
+# 0000
+# ................
+# ........!..L.!Th
+# is.program.canno
+# t.be.run.in.DOS.
+# mode....$.......
+# Finally, you can now supply a base address to the moddump plugin and extract the
+# module from memory:
+# $ python vol.py -f spark.mem moddump -b 0x81b91b80 --dump-dir=OUTPUT
+# --profile=WinXPSP3x86
+# Volatility Foundation Volatility Framework 2.4
+# Module Base Module Name
+# Result
+# ----------- -------------------- ------
+# 0x081b91b80 UNKNOWN
+# OK: driver.81b91b80.sys
+# You have to fix the ImageBase value in the PE header to match where you found it:
+# $ python
+# Python 2.7.6 (v2.7.6:3a1db0d2747e, Nov 10 2013, 00:42:54)
+# [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+# Type "help", "copyright", "credits" or "license" for more information.
+# >>> import pefile
+# >>> pe = pefile.PE("driver.81b91b80.sys")
+# >>> pe.OPTIONAL_HEADER.ImageBase = 0x81b91b80
+# >>> pe.write("driver.81b91b80.sys")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     try:
