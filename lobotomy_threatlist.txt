@@ -1,0 +1,5 @@
+#########################################################################################
+# Malicious Callbacks
+#########################################################################################
+callbacks:type:KeBugCheckCallbackListHead
+callbacks:type:CmRegisterCallback
