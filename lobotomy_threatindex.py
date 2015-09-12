@@ -85,6 +85,8 @@ def main(database):
                                              'exittime', 'psxview', database)
     data_pstree  = Lobotomy.get_databasedata('depth,offset,name,pid,ppid,thds,hnds,plugin_time,audit,cmd,path',
                                              'pstree', database)
+    data_malfind = Lobotomy.get_databasedata('process,pid,address,vadtag,protection,flags,header,body',
+                                             'malfind', database)
 
     bad_hashes_list = []
     stoptime = time.time()
@@ -221,7 +223,6 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
-            print 'Running pstree for Dlldump'
             list_pstree = []
             for line_pstree in data_pstree:
                 depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
@@ -379,7 +380,6 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
-            print 'Running pstree for Procdump'
             list_pstree = []
             for line_pstree in data_pstree:
                 depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
@@ -536,7 +536,6 @@ def main(database):
                         tmpcounter += 1
                     line_print += '\n'
 
-            print 'Running pstree for Moddump'
             list_pstree = []
             for line_pstree in data_pstree:
                 depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
@@ -859,10 +858,37 @@ def main(database):
                                 tree = str(tmptree[4])
                     line_print += '\n' + '*' * 120 + '\n'
 
+#########################################################################################
+#########################################################################################
+#   Add Malfind plugin to ldrinfo
+#########################################################################################
+#########################################################################################
+
+            for line_malfind in data_malfind:
+                process_malfind, pid_malfind, address_malfind, vadtag_malfind, protection_malfind, \
+                flags_malfind, header_malfind, body_malfind = line_malfind
+                if str(pid_malfind) == str(ldr_pid) and int(address_malfind, 0) == int(ldr_base, 0):
+                    print '\nProcess: ' + process_malfind + '\tPid: ' + str(pid_malfind) + '\tAddress: ' + address_malfind
+                    print '\nVad: ' + vadtag_malfind + '\tProtection: ' + protection_malfind
+                    print flags_malfind
+                    print header_malfind
+                    print body_malfind
+                    line_print += '\nProcess: ' + process_malfind
+                    line_print += '\tPid: ' + str(pid_malfind)
+                    line_print += '\tAddress: ' + address_malfind
+                    line_print += '\nVad: ' + vadtag_malfind
+                    line_print += '\tProtection: ' + protection_malfind
+                    line_print += '\n' + flags_malfind
+                    line_print += '\n' + header_malfind
+                    line_print += '\n' + body_malfind
+
+
+
+
         if ldr_loadpathpath != ldr_initpathpath or ldr_loadpathpath != ldr_mempathpath or ldr_mempathpath != ldr_initpathpath:
             if ldr_ininit == 'True' and ldr_inload == 'True' and ldr_inmem == 'True':
                 line_print += '\n***********************************' + '\n'
-                line_print += 'Non matching Paths + inmem + ininit and inload while Inload + Inmem and Ininit are True: Alert' + '\n'
+                line_print += 'Non matching Paths + inmem, ininit and inload while Inload + Inmem and Ininit are True: Alert' + '\n'
                 line_print += '***********************************' + '\n'
                 line_print += 'Process         : ' + ldr_process + '\n'
                 line_print += 'Mapped Path     : ' + ldr_mappedpath + '\n'
@@ -1014,23 +1040,50 @@ def main(database):
     cprint += 'Searching for: Malicious Callbacks'
     cprint += '\n' + '*' * 120 + '\n'
 
+    alertcallbackmodule = 0
+    alertcallbackmodulefile = 0
+    alertcallbacktypefile = 0
     for line_callbacks in data_callbacks:
         type_callbacks, callback_callbacks, module_callbacks, details_callbacks = line_callbacks
         if module_callbacks == 'UNKNOWN':
-            print 'Alert: Unknown Module in Callback: \n', line_callbacks
-            cprint += 'Alert: Unknown Module in Callback: \n' + str(line_callbacks)
+            # Collect info and display them later. otherwise there will be a print line between event alert.
+            if alertcallbackmodule == 0:
+                print '\n' + '*' * 120 + '\n'
+                print 'Alert: Unknown Module in Callback:'
+                cprint += '\n' + '*' * 120 + '\n'
+                cprint += 'Alert: Unknown Module in Callback: \n'
+                alertcallbackmodule = 1
+            print line_callbacks
+            cprint += str(line_callbacks) + '\n'
             tmp = module_callbacks, line_callbacks
             call_timer.append(tmp)
+            module_callbacks = ''
+
         for callback_alert in callbacktype_from_file:
+            # Collect info and display them later. otherwise there will be a print line between event alert.
             if type_callbacks == callback_alert:
-                print "Alert: Callback 'Type' from Lobotomy Threatlist: \n", line_callbacks
-                cprint += "Alert: Callback 'Type' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+                if alertcallbacktypefile == 0:
+                    print '\n' + '*' * 120 + '\n'
+                    print "Alert: Callback 'Type' from Lobotomy Threatlist: \n"
+                    cprint += '\n' + '*' * 120 + '\n'
+                    cprint += "Alert: Callback 'Type' from Lobotomy Threatlist: \n"
+                    alertcallbacktypefile = 1
+                print line_callbacks
+                cprint += str(line_callbacks) + ' \n'
                 tmp = module_callbacks, line_callbacks
                 call_timer.append(tmp)
+
         for callback_alert in callbackmodule_from_file:
+            # Collect info and display them later. otherwise there will be a print line between event alert.
             if module_callbacks == callback_alert:
-                print "Alert: Callback 'Module' from Lobotomy Threatlist: \n", line_callbacks
-                cprint += "Alert: Callback 'Module' from Lobotomy Threatlist: \n" + str(line_callbacks) + ' \n'
+                if alertcallbackmodulefile == 0:
+                    print '\n' + '*' * 120 + '\n'
+                    print "Alert: Callback 'Module' from Lobotomy Threatlist: \n"
+                    cprint += '\n' + '*' * 120 + '\n'
+                    cprint += "Alert: Callback 'Module' from Lobotomy Threatlist: \n"
+                    alertcallbackmodulefile = 1
+                print line_callbacks
+                cprint += str(line_callbacks) + ' \n'
                 tmp = module_callbacks, line_callbacks
                 call_timer.append(tmp)
 
@@ -1038,21 +1091,38 @@ def main(database):
     cprint += 'Searching for: Malicious Timers'
     cprint += '\n' + '*' * 120 + '\n'
 
+    alerttimercallback = 0
     for line_timers in data_timers:
         offset_timers, duetime_timers, period_timers, signaled_timers, routine_timers, module_timers = line_timers
         if module_timers == 'UNKNOWN':
+            print '\n' + '*' * 120 + '\n'
             print 'Alert: Unknown Module in Timers: \n', line_timers
-            cprint += 'Alert: Unknown Module in Timers: \n' + str(line_timers)
+            cprint += '\n' + '*' * 120 + '\n'
+            cprint += 'Alert: Unknown Module in Timers:\n' + str(line_timers)
             for tmp_callbacks in call_timer:
                 for item in tmp_callbacks:
                     if item == module_timers:
-                        print 'Alert: Match between timers en callbacks\n' + str(tmp_callbacks[1]) + '\n' + str(line_timers)
+                        if alerttimercallback == 0:
+                            print '\n' + '*' * 120 + '\n'
+                            print 'Alert: Match between timers en callbacks\n'
+                            cprint += '\n' + '*' * 120 + '\n'
+                            cprint += 'Alert: Match between timers en callbacks'
+                            alerttimercallback = 1
+                        print 'Callbacks: ' + str(tmp_callbacks[1]) + '\n' + 'Timers   : ' + str(line_timers)
+                        cprint += 'Callbacks: ' + str(tmp_callbacks[1]) + '\n' + 'Timers   : ' + str(line_timers)
+
                         for line_driverscan in data_driverscan:
                             offset_driverscan, ptr_driverscan, hnd_driverscan, start_driverscan, size_driverscan, \
                                 servicekey_driverscan, name_driverscan, drivername_driverscan = line_driverscan
                             if str(tmp_callbacks[1][3]) == str(name_driverscan):   # callbacks.details matches driverscan.drivername
-                                print 'Now we have also the name: ' + str(drivername_driverscan)
-                                print line_driverscan
+                                print '\nWe might have a match between the name from Plugin Callbacks and Driverscan:' \
+                                      '\nDrivername: ' + str(drivername_driverscan)
+                                print 'Plugin Driverscan: ' + str(line_driverscan)
+                                print 'Plugin Callbacks : ' + str(tmp_callbacks)
+                                cprint += '\nWe might have a match between the name from Plugin Callbacks and ' \
+                                          'Driverscan:\nDrivername:' + str(drivername_driverscan) + '\n'
+                                cprint += 'Plugin Driverscan: ' + str(line_driverscan) + '\n'
+                                cprint += 'Plugin Callbacks : ' + str(tmp_callbacks) + '\n'
 
 # Putting It All Together
 # Now that you’ve been exposed to the various methods of finding and analyzing malicious
@@ -1222,7 +1292,57 @@ def main(database):
 
 
 
+#########################################################################################
+#########################################################################################
+# SSDT Inline Hooking
+#########################################################################################
 
+
+
+# Remember that the name of the NT module may not always be ntoskrnl.exe . It could
+# be ntkrnlpa.exe or ntkrnlmp.exe , so make sure to adjust your regular expression
+# accordingly.
+# $ python vol.py -f laqma.vmem ssdt --profile=WinXPSP3x86
+# | egrep -v '(ntoskrnl\.exe|win32k\.sys)'
+# Volatility Foundation Volatility Framework 2.4
+# [x86] Gathering all referenced SSDTs from KTHREADs...
+# 393394 Part II: Windows Memory Forensics
+# Finding appropriate address space for tables...
+# SSDT[0]
+# Entry
+# Entry
+# Entry
+# Entry
+# at 805011fc with 284 entries
+# 0x0049: 0xf8c52884 (NtEnumerateValueKey) owned by lanmandrv.sys
+# 0x007a: 0xf8c5253e (NtOpenProcess) owned by lanmandrv.sys
+# 0x0091: 0xf8c52654 (NtQueryDirectoryFile) owned by lanmandrv.sys
+# 0x00ad: 0xf8c52544 (NtQuerySystemInformation) owned by lanmandrv.sys
+# The rootkit hooks four functions: NtEnumerateValueKey for hiding registry val-
+# ues, NtOpenProcess and NtQuerySystemInformation for hiding active processes, and
+# NtQueryDirectoryFile for hiding files on disk. Despite the somewhat misleading name
+# ( lanmandrv.sys sounds like it could be a legitimate component), it stands out because it
+# should not be handling APIs that are typically implemented by the NT module.
+# Inline Hooking
+# Attackers are well aware of the methods used to detect the modifications their tools
+# make to systems. Thus, instead of pointing SSDT functions outside of the NT module or
+# win32ks.sys , they can just use an inline hooking technique. This technique has the same
+# effect of redirecting execution to a malicious function, but it is not as obvious. Here’s an
+# example of how it appeared when the Skynet rootkit hooked NtEnumerateKey (we added
+# the --verbose flag to check for these inline hooks):
+# $ python vol.py -f skynet.bin --profile=WinXPSP3x86 ssdt --verbose
+# [snip]
+# SSDT[0] at 804e26a8 with 284 entries
+# Entry 0x0047: 0x80570d64 (NtEnumerateKey) owned by ntoskrnl.exe
+# ** INLINE HOOK? => 0x820f1b3c (UNKNOWN)
+# Entry 0x0048: 0x80648aeb (NtEnumerateSystem[snip]) owned by ntoskrnl.exe
+# Entry 0x0049: 0x80590677 (NtEnumerateValueKey) owned by ntoskrnl.exe
+# Entry 0x004a: 0x80625738 (NtExtendSection) owned by ntoskrnl.exe
+# Entry 0x004b: 0x805b0b4e (NtFilterToken) owned by ntoskrnl.exe
+# Entry 0x004c: 0x805899b4 (NtFindAtom) owned by ntoskrnl.exe
+# The pointer 0x80570d64 is indeed owned by ntoskrnl.exe , but the instructions at that
+# address have been overwritten with a JMP that leads to 0x820f1b3c . Thus, if you check
+# only the initial owning module, you’ll miss the fact that this malware hooks the SSDT.
 
 
 
