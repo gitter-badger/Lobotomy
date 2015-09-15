@@ -1348,25 +1348,6 @@ def main(database):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     try:
         lprint += line_print
     except:
