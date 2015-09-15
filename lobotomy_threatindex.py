@@ -1501,8 +1501,6 @@ def main(database):
 # and memory order lists.
 
 
-
-
 #   Bron:   volatility-yara
 #           ownername
 #           PID
