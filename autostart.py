@@ -93,6 +93,7 @@ def autostart(database):
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3) # KDBGscan is niet af!
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpmod.py {}'.format(database), 3)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_zookeeper.py {}'.format(database), 12)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_impscan.py {}'.format(database), 20)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lobotomy_threatindex.py {}'.format(database), 99)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
