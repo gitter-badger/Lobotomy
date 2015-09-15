@@ -16,7 +16,7 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #                   waardoor er verkeerde waarde in de database geplaatst word.
 
 
-# import sys
+import sys
 import commands
 import main
 
