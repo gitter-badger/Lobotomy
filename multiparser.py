@@ -74,7 +74,15 @@ def multiparser(database, plugin):
                 part = []
 
             Lobotomy.write_to_case_log(casedir, "Database: " + database + " Start: running plugin: " + plugin)
+            count = 0
+            counter = 0
             for listitem in result:
+                counter += 1
+
+            for listitem in result:
+                count += 1
+                pct = str(float(1.0 * count / counter) * 99).split(".")[0]
+
                 if DEBUG:
                     print listitem
                 else:
@@ -84,6 +92,7 @@ def multiparser(database, plugin):
                         item = item.replace('"', "'")
                         sql_line = sql_line + '"{}",'.format(item)
                     sql_line = sql_line[:-1] + ")"
+
                     try:
                         Lobotomy.exec_sql_query(sql_line, database)
                     except:
@@ -91,6 +100,16 @@ def multiparser(database, plugin):
                         print 'SQL Error: ',  sql_line
                         Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
                         Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + sql_line)
+
+                    try:
+                        if pct != pcttmp:
+                            print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
+                            Lobotomy.plugin_pct(plugin, database, pct)
+                    except:
+                        pass
+                    pcttmp = pct
+
+
 
             Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
             Lobotomy.plugin_stop(plugin, database)
