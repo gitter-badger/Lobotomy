@@ -4,8 +4,8 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Plugin version:   1
 # 11 aug 2015:      Wim Venhuizen
 # Plugin:           impscan
-# Edit:             01 sep 2015
-#                   Type in line 60: missing space char | print 'Parsing ...
+# Edit:             14 sep 2015
+# Detail:           Needed for Threatindex
 
 
 import sys
@@ -188,25 +188,64 @@ def main(database):
             pass
 
         for item in vollog.split('\n'):
-            if not item.startswith('Volatility') or not item.startswith('IAT') or not item.startswith('---'):
-                    # test = item.split(' ')
-                    # lenline = []
-                    # lencount = 0
-                    # for tmp in test:
-                    #     print tmp, test, len(tmp), lencount
-                    #     lenline[lencount] = len(tmp)
-                    #     lencount += 1
-                print item.strip('  ').split(' ')
-                tmp = process, pid, base, item
-                items.append(tmp)
+            if not item.startswith('Volatility'):
+                if not item.startswith('IAT'):
+                    if not item.startswith('---'):
+                        # test = item.split(' ')
+                        # lenline = []
+                        # lencount = 0
+                        # for tmp in test:
+                        #     print tmp, test, len(tmp), lencount
+                        #     lenline[lencount] = len(tmp)
+                        #     lencount += 1
+                        test = item.split(' ')
+                        imptmp = ''
+                        for a in test:
+                            if a != '':
+                                imptmp += a + ' '
+                        tmp = process + ' ' + str(pid) + ' ' + str(base) + ' ' + str(imptmp[:-1])
+
+                        #items.append(tmp)
+                        sql_cmd = ''
+                        line = tmp.split(' ')
+                        for sql_item in line:
+                            sql_cmd += ", '{}'".format(sql_item)
+
+                        sqlq = "INSERT INTO " + plugin + " VALUES (0" + sql_cmd + ")"
+                        try:
+                            Lobotomy.exec_sql_query(sqlq, database)
+                        except:
+                            print 'SQL Error in ', database, 'plugin: ', plugin
+                            print 'SQL Error: ',  sqlq
+
+
+                        print tmp
 #                    print item
 
-    print 'Parsing ' + plugin + ' data...'
-    for item in items:
-        print item
+    # print 'Parsing ' + plugin + ' data...'
+    # for item in items:
+    #     tmp = ''
+    #     # for impscandata in item[3]:
+    #     #     tmp += impscandata + ' '
+    #     # line = str(item) + ' ' + str(tmp)
+    #     # print line
+    #     sql_cmd = ''
+    #     # for sql_item in item:
+    #     #     sql_cmd += ", '{}'".format(sql_item)
+    #     line = item.split(' ')
+    #     for sql_item in line:
+    #         sql_cmd += ", '{}'".format(sql_item)
+    #
+    #     sqlq = "INSERT INTO " + plugin + " VALUES (0" + sql_cmd + ")"
+    #     try:
+    #         Lobotomy.exec_sql_query(sqlq, database)
+    #     except:
+    #         print 'SQL Error in ', database, 'plugin: ', plugin
+    #         print 'SQL Error: ',  sqlq
+    #         # Lobotomy.write_to_case_log(casedir, "Database: " + database + " Error:  running plugin: " + plugin)
+    #         # Lobotomy.write_to_case_log(casedir, "Database: " + database + 'SQL line: ' + sqlq)
 
-
-
+#process,pid,base,IAT, Call,Module,Function
 
 
 
