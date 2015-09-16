@@ -5,6 +5,29 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Plugin version:   1
 # 11 aug 2015:      Wim Venhuizen
 # Plugin:           procdump
+# Edit:             15 sep 2015
+# Detail:           Change: Save volatility output in casefolder.
+
+
+# \* fixme
+# Command: python /srv/lobotomy/lob_scripts/dumpproc.py 1509161519_Win7x86_persistence2a03bb9bvmem
+# Priority: 4
+# -------------------------
+# Running Volatility - Procdump, please wait.
+# plugin: procdump - Database: 1509161519_Win7x86_persistence2a03bb9bvmem - pct done: 9
+# Traceback (most recent call last):
+#   File "/srv/lobotomy/lob_scripts/dumpproc.py", line 150, in <module>
+#     main(sys.argv[1])
+#   File "/srv/lobotomy/lob_scripts/dumpproc.py", line 124, in main
+#     Lobotomy.exec_sql_query(sql_line, database)
+#   File "/srv/lobotomy/lob_scripts/main.py", line 128, in exec_sql_query
+#     cur.execute(query)
+#   File "/usr/lib/python2.7/dist-packages/MySQLdb/cursors.py", line 174, in execute
+#     self.errorhandler(self, exc, value)
+#   File "/usr/lib/python2.7/dist-packages/MySQLdb/connections.py", line 36, in defaulterrorhandler
+#     raise errorclass, errorvalue
+# _mysql_exceptions.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'pkg_re','sources').run_script(',''volatility==2.4', 'vol.py')','0','','')' at line 1")
+
 
 import sys
 import main
@@ -57,7 +80,14 @@ def main(database):
         print "Write log: (" + casedir + " ,Database: " + database + " Start:  Parsing volatility output: " + plugin + ")"
     else:
         Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start:  Parsing volatility output: " + plugin)
-        
+
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
+
     counter = 0
     result = []
     part = []
@@ -65,8 +95,10 @@ def main(database):
     lastLinePointer = 0
     pointers = []
 
-    vollog = vollog.split("\n")
-    for line in vollog:
+    items = vollog.split('\n')
+    print 'Parsing ' + plugin + ' data...'
+
+    for line in items:
         if counter == 2:
             for x in line.split(' '):
                 pointers.append(len(x)+1)
