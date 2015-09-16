@@ -66,7 +66,7 @@ def main(database):
     if DEBUGvol:
         print command
     else:
-        print "Running Volatility - Procdump, please wait."
+        print "Running Volatility -", plugin, ", please wait."
         vollog = ""
         status, vollog = commands.getstatusoutput(command)
         
