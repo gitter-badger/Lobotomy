@@ -1,7 +1,23 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
-# 27-06: WV -   Initiele aanmaak hashdump.
-#               kijken of later de hash naar john gepast kan worden als hash cracker.
+# Script version    0.6
+# Plugin version:   1
+# 11 aug 2015:      Wim Venhuizen
+# Plugin:           hashdump
+# Edit:             15 sep 2015
+# Detail:           Change: Save volatility output in casefolder.
+#
+# Edit:             27 jun 2015
+# Detail:           Initiele aanmaak hashdump.
+#                   kijken of later de hash naar john gepast kan worden als hash cracker.
+
+# *\ fixme
+# Command: python /srv/lobotomy/lob_scripts/hashdump.py 1509161519_Win7x86_persistence2a03bb9bvmem
+# Priority: 4
+# -------------------------
+# Running Volatility - hashdump, please wait.
+# Error sql query: INSERT INTO hashdump VALUES (0, 'ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry','ERROR   ',' volatility.plugins.registry.lsadump',' Unable to read hashes from registry') - 1509161519_Win7x86_persistence2a03bb9bvmem
+# ID: 697
 
 
 import sys
@@ -55,8 +71,10 @@ def main(database):
     except:
         pass
 
-    vollog = vollog.split("\n")
-    for line in vollog:
+    items = vollog.split('\n')
+    print 'Parsing ' + plugin + ' data...'
+
+    for line in items:
         sql_line = "INSERT INTO " + plugin + " VALUES (0, "
         if not line.startswith('Volatility Foundation Volatility Framework'):
             resultline = line.split(':')
