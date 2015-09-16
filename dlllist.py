@@ -14,7 +14,24 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Edit:             14 jul 2015
 #                   Fixen: Bij een volgend process werden de gegevens van het vorige process niet gescoond,
 #                   waardoor er verkeerde waarde in de database geplaatst word.
+#
+# Edit:             16 sep 2015
+#                   Fixed: in the new version there was an extra line: Volatility Foundation Volatility Framework 2.4
+#                   if line.startswith("**********************") or line.startswith("Volatility"):
 
+#  fixed
+# Command: python /srv/lobotomy/lob_scripts/dlllist.py 1509161522_Win7x86_persistence64afcc53vmem
+# Priority: 3
+# -------------------------
+# Running Volatility - dlllist , please wait.
+# Parsing dlllist data...
+# Traceback (most recent call last):
+#   File "/srv/lobotomy/lob_scripts/dlllist.py", line 177, in <module>
+#     main(sys.argv[1])
+#   File "/srv/lobotomy/lob_scripts/dlllist.py", line 113, in main
+#     a, b = line.split(":")
+# ValueError: need more than 1 value to unpack
+#  fixed
 
 import sys
 import commands
@@ -34,7 +51,6 @@ def main(database):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
 
-    # command = "vol.py -f " + imagename + " --profile=" + imagetype + " " + plugin # + " > " + imagename + "-" + plugin + ".txt"
     command = "vol.py -f {} --profile={} {}".format(imagename, imagetype, plugin)
     
     if DEBUG:
@@ -43,11 +59,6 @@ def main(database):
     else:
         Lobotomy.write_to_main_log(database, " Start: " + command)
         Lobotomy.write_to_case_log(casedir, " Start: " + command)
-
-    # if DEBUG:
-    #     print command
-    # else:
-    #     os.system(command)
 
     if DEBUG:
         print command
@@ -84,13 +95,6 @@ def main(database):
     for line in items:
         counter += 1
 
-    # try:
-    #     with open(imagename + "-" + plugin + ".txt") as f:
-    #         for line in f:
-    #             counter += 1
-    # except:
-    #     pass
-
     dll = 1
     linenr = 0
     proc = ""
@@ -104,13 +108,13 @@ def main(database):
     for line in items:
         count += 1
         pct = str(float(1.0 * count / counter) * 99).split(".")[0]
-        if line.startswith("**********************"):
+        if line.startswith("**********************") or line.startswith("Volatility"):
             linenr = 0
             dll = 0
         else:
             linenr += 1
             if linenr == 1:
-                a, b = line.split(":")
+                a, b = line.split(":") # should be process and pid.
                 proc = a.split(" ")[0]
                 pid = b.strip(" ").strip("\n")
             if linenr == 2:
