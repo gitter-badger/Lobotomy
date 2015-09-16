@@ -1,9 +1,35 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 
+# Script version    0.6
+# Plugin version:   1
+# 11 aug 2015:      Wim Venhuizen
+# Plugin:           dlldump
+# Edit:             15 sep 2015
+# Detail:           Change: Save volatility output in casefolder.
 #
-# 20-05: WV - Toevoegen van exiftool aan procdump.
-#             Toevoegen van enkele print commands en pct counter.
-#             moved exifinfo routine due to the msg: 'Error: DllBase is paged'
+# Edit:             20 mei 2015
+# Detail:           Toevoegen van exiftool aan procdump.
+#                   Toevoegen van enkele print commands en pct counter.
+#                   moved exifinfo routine due to the msg: 'Error: DllBase is paged'
+
+# *\ fixme
+# -------------------------
+# Running Volatility - Dlldump, please wait.
+# plugin: dlldump - Database: 1509161519_Win7x86_persistence2a03bb9bvmem - pct done: 9
+# Traceback (most recent call last):
+#   File "/srv/lobotomy/lob_scripts/dumpdll.py", line 152, in <module>
+#     main(sys.argv[1])
+#   File "/srv/lobotomy/lob_scripts/dumpdll.py", line 126, in main
+#     Lobotomy.exec_sql_query(sql_line, database)
+#   File "/srv/lobotomy/lob_scripts/main.py", line 128, in exec_sql_query
+#     cur.execute(query)
+#   File "/usr/lib/python2.7/dist-packages/MySQLdb/cursors.py", line 174, in execute
+#     self.errorhandler(self, exc, value)
+#   File "/usr/lib/python2.7/dist-packages/MySQLdb/connections.py", line 36, in defaulterrorhandler
+#     raise errorclass, errorvalue
+# _mysql_exceptions.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'pkg_resources').','run_script('','volatility==2.4', 'vo','l.py')','0','','')' at line 1")
+# ID: 678
+# Command: python /srv/lobotomy/lob_scripts/svcscan.py 1509161519_Win7x86_persistence2a03bb9bvmem
 
 
 import sys
@@ -58,6 +84,13 @@ def main(database):
     else:
         Lobotomy.write_to_case_log(casedir,  "Database: " + database + " Start:  Parsing volatility output: " + plugin)
         
+    try:
+        f = open(imagename + '-' + plugin + '.txt', 'w')
+        f.write(vollog)
+        f.close()
+    except:
+        pass
+
     counter = 0
     result = []
     part = []
@@ -65,9 +98,10 @@ def main(database):
     lastLinePointer = 0
     pointers = []
 
-    vollog = vollog.split("\n")
-    
-    for line in vollog:
+    items = vollog.split('\n')
+    print 'Parsing ' + plugin + ' data...'
+
+    for line in items:
         if counter == 2:
             for x in line.split(' '):
                 pointers.append(len(x)+1)
