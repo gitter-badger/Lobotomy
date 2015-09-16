@@ -49,7 +49,7 @@ def main(database):
     if DEBUG:
         print command
     else:
-        print "Running Volatility - hashdump, please wait."
+        print "Running Volatility -", plugin, ", please wait."
         vollog = ""
         status, vollog = commands.getstatusoutput(command)
         
