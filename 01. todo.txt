@@ -1,0 +1,92 @@
+***threatindex
+    *
+    *** Dlldump
+    *    *
+    *    *** hashdump
+    *         *
+    *         *** PSXview           (Match PID)
+    *         *
+    *         *** PSTree            (Match PID)
+    *         *
+    *         *** Yarascan          (Match PID)
+    *         *
+    *         *** Exifinfo          (Match full_filename)
+    *         *
+    *         *** PE_Scanner        (Match full_filename)
+    *         *
+    *         *** PE_Scanner_beta   (Match full_filename), (ZooKeeper)
+    *
+    *** Procdump
+    *    *
+    *    *** hashdump
+    *         *
+    *         *** PSXview           (Match PID)
+    *         *
+    *         *** PSTree            (Match PID)
+    *         *
+    *         *** Yarascan          (Match PID)
+    *         *
+    *         *** Exifinfo          (Match full_filename)
+    *         *
+    *         *** PE_Scanner        (Match full_filename)
+    *         *
+    *         *** PE_Scanner_beta   (Match full_filename), (ZooKeeper)
+    *
+    *** Moddump
+    *    *
+    *    *** hashdump
+    *         *
+    *         *** PSXview           (Match PID)
+    *         *
+    *         *** PSTree            (Match PID)
+    *         *
+    *         *** Yarascan          (Match PID)
+    *         *
+    *         *** Exifinfo          (Match full_filename)
+    *         *
+    *         *** PE_Scanner        (Match full_filename)
+    *         *
+    *         *** PE_Scanner_beta   (Match full_filename), (ZooKeeper)
+    *
+    *** Photorec
+    *    *
+    *    *** hashdump
+    *         *
+    *         *** PSXview           (Match PID)
+    *         *
+    *         *** PSTree            (Match PID)
+    *         *
+    *         *** Yarascan          (Match PID)
+    *         *
+    *         *** Exifinfo          (Match full_filename)
+    *         *
+    *         *** PE_Scanner        (Match full_filename)
+    *         *
+    *         *** PE_Scanner_beta   (Match full_filename), (ZooKeeper)
+    *
+    *** ldrmodules (Empty Ldr_Mappedpath and Ldr_ininit is False)
+    *    *
+    *    *** PSXview           (Match PID)
+    *    *
+    *    *** PSTree            (Match PID)
+    *    *
+    *    *** Malfind           (Match PID and base address)
+    *
+    *** Callbacks (Unknown module)
+    *   *
+    *   *** (Match callbacks from file)
+    *        *
+    *        *** Check module with timers
+    *                                 *
+    *** Timers (Unknown module)       *
+    *   *                             **********
+    *   *** (Match timers from file)           *
+    *        *                                 *
+    *        *** Check module with callbacks   *
+                                       *       *
+                                       *       *
+                                       *********
+                                               *
+                                               *** Alert
+
+
