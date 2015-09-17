@@ -23,6 +23,13 @@ __author__ = 'Wim Venhuizen'
 #  Detail:          Change: Minor fixes in output
 #                   Add: Build pstree from pid: Note: Not sure what happens if the pid tree is broken.
 #                   Change: Changed output filename to [image]-threatreport.txt
+# 06 sep 2015:      Wim Venhuizen
+#  Detail:          Change: Minor fixes in output
+#                   Add: Build pstree from pid: Note: Not sure what happens if the pid tree is broken.
+#                   Change: Changed output filename to [image]-threatreport.txt
+# Name:             W Venhuizen
+# Edit:             17 sep 2015
+# Detail:           Add: Save report to database in table: lobotomy_report
 
 import os
 import sys
@@ -37,8 +44,8 @@ DEBUG = False
 
 
 def main(database):
-    #Lobotomy.plugin_start(plugin, database)
-    #Lobotomy.plugin_pct(plugin, database, 1)
+    Lobotomy.plugin_start('lobotomy_report', database)
+    Lobotomy.plugin_pct('lobotomy_report', database, 1)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -1368,6 +1375,18 @@ def main(database):
         f.close()
     except:
         pass
+
+    # lobotomy_report
+    if DEBUG:
+        print SQL_cmd
+    else:
+        sprint = sprint.replace("'", '"')
+        SQL_cmd = "INSERT INTO lobotomy_report VALUES (0, '{}')".format(sprint)
+        Lobotomy.exec_sql_query(SQL_cmd, database)
+        Lobotomy.plugin_stop('lobotomy_report', database)
+        Lobotomy.plugin_pct('lobotomy_report', database, 100)
+
+
 
 
 
