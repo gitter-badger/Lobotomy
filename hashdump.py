@@ -12,7 +12,7 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #                   kijken of later de hash naar john gepast kan worden als hash cracker.
 #
 # Edit:             15 sep 2015
-# Detail:           Add: CHeck if there is a hash in the volatiltiy output. Otherwise we get an error.
+# Detail:           Add: Check if there is a hash in the Volatility output. Otherwise we get an error.
 #                   We check for that error.
 
 # *\ fixed
