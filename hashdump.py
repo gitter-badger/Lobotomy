@@ -10,14 +10,29 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Edit:             27 jun 2015
 # Detail:           Initiele aanmaak hashdump.
 #                   kijken of later de hash naar john gepast kan worden als hash cracker.
+#
+# Edit:             15 sep 2015
+# Detail:           Add: CHeck if there is a hash in the volatiltiy output. Otherwise we get an error.
+#                   We check for that error.
 
-# *\ fixme
+# *\ fixed
 # Command: python /srv/lobotomy/lob_scripts/hashdump.py 1509161519_Win7x86_persistence2a03bb9bvmem
 # Priority: 4
 # -------------------------
 # Running Volatility - hashdump, please wait.
 # Error sql query: INSERT INTO hashdump VALUES (0, 'ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry','ERROR   ',' volatility.plugins.registry.lsadump',' Unable to read hashes from registry') - 1509161519_Win7x86_persistence2a03bb9bvmem
 # ID: 697
+
+# Command: python /srv/lobotomy/lob_scripts/hashdump.py 1509170744_salityvmem
+# Priority: 4
+# -------------------------
+# Running Volatility - hashdump , please wait.
+# Parsing hashdump data...
+# Error sql query: INSERT INTO hashdump VALUES (0, 'ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry','ERROR   ',' volatility.plugins.registry.lsadump',' Unable to read hashes from registry') - 1509170744_salityvmem
+
+# willem@laptop-01:/srv/lobotomy/lob_scripts$ vol.py -f ../dumps/G7DUXD15P07V/sality.vmem hashdump
+# Volatility Foundation Volatility Framework 2.4
+# ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry
 
 
 import sys
@@ -75,18 +90,22 @@ def main(database):
     print 'Parsing ' + plugin + ' data...'
 
     for line in items:
-        sql_line = "INSERT INTO " + plugin + " VALUES (0, "
-        if not line.startswith('Volatility Foundation Volatility Framework'):
-            resultline = line.split(':')
-            sql_line = sql_line + "'{}',".format(line)
-            for result in resultline:
-                if result != "":
-                    sql_line = sql_line + "'{}',".format(result)
-            sql_line = sql_line[:-1] + ")"
-            try:
-                Lobotomy.exec_sql_query(sql_line, database)
-            except:
-                print 'Error sql query: ' + sql_line + " - " + database
+        if not line.startswith('ERROR   : volatility.plugins.registry.lsadump'):
+            sql_line = "INSERT INTO " + plugin + " VALUES (0, "
+            if not line.startswith('Volatility Foundation Volatility Framework'):
+                resultline = line.split(':')
+                sql_line = sql_line + "'{}',".format(line)
+                for result in resultline:
+                    if result != "":
+                        sql_line = sql_line + "'{}',".format(result)
+                sql_line = sql_line[:-1] + ")"
+                try:
+                    Lobotomy.exec_sql_query(sql_line, database)
+                except:
+        if line.startswith('ERROR   : volatility.plugins.registry.lsadump'):
+            sql_line = "INSERT INTO " + plugin + " VALUES (0, '{}', '{}', '{}', '{}', '{}')".format(line, '0', '0', '0', '0')
+            print sql_line
+            Lobotomy.exec_sql_query(sql_line, database)
     Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
 
