@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Script.version    0.2
+# Script.version    0.3
 # Date:             14-05-2015
 # Edited:           W Venhuizen
 # Plugin:           autostart
@@ -13,7 +13,7 @@
 #   12-08:  WV: Wijzigen GDT en IDT.
 #               Beide plugins werken alleen met XP.
 #
-
+#   03 - okt:   WV: Netter maken autostart
 
 import sys
 import main
@@ -39,9 +39,27 @@ def autostart(database):
     """
     if profile.startswith("Win"):
         Lobotomy.write_to_main_log(database, "Executing autostart.py for {}".format(database))
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'memtimeliner.py {}'.format(database), 4)
+
+        # Dumping files
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_procdump.py {}'.format(database), 4)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpdll.py {}'.format(database), 4)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpmod.py {}'.format(database), 3)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'PR_dump.py {}'.format(database), 5)
+
+        # scanning for services
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} pslist'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'pstree.py {}'.format(database), 2)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psscan'.format(database), 2)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psxview'.format(database), 2)
+
+        # Scanning files
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_yarascan.py {} index.yara'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'yarascan.py {}'.format(database), 10)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_zookeeper.py {}'.format(database), 12)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_pescanner.py {}'.format(database), 25)
+
+        # Other
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'memtimeliner.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'consoles.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdline.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hivelist.py {}'.format(database), 2)
@@ -49,9 +67,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} ldrmodules'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'ldrmodules-v.py {}'.format(database), 2)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psscan'.format(database), 2)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'prefetchparser.py {}'.format(database), 3) # not yet supported
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psxview'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} atoms'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dlllist.py {}'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdscan.py {}'.format(database), 4)
@@ -63,10 +79,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} callbacks'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} thrdscan'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} atomscan'.format(database))
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpproc.py {}'.format(database), 4)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpdll.py {}'.format(database), 4)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpfile.py {}'.format(database), 6) # Bulkextractor, doen we nog niets mee
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'PR_dump.py {}'.format(database), 5)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10) # gahti werkt niet met multiparser
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gditimers'.format(database), 10)
@@ -81,18 +94,13 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} shimcache'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} symlinkscan'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} timers'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_yarascan.py {} index.yara'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'yarascan.py {}'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hashdump.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_pescanner.py {}'.format(database), 25)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_shimcache.py {}'.format(database), 11)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 3)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'mftparser.py {}'.format(database), 3) # MFTParser is niet af.
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3) # KDBGscan is niet af!
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpmod.py {}'.format(database), 3)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lob_zookeeper.py {}'.format(database), 12)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_impscan.py {}'.format(database), 20)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lobotomy_threatindex.py {}'.format(database), 99)
 
