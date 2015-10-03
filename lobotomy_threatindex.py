@@ -46,6 +46,7 @@ DEBUG = False
 def main(database):
     Lobotomy.plugin_start('lobotomy_report', database)
     Lobotomy.plugin_pct('lobotomy_report', database, 1)
+
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -1005,6 +1006,31 @@ def main(database):
 
 #########################################################################################
 #########################################################################################
+#   Add Malfind plugin to ldrinfo
+#########################################################################################
+#########################################################################################
+
+                for line_malfind in data_malfind:
+                    process_malfind, pid_malfind, address_malfind, vadtag_malfind, protection_malfind, \
+                    flags_malfind, header_malfind, body_malfind = line_malfind
+                    if str(pid_malfind) == str(ldr_pid) and int(address_malfind, 0) == int(ldr_base, 0):
+                        print '\nProcess: ' + process_malfind + '\tPid: ' + str(pid_malfind) + '\tAddress: ' + address_malfind
+                        print '\nVad: ' + vadtag_malfind + '\tProtection: ' + protection_malfind
+                        print flags_malfind
+                        print header_malfind
+                        print body_malfind
+                        line_print += '\nProcess: ' + process_malfind
+                        line_print += '\tPid: ' + str(pid_malfind)
+                        line_print += '\tAddress: ' + address_malfind
+                        line_print += '\nVad: ' + vadtag_malfind
+                        line_print += '\tProtection: ' + protection_malfind
+                        line_print += '\n' + flags_malfind
+                        line_print += '\n' + header_malfind
+                        line_print += '\n' + body_malfind
+
+
+#########################################################################################
+#########################################################################################
 # Malicious Callbacks
 #########################################################################################
 # Malicious Callbacks
@@ -1294,8 +1320,124 @@ def main(database):
 # >>> pe.write("driver.81b91b80.sys")
 
 
+# todo
+
+                # OrphanThread = 'Detect orphan threads',
+                # SystemThread = 'Detect system threads',
+                # HookedSSDT = 'Detect threads using a hooked SSDT',
+                # ScannerOnly = 'Detect threads no longer in a linked list',
+                # DkomExit = 'Detect inconsistencies wrt exit times and termination',
+                # HideFromDebug = 'Detect threads hidden from debuggers',
+                # HwBreakpoints = 'Detect threads with hardware breakpoints',
+                # AttachedProcess = 'Detect threads attached to another process',
 
 
+#########################################################################################
+#########################################################################################
+# Dumping Suspicious Kernel Modules
+#########################################################################################
+
+# id	offset	name	base	size	file
+# 120	0x82258ad0	PROCMON20.SYS	0xb240b000	0xc000	\\??\\C:\\WINDOWS\\system32\\Drivers\\PROCMON20.SYS
+# 121	0x81f8cb60	mrxcls.sys	0xf895a000	0x5000	\\??\\C:\\WINDOWS\\system32\\Drivers\\mrxcls.sys
+# 122	0x81c2a530	mrxnet.sys	0xb21d8000	0x3000	\\??\\C:\\WINDOWS\\system32\\Drivers\\mrxnet.sys
+
+
+# The modules command in Volatility prints a list of loaded kernel modules by walking
+# the list of LDR_DATA_TABLE_ENTRY structures. Because of the nature of the doubly linked list,
+# it is possible for malware to unlink entries and hide drivers. However, just as psscan (see
+# Recipe 15-6) provides you with the capability to detect unlinked processes, the modscan2
+# command gives you the power to detect unlinked kernel modules. Just compare the output
+# between modules and modscan2 and see if there are any discrepancies.
+
+#
+# PSScan - PSXView (where exittime is 0)
+
+# psxview
+# id	offset	    name	        pid	    pslist	psscan	thrdproc	pspcid	csrss	session	deskthrd	exittime
+# 14	0x0113f648	1_doc_RCData_61	1336	False	True	True	    True	True	True	True	    0000-00-00 00:00:00
+#
+# psscan
+# id	offset	            name	        pid	    ppid	pdb	        timecreated	        timeexited
+# 4	    0x000000000113f648	1_doc_RCData_61	1336	1136	0x06cc0340	2010-08-11 16:50:20	0000-00-00 00:00:00
+# 10	0x0000000004a544b0	ImmunityDebugge	1136	1724	0x06cc02a0	2010-08-11 16:50:19	0000-00-00 00:00:00
+#
+# pslist
+# id	offset	    name	pid	ppid	thds	hnds	sess	wow64	start	            exit
+# 1	    0x810b1660	System	4	0	    56	    253	    0	    0	    0000-00-00 00:00:00	0000-00-00 00:00:00
+# id	offset	name	pid	ppid	thds	hnds	sess	wow64	start	exit
+# 1	0x810b1660	System	4	0	56	253	0	0	0000-00-00 00:00:00	0000-00-00 00:00:00
+#
+# pstree
+# id	depth	offset	    name	    pid	    ppid	thds	hnds	plugin_time	        audit	cmd	path
+# 18	4	    0xff203b80	svchost.exe	1148	676	    14	    207	    2010-08-11 06:06:26	\\Device\\HarddiskVolume1\\WINDOWS\\system32\\svchost.exe
+
+
+    print '\n\n#########################################################################################'
+    print '#########################################################################################'
+    print '# Dumping Suspicious Processes'
+    print '#########################################################################################'
+
+    #data_psscan = Lobotomy.get_databasedata('offset,name,pid,ppid,pdb,timecreated,timeexited', 'psscan', database)
+    data_pslist = Lobotomy.get_databasedata('offset,name,pid,ppid,thds,hnds,sess,wow64', 'pslist', database)
+    tmp = ''
+    tmpcounter = 0
+    a = ''
+    for line_pslist in data_pslist:
+        # Add all processes from pslist in a string
+        tmp += str(line_pslist[1]) + ' '
+
+    for line_psxview in data_psxview:
+        # test if process from psxview does not match data from pslist and if exittime doesn't have a value
+        if line_psxview[1] not in tmp and line_psxview[10] == None:
+            print 'error', line_psxview
+
+
+    # for line_pslist in data_pslist:
+    #     tmp = 0
+    #     for tmpdata in data_psxview:
+    #         a += tmpdata[1] + ' '
+    #         print a
+    #     if line_pslist[1] not in a:
+    #         print 'error', tmpcounter, line_pslist
+    #         tmpcounter += 1
+    #     for line_psxview in data_psxview:
+    #
+    #         #print line_psxview[1], line_psscan[1]
+    #         if line_psxview[1] == line_pslist[1]:
+    #             tmp = 1
+    #             print 'same: ', line_psxview[1], line_pslist[1]
+    #             # process name from psxview is processname from psscan
+    #             # ok
+    #     if tmp == 0:
+    #         print line_pslist
+    #         print line_psxview
+    #         tmp = 0
+    #         # if line_psscan[1] not in data_psxview:
+    #         #     print line_psscan
+
+
+# Need to build OS independed:
+# Remember that the name of the NT module may not always be ntoskrnl.exe . It could
+# be ntkrnlpa.exe or ntkrnlmp.exe , so make sure to adjust your regular expression
+# accordingly.
+# AMF page 393
+
+        # if imagetype.startswith('WinXP') and 'x86' in imagetype:
+        #     if line_ssdt[0] == 'ssdt[0]' and \
+        #         line_ssdt[5] != 'ntoskrnl.exe': # or \
+        #         # line_ssdt[5] != 'ntkrnlpa.exe' or \
+        #         # line_ssdt[5] != 'ntoskrnl.exe':
+        #         print 'alert: ssdt 0 hook'
+        #     if line_ssdt[0] == 'ssdt[1]' and \
+        #         line_ssdt[5] != 'win32k.sys':
+        #         print 'alert: ssdt 1 hook'
+        #         pass
+        #     if line_ssdt[6] != '':
+        #         print line_ssdt[6], line_ssdt[7]
+        #         print 'alert: ssdt hook'
+        #         print line_ssdt
+        #         print 'next step: dumping hooked process'
 
 
 
@@ -1304,6 +1446,33 @@ def main(database):
 # SSDT Inline Hooking
 #########################################################################################
 
+    # id	ssdt	mem1	entry	mem2	systemcall	owner	hookaddress	hookprocess
+    # 977	SSDT[0]	80501b8c	0x0019	0xb240f80e	NtClose	PROCMON20.SYS
+
+    data_ssdt = Lobotomy.get_databasedata('ssdt,mem1,entry,mem2,systemcall,owner,hookaddress,hookprocess', 'ssdt', database)
+    for line_ssdt in data_ssdt:
+
+# Need to build OS independed:
+# Remember that the name of the NT module may not always be ntoskrnl.exe . It could
+# be ntkrnlpa.exe or ntkrnlmp.exe , so make sure to adjust your regular expression
+# accordingly.
+# AMF page 393
+
+        if imagetype.startswith('WinXP') and 'x86' in imagetype:
+            if line_ssdt[0] == 'ssdt[0]' and \
+                line_ssdt[5] != 'ntoskrnl.exe': # or \
+                # line_ssdt[5] != 'ntkrnlpa.exe' or \
+                # line_ssdt[5] != 'ntoskrnl.exe':
+                print 'alert: ssdt 0 hook'
+            if line_ssdt[0] == 'ssdt[1]' and \
+                line_ssdt[5] != 'win32k.sys':
+                print 'alert: ssdt 1 hook'
+                pass
+            if line_ssdt[6] != '':
+                print 'Alert      : ssdt hook\nHookadress : {}\nHookProcess: {}'.format(line_ssdt[6], line_ssdt[7])
+
+                print line_ssdt
+                print 'next step: dumping hooked process'
 
 
 # Remember that the name of the NT module may not always be ntoskrnl.exe . It could
