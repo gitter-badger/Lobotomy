@@ -5,3 +5,9 @@ callbacks:type:KeBugCheckCallbackListHead
 callbacks:type:CmRegisterCallback
 callbacks:module:UNKNOWN
 timers:module:UNKNOWN
+callbacks:type:PsSetCreateProcessNotifyRoutine
+callbacks:type:PsSetCreateThreadNotifyRoutine
+callbacks:type:PsSetLoadImageNotifyRoutine
+callbacks:type:ZwCreateFile
+callbacks:type:ZwCreateSection
+callbacks:type:ZwMapViewOfSection
