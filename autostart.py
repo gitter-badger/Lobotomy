@@ -67,7 +67,6 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} ldrmodules'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'ldrmodules-v.py {}'.format(database), 2)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'prefetchparser.py {}'.format(database), 3) # not yet supported
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} atoms'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dlllist.py {}'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'cmdscan.py {}'.format(database), 4)
@@ -79,13 +78,8 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} callbacks'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} thrdscan'.format(database))
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} atomscan'.format(database))
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpfile.py {}'.format(database), 6) # Bulkextractor, doen we nog niets mee
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} clipboard'.format(database), 10)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10) # gahti werkt niet met multiparser
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gditimers'.format(database), 10)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getservicesids.py {}'.format(database), 10)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} joblinks'.format(database), 10) # Not yet supported
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_memmap.py {}'.format(database), 24) # Disabled for now. takes a lot of time to complete
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} modscan'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} modules'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} mutantscan'.format(database), 10)
@@ -99,13 +93,19 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_shimcache.py {}'.format(database), 11)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 3)
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'mftparser.py {}'.format(database), 3) # MFTParser is niet af.
-        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3) # KDBGscan is niet af!
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_impscan.py {}'.format(database), 20)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lobotomy_threatindex.py {}'.format(database), 99)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_impscan.py {}'.format(database), 20) # Imscan after ldrmodules
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lobotomy_threatreport.py {}'.format(database), 99)
 
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} userhandles'.format(database), 10)
         #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} vadwalk'.format(database), 10)
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'dumpfile.py {}'.format(database), 6) # Bulkextractor, doen we nog niets mee
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} gahti'.format(database), 10) # gahti werkt niet met multiparser
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'getservicesids.py {}'.format(database), 10)
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} joblinks'.format(database), 10) # Not yet supported
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_memmap.py {}'.format(database), 24) # Disabled for now. takes a lot of time to complete
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'mftparser.py {}'.format(database), 3) # MFTParser is niet af.
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'kdbgscan.py {}'.format(database), 3) # KDBGscan is niet af!
+        #Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'prefetchparser.py {}'.format(database), 3) # not yet supported
 
     #if 'XP' in profile:
     if profile.startswith("WinXP"):
