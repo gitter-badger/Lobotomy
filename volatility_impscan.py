@@ -25,18 +25,6 @@ def main(database):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
     command = "vol.py -f {} --profile={} {}".format(imagename, imagetype, plugin)
-    if DEBUG:
-        print "Write log: " + database + ", Start: " + command
-        print "Write log: " + casedir + ", Start: " + command
-    else:
-        Lobotomy.write_to_main_log(database, " Start: " + command)
-        Lobotomy.write_to_case_log(casedir, " Start: " + command)
-
-    if DEBUG:
-        print "Write log: " + database + " Stop: " + command
-        print "Write log: " + casedir + " Stop: " + command
-    else:
-        Lobotomy.write_to_case_log(casedir, " Stop : " + command)
 
     if DEBUG:
         print "Write log: (" + casedir + ", Database: " + database + " Start: Parsing volatility output: " + plugin + ")"
@@ -67,6 +55,7 @@ def main(database):
                 tmp = ldr_process, ldr_pid, ldr_base
                 data_impscan.append(tmp)
     except:
+        data_impscan = ''
         print 'error parsing items'
 
 
@@ -150,29 +139,25 @@ def main(database):
 # 0x01002ffa 0x7c90d500 ntdll.dll            ZwMapViewOfSection
 # 0x0100300a 0x7c90cfd0 ntdll.dll            ZwClose
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-
   # 254  vol.py -f stuxnet.vmem impscan --BASE 0x01000000 -p 1928 -s 0x6000
   # 255  vol.py -f stuxnet.vmem impscan -b 0x01000000 -p 1928 -s 0x6000
-
-
 
     items = []
     for process, pid, base in data_impscan:
         command = "vol.py -f {} --profile={} {} -b {} -p {}".format(imagename, imagetype, plugin, base, pid)
+        if DEBUG:
+            print "Write log: " + database + ", Start: " + command
+            print "Write log: " + casedir + ", Start: " + command
+        else:
+            Lobotomy.write_to_main_log(database, " Start: " + command)
+            Lobotomy.write_to_case_log(casedir, " Start: " + command)
+
+        if DEBUG:
+            print "Write log: " + database + " Stop: " + command
+            print "Write log: " + casedir + " Stop: " + command
+        else:
+            Lobotomy.write_to_case_log(casedir, " Stop : " + command)
+
         if DEBUG:
             print command
         else:
