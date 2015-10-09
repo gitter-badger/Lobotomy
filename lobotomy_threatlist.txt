@@ -11,3 +11,4 @@ callbacks:type:PsSetLoadImageNotifyRoutine
 callbacks:type:ZwCreateFile
 callbacks:type:ZwCreateSection
 callbacks:type:ZwMapViewOfSection
+callbacks:type:PsCreateSystemThread
