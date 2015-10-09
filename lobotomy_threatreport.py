@@ -2,11 +2,14 @@
 __author__ = 'Wim Venhuizen'
 
 #
-# Script version    0.1
+# Script version    0.2
 # Plugin version:   0.1
 # 08 mrt 2015:      Wim Venhuizen
 # Plugin:           Lobotomy threat scanner and report
 #
+# 07 okt 2015:      Wim Venhuizen
+# Detail:           Added Impscan to report.
+
 
 import os
 import sys
@@ -39,9 +42,10 @@ bad_hashes_list = []
 
 # todo
 
-# OrphanThread = 'Detect orphan threads',
+# Done - OrphanThread = 'Detect orphan threads',
+#        Orphan threads scanner - read threads without pid from psxview.
 # SystemThread = 'Detect system threads',
-# HookedSSDT = 'Detect threads using a hooked SSDT',
+# Done: HookedSSDT = 'Detect threads using a hooked SSDT'
 # ScannerOnly = 'Detect threads no longer in a linked list',
 # DkomExit = 'Detect inconsistencies wrt exit times and termination',
 # HideFromDebug = 'Detect threads hidden from debuggers',
@@ -186,6 +190,16 @@ def main(database):
         # report_index.append('Appendix: Custom Malicious Callbacks')
         # report_appendix.append(['Appendix: Custom Malicious Callbacks', report_fileinfo])
 
+    report = lobotomy_orphan_threadscan(database)
+    if report != '':
+        explain = lobotomy_explain('Orphan thread')
+        report_index.append('Scanned Orphan thread')
+        report_body.append(['Scanned Orphan thread', report])
+        report_explain.append(['Scanned Orphan thread', explain])
+        # report_index.append('Appendix: Custom Malicious Callbacks')
+        # report_appendix.append(['Appendix: Custom Malicious Callbacks', report_fileinfo])
+
+
 
     lobotomy_report = 'Lobotomy Memory Report\n'
     lobotomy_report += '#' * 64 + '\n'
@@ -267,8 +281,6 @@ def Malicious_Callbacks(database):
 #########################################################################################
 #########################################################################################
 # Malicious Callbacks
-#########################################################################################
-# Malicious Callbacks
 # Many high-profile rootkits such as Mebroot, ZeroAccess, Rustock, Ascesso, Tigger, Stuxnet,
 # Blackenergy, and TDL3 leverage kernel callbacks. In most cases, they also try to hide by
 # unlinking the KLDR_DATA_TABLE_ENTRY or by running as an orphan thread from a kernel
@@ -308,7 +320,10 @@ def Malicious_Callbacks(database):
                 report += 'Alert: Unknown Module in Callback: \n'
                 report += '\n' + '*' * 120 + '\n'
                 alertcallbackmodule = 1
-            report += str(line_callbacks) + '\n'
+            report += '\nType     : ' + str(line_callbacks[0])
+            report += '\nCallback : ' + str(line_callbacks[1])
+            report += '\nModule   : ' + str(line_callbacks[2])
+            report += '\nDetails  : ' + str(line_callbacks[3]) + '\n'
             tmp = module_callbacks, line_callbacks
             call_timer.append(tmp)
             # module_callbacks = ''
@@ -340,10 +355,13 @@ def Malicious_Callbacks_Custom(database):
             # Collect info and display them later. otherwise there will be a print line between event alert.
             if type_callbacks == callback_alert:
                 if alertcallbacktypefile == 0:
-                    report += '*' * 120 + '\n'
+                    report += '\n' + '*' * 120 + '\n\n'
                     report += "Alert: Callback 'Type' from Lobotomy Threatlist: \n"
                     alertcallbacktypefile = 1
-                report += str(line_callbacks) + ' \n'
+                report += '\nType     : ' + str(line_callbacks[0])
+                report += '\nCallback : ' + str(line_callbacks[1])
+                report += '\nModule   : ' + str(line_callbacks[2])
+                report += '\nDetails  : ' + str(line_callbacks[3]) + '\n'
                 tmp = module_callbacks, line_callbacks
                 call_timer.append(tmp)
 
@@ -354,7 +372,10 @@ def Malicious_Callbacks_Custom(database):
                     report += '\n' + '*' * 120 + '\n'
                     report += "Alert: Callback 'Module' from Lobotomy Threatlist: \n"
                     alertcallbackmodulefile = 1
-                report += str(line_callbacks) + ' \n'
+                report += '\nType     : ' + str(line_callbacks[0])
+                report += '\nCallback : ' + str(line_callbacks[1])
+                report += '\nModule   : ' + str(line_callbacks[2])
+                report += '\nDetails  : ' + str(line_callbacks[3]) + '\n'
                 tmp = module_callbacks, line_callbacks
                 # call_times is needed for module timers
                 call_timer.append(tmp)
@@ -376,9 +397,14 @@ def Malicious_Timers(database):
         if module_timers == 'UNKNOWN':
             if alerttimercallback == 0:
                 report += 'Searching for: Malicious Timers'
-                report += 'Alert: Unknown Module in Timers:\n'
+                report += '\nAlert: Unknown Module in Timers:'
                 alerttimercallback = 1
-            report += 'Timers   : ' + str(line_timers) + '\n'
+            report += '\nOffset   : ' + str(line_timers[0])
+            report += '\nDuetime  : ' + str(line_timers[1])
+            report += '\nPeriod   : ' + str(line_timers[2])
+            report += '\nSignaled : ' + str(line_timers[3])
+            report += '\nRoutine  : ' + str(line_timers[4])
+            report += '\nModule   : ' + str(line_timers[5]) + '\n'
             for line_callbacks in data_callbacks:
 
                 for line_driverscan in data_driverscan:
@@ -387,9 +413,21 @@ def Malicious_Timers(database):
 
                     if str(line_callbacks[2]) == str(line_driverscan[6]):   # callbacks.details matches driverscan.drivername
                         report += '\nWe might have a match between the name from Plugin Callbacks and ' \
-                                  'Driverscan:\nDrivername:' + str(drivername_driverscan) + '\n'
-                        report += 'Plugin Driverscan: ' + str(line_driverscan[6]) + '\n' + str(line_driverscan) + '\n'
-                        report += 'Plugin Callbacks : ' + str(line_callbacks[2]) + '\n' + str(line_callbacks) + '\n'
+                                  'Driverscan:\nDrivername:' + str(drivername_driverscan)
+                        report += '\nPlugin Driverscan : ' + str(line_driverscan[6])
+                        report += '\nOffset            : ' + str(line_driverscan[0])
+                        report += '\nPtr               : ' + str(line_driverscan[1])
+                        report += '\nHnd               : ' + str(line_driverscan[2])
+                        report += '\nStart             : ' + str(line_driverscan[3])
+                        report += '\nSize              : ' + str(line_driverscan[4])
+                        report += '\nServicekey        : ' + str(line_driverscan[5])
+                        report += '\nName              : ' + str(line_driverscan[6])
+                        report += '\nDrivername        : ' + str(line_driverscan[7])
+                        report += '\n\nPlugin Callbacks : ' + str(line_callbacks[2])
+                        report += '\nType     : ' + str(line_callbacks[0])
+                        report += '\nCallback : ' + str(line_callbacks[1])
+                        report += '\nModule   : ' + str(line_callbacks[2])
+                        report += '\nDetails  : ' + str(line_callbacks[3]) + '\n'
 
     return report
 
@@ -596,6 +634,7 @@ def unlinked_dlls(database):
             # get extra data for unlinked dll's
             report_fileinfo += lobotomy_psxview(ldr_pid)
             report_fileinfo += lobotomy_build_pstree(ldr_pid)
+            report_fileinfo += lobotomy_impscan(str(ldr_pid), str(ldr_base), database)
             report_fileinfo += lobotomy_malfind_info(ldr_pid, ldr_base)
 
     return report, report_fileinfo
@@ -640,6 +679,7 @@ def suspicious_modules(database):
                 # Get extra data for suspicious modules
                 report_fileinfo += lobotomy_psxview(ldr_pid)
                 report_fileinfo += lobotomy_build_pstree(ldr_pid)
+                report_fileinfo += lobotomy_impscan(str(ldr_pid), str(ldr_base), database)
                 report_fileinfo += lobotomy_malfind_info(ldr_pid, ldr_base)
     return report, report_fileinfo
 
@@ -655,7 +695,7 @@ def lobotomy_malfind_info(pid, base):
         process_malfind, pid_malfind, address_malfind, vadtag_malfind, protection_malfind, \
         flags_malfind, header_malfind, body_malfind = line_malfind
         if str(pid_malfind) == str(pid) and int(address_malfind, 0) == int(base, 0):
-            report_malfind += '\nMatch - Pid and Base: Malfind'
+            report_malfind += '\n\nMatch - Pid and Base: Malfind'
             report_malfind += '\n' + '*' * 120 + '\n'
             report_malfind += 'Process: ' + process_malfind
             report_malfind += '\tPid: ' + str(pid_malfind)
@@ -692,17 +732,21 @@ def ssdt_hooking(database):
                 line_ssdt[5] != 'ntoskrnl.exe': # or \
                 # line_ssdt[5] != 'ntkrnlpa.exe' or \
                 # line_ssdt[5] != 'ntoskrnl.exe':
-                report += 'alert: ssdt 0 hook'
+                report += 'alert: SSDT 0 hook on ntoskrnl.exe'
             if line_ssdt[0] == 'ssdt[1]' and \
                 line_ssdt[5] != 'win32k.sys':
-                report += 'alert: ssdt 1 hook'
+                report += 'alert: SSDT 1 hook on win32k.sys'
                 pass
             if line_ssdt[6] != '':
-                report += 'Alert      : ssdt hook\nHookadress : {}\nHookProcess: {}'.format(line_ssdt[6], line_ssdt[7])
-
-# Need to make a report
-                report += str(line_ssdt) + '\n'
-                report += 'Todo: dumping hooked process'
+                report += '\nSSDT        : ' + str(line_ssdt[0])
+                report += '\nMem1        : ' + str(line_ssdt[1])
+                report += '\nEnrty       : ' + str(line_ssdt[2])
+                report += '\nMem2        : ' + str(line_ssdt[3])
+                report += '\nSystemcall  : ' + str(line_ssdt[4])
+                report += '\nOwner       : ' + str(line_ssdt[5])
+                report += '\nHookaddress : ' + str(line_ssdt[6])
+                report += '\nHookprocess : ' + str(line_ssdt[7])
+                report += '\nTodo: dumping hooked process'
     return report
 
 
@@ -770,10 +814,23 @@ def lobotomy_build_pstree(tree_pid):
     return report_tree
 
 
-def lobotomy_impscan(pid, base):
+def lobotomy_impscan(pid, base, database):
     report = ''
-# id	process	pid	base	iat	call	module	function
-# 1	lsass.exe	868	0x01000000	0x01002000	0x77dfb8af	ADVAPI32.dll	LookupPrivilegeValueW
+    data_impscan = Lobotomy.get_databasedata('process,pid,base,iat,`call`,module,function', 'impscan', database)
+    if data_impscan != None and data_impscan != '------ ERROR reading autostart! ------':
+        for line_impscan in data_impscan:
+            if str(line_impscan[1]) == str(pid) and str(line_impscan[2]) == str(base):
+                if report == '':
+                    report += '\nLobotomy Import Scan for pid:{} and base: {}'. format(pid, base)
+                    report += '\n' + '*' * 120
+
+                report += '\n{:16}{:6}{:20}{:16}{:12}{:32}{}'.format(line_impscan[0], line_impscan[1], line_impscan[2],
+                                        line_impscan[3], line_impscan[4], line_impscan[5], line_impscan[6])
+                #report += '\n' + str(line_impscan)
+    else:
+        report += '\nLobotomy Import Scan for pid:{} and base: {}'. format(pid, base)
+        report += '\n' + '*' * 120
+        report += '\nNo imports found for pid: {} at base: {}'.format(pid, base)
     return report
 
 
@@ -864,6 +921,58 @@ def lobotomy_volyarascan(pid, filename):
     return report_info
 
 
+def lobotomy_orphan_threadscan(database):
+    report = ''
+    report_thread1 = ''
+    report_thread2 = ''
+    pid_list = ''
+
+# Route: threat -> psxview.
+# or a better way: vol.py -f orphan.vmem threads -F OrphanThread
+# If pid not in psxview, threat (pid) is orphan
+# Pid can be orphan.
+# id	offset	            pid	tid	    startaddress	createtime	        exittime
+# 1	    0x0000000001c64990	688	1504	0x7c8106e9	    2010-10-08 03:59:59	0000-00-00 00:00:00
+
+# id	ethread	    pid	    tid	    tags	    created	                        exited	                        owner
+# 	state	blob
+# 1	    0x82270808	1032	1924	HookedSSDT	2010-10-29 17:11:49 UTC+0000	1970-01-01 00:00:00 UTC+0000	svchost.exe
+# Waiting:UserRequest	Volatility Foundation Volatility Framework 2.4
+# [x86] Gathering all referenced SSDTs from KTHREADs...
+# Finding appropriate address space for tables...
+
+    data_threads = Lobotomy.get_databasedata('ethread,pid,tid,tags,created,exited,owner,state,`blob`', 'threads', database)
+    for line_threads in data_threads:
+        if 'OrphanThread' in line_threads[3]:
+            if report_thread1 == '':
+                report_thread1 += '\nLooking for Orphan Thread.'
+                report_thread1 += '\nWith Volatility plugin Threads.'
+                report_thread1 += '\n' + '*' * 120
+            report_thread1 += '\n' + line_threads[8] + '\n' + '-' * 25
+
+    data_threadscan = Lobotomy.get_databasedata('offset,pid,tid,startaddress,createtime,exittime', 'thrdscan', database)
+    if data_threadscan != None and data_threadscan != '------ ERROR reading autostart! ------':
+        for line_threadscan in data_threadscan:
+            # make a list of all the pids in psxview
+            for psxview_pid in data_psxview:
+                pid_list += str(psxview_pid[2])
+            if str(line_threadscan[1]) not in str(pid_list):
+                # Build orphan thread report_thread2
+                if report_thread2 == '':
+                    report_thread2 += '\nLooking for Orphan Thread.'
+                    report_thread2 += '\nBy comparing threadscan with psxview, looking for threads without a PID.'
+                    report_thread2 += '\n' + '*' * 120
+                report_thread2 += '\n\nFound Orphan Thread:'
+                report_thread2 += '\nOffset      : ' + str(line_threadscan[0])
+                report_thread2 += '\nPid         : ' + str(line_threadscan[1])
+                report_thread2 += '\nTid         : ' + str(line_threadscan[2])
+                report_thread2 += '\nStartaddress: ' + str(line_threadscan[3])
+                report_thread2 += '\nCreatetime  : ' + str(line_threadscan[4])
+                report_thread2 += '\nExittime    : ' + str(line_threadscan[5])
+    report = report_thread1 + report_thread2
+    return report
+
+
 def lobotomy_explain(explain):
     if explain == 'Malicious_Timers':
         explanation = 'Hier komt de uitleg'
@@ -897,10 +1006,14 @@ def lobotomy_explain(explain):
         explanation += '\nEntry 0x004b: 0x805b0b4e (NtFilterToken) owned by ntoskrnl.exe'
         explanation += '\nEntry 0x004c: 0x805899b4 (NtFindAtom) owned by ntoskrnl.exe'
         explanation += '\nThe pointer 0x80570d64is indeed owned by ntoskrnl.exe, but the instructions at that'
-        explanation += '\naddress have been overwritten with a JMPthat leads to 0x820f1b3c.'
+        explanation += '\naddress have been overwritten with a JMP that leads to 0x820f1b3c.'
         explanation += '\n\nExtra resource:'
         explanation += '\nhttp://resources.infosecinstitute.com/hooking-system-service-dispatch-table-ssdt/'
         return explanation
+    if explain == 'Orphan thread':
+        explanation = 'Hier komt de uitleg'
+        return explanation
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -924,42 +1037,42 @@ exit()
 #   ClamAV Scan
 #########################################################################################
 #########################################################################################
-    cprint += '\n***********************************' + '\n'
-    cprint += 'ClamAV findings'
-    cprint += '\n***********************************' + '\n'
-    for line_pe_scan_beta in data_pe_scan_beta:
-        pe_scan_beta_filename, pe_scan_beta_pe_blob = line_pe_scan_beta
-        tmp_pe_scan_beta_pe_blob = pe_scan_beta_pe_blob.split('\n')
-        for test_clam in tmp_pe_scan_beta_pe_blob:
-            if 'Clamav' in test_clam:
-                clam_line = test_clam.split(':')
-                if clam_line[0] == 'Clamav' and clam_line[2].strip(' ') != 'OK':
-                    for item in clam_line:
-                        cprint += item + '\t'
-                    cprint += '\n'
-                    cprint += pe_scan_beta_pe_blob + '\n'
-
-
-
-
-    print '\n\n#########################################################################################'
-    print '#########################################################################################'
-    print '# Dumping Suspicious Processes'
-    print '#########################################################################################'
-
-    #data_psscan = Lobotomy.get_databasedata('offset,name,pid,ppid,pdb,timecreated,timeexited', 'psscan', database)
-    data_pslist = Lobotomy.get_databasedata('offset,name,pid,ppid,thds,hnds,sess,wow64', 'pslist', database)
-    tmp = ''
-    tmpcounter = 0
-    a = ''
-    for line_pslist in data_pslist:
-        # Add all processes from pslist in a string
-        tmp += str(line_pslist[1]) + ' '
-
-    for line_psxview in data_psxview:
-        # test if process from psxview does not match data from pslist and if exittime doesn't have a value
-        if line_psxview[1] not in tmp and line_psxview[10] == None:
-            print 'error', line_psxview
+    # cprint += '\n***********************************' + '\n'
+    # cprint += 'ClamAV findings'
+    # cprint += '\n***********************************' + '\n'
+    # for line_pe_scan_beta in data_pe_scan_beta:
+    #     pe_scan_beta_filename, pe_scan_beta_pe_blob = line_pe_scan_beta
+    #     tmp_pe_scan_beta_pe_blob = pe_scan_beta_pe_blob.split('\n')
+    #     for test_clam in tmp_pe_scan_beta_pe_blob:
+    #         if 'Clamav' in test_clam:
+    #             clam_line = test_clam.split(':')
+    #             if clam_line[0] == 'Clamav' and clam_line[2].strip(' ') != 'OK':
+    #                 for item in clam_line:
+    #                     cprint += item + '\t'
+    #                 cprint += '\n'
+    #                 cprint += pe_scan_beta_pe_blob + '\n'
+    #
+    #
+    #
+    #
+    # print '\n\n#########################################################################################'
+    # print '#########################################################################################'
+    # print '# Dumping Suspicious Processes'
+    # print '#########################################################################################'
+    #
+    # #data_psscan = Lobotomy.get_databasedata('offset,name,pid,ppid,pdb,timecreated,timeexited', 'psscan', database)
+    # data_pslist = Lobotomy.get_databasedata('offset,name,pid,ppid,thds,hnds,sess,wow64', 'pslist', database)
+    # tmp = ''
+    # tmpcounter = 0
+    # a = ''
+    # for line_pslist in data_pslist:
+    #     # Add all processes from pslist in a string
+    #     tmp += str(line_pslist[1]) + ' '
+    #
+    # for line_psxview in data_psxview:
+    #     # test if process from psxview does not match data from pslist and if exittime doesn't have a value
+    #     if line_psxview[1] not in tmp and line_psxview[10] == None:
+    #         print 'error', line_psxview
 
 
 
