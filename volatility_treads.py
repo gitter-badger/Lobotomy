@@ -59,37 +59,41 @@ def main(database):
     sql_blob = ''
     sql_list = []
     for line in items:
-        if line.startswith('----'):
-            # not me
-            if state != '':
-                # write SQL
-                sql_list.append([ethread, pid, tid, tags, created, exited, owner, state, sql_blob])
-                ethread = ''
-                pid = ''
-                tid = ''
-                tags = ''
-                created = ''
-                exited = ''
-                owner = ''
-                state = ''
-                sql_blob = ''
-        if line.startswith('ETHREAD:'):
-            ethread = line.split(': ')[1].split(' ')[0]
-            pid = line.split(': ')[2].split(' ')[0]
-            tid = line.split(': ')[3]
-        if line.startswith('Tags:'):
-            tags = line.split(': ')[1]
-        if line.startswith('Created:'):
-            created = line.split(': ', 1)[1]
-        if line.startswith('Exited: '):
-            exited = line.split(': ', 1)[1]
-        if line.startswith('Owning Process:'):
-            owner = line.split(': ')[1]
-        if line.startswith('State:'):
-            state = line.split(': ')[1]
-        if not line.startswith('----'):
-            sql_blob += line + '\n'
-            sql_blob = sql_blob.replace("'", '"')
+        # skip the first lines
+        if not line.startswith('Volatility Foundation Volatility') and not \
+                line.startswith('[x86] Gathering all referenced SSDTs from KTHREADs...') and not \
+                line.startswith('Finding appropriate address space for tables...'):
+            if line.startswith('----'):
+                # not me
+                if state != '':
+                    # write SQL
+                    sql_list.append([ethread, pid, tid, tags, created, exited, owner, state, sql_blob])
+                    ethread = ''
+                    pid = ''
+                    tid = ''
+                    tags = ''
+                    created = ''
+                    exited = ''
+                    owner = ''
+                    state = ''
+                    sql_blob = ''
+            if line.startswith('ETHREAD:'):
+                ethread = line.split(': ')[1].split(' ')[0]
+                pid = line.split(': ')[2].split(' ')[0]
+                tid = line.split(': ')[3]
+            if line.startswith('Tags:'):
+                tags = line.split(': ')[1]
+            if line.startswith('Created:'):
+                created = line.split(': ', 1)[1]
+            if line.startswith('Exited: '):
+                exited = line.split(': ', 1)[1]
+            if line.startswith('Owning Process:'):
+                owner = line.split(': ')[1]
+            if line.startswith('State:'):
+                state = line.split(': ')[1]
+            if not line.startswith('----'):
+                sql_blob += line + '\n'
+                sql_blob = sql_blob.replace("'", '"')
     for row in sql_list:
         sql_cmd = ''
         sql_cmd = "INSERT INTO {} VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(plugin,
