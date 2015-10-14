@@ -75,8 +75,8 @@ def get_msfstrings(log, database):
             stringsoffset = ''
             pid = 0
             pidoffset = ''
-            tpid = 0
-            tpidoffset = ''
+            vpid = 0
+            vpidoffset = ''
             value = ''
             tmp = ''
             if '[FREE MEMORY]' in line:
@@ -84,8 +84,8 @@ def get_msfstrings(log, database):
                 # test for victim pid (infected pid)
                 if pids.count(':') > 1:
                     try:
-                        tpid = pids.split(':')[1].split(' ')[1]
-                        tpidoffset = pids.split(':')[2].split(' ')[0]
+                        vpid = pids.split(':')[1].split(' ')[1]
+                        vpidoffset = pids.split(':')[2].split(' ')[0]
                     except:
                         pass
                 pidoffset = test
@@ -97,14 +97,14 @@ def get_msfstrings(log, database):
                 # test for victim pid (infected pid)
                 if pids.count(':') > 1:
                     try:
-                        tpid = pids.split(':')[1].split(' ')[1]
-                        tpidoffset = pids.split(':')[2].split(' ')[0]
+                        vpid = pids.split(':')[1].split(' ')[1]
+                        vpidoffset = pids.split(':')[2].split(' ')[0]
                     except:
                         pass
             stringsoffset = line.split(' ', 1)[0]
             value = line.split('] ')[1]
             value = value.replace("'", '"')
-            sql_list.append([stringsoffset, pid, pidoffset, tpid, tpidoffset, value])
+            sql_list.append([stringsoffset, pid, pidoffset, vpid, vpidoffset, value])
 
     for col in sql_list:
         sql_cmd = ''
