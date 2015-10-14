@@ -69,6 +69,7 @@ def get_msfstrings(log, database):
     print 'Parsing {} data...'.format(plugin)
     sql_list = []
     pidlist = []
+    pids = ''
     for line in items:
         # try:
         if not line.startswith('Volatility Foundation Volatility'):
@@ -82,6 +83,7 @@ def get_msfstrings(log, database):
             if '[FREE MEMORY]' in line:
                 test = line.split('] ')[0].split('[')[1]
                 # test for victim pid (infected pid)
+                pids = line.split('[')[1].split(']')[0]
                 if pids.count(':') > 1:
                     try:
                         vpid = pids.split(':')[1].split(' ')[1]
@@ -106,10 +108,10 @@ def get_msfstrings(log, database):
             value = value.replace("'", '"')
             sql_list.append([stringsoffset, pid, pidoffset, vpid, vpidoffset, value])
 
-    for col in sql_list:
+    for row in sql_list:
         sql_cmd = ''
         sql_cmd = "INSERT INTO {} VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}')".format(plugin,
-                                                col[0], col[1], col[2], col[3], col[4], col[5])
+                                                row[0], row[1], row[2], row[3], row[4], row[5])
         try:
             Lobotomy.exec_sql_query(sql_cmd, database)
         except:
