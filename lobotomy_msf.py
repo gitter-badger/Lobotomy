@@ -75,43 +75,36 @@ def get_msfstrings(log, database):
             stringsoffset = ''
             pid = 0
             pidoffset = ''
-            ppid = 0
-            ppidoffset = ''
+            tpid = 0
+            tpidoffset = ''
             value = ''
             tmp = ''
             if '[FREE MEMORY]' in line:
                 test = line.split('] ')[0].split('[')[1]
-                # test for parent pid
-                try:
-                    if test.split(':')[1] != '':
-                        parentpid = test.split(':').split(':')[0]
-                        parentoffset = test.split(':').split(':')[1]
-                except:
-                    pass
+                # test for victim pid (infected pid)
+                if pids.count(':') > 1:
+                    try:
+                        tpid = pids.split(':')[1].split(' ')[1]
+                        tpidoffset = pids.split(':')[2].split(' ')[0]
+                    except:
+                        pass
                 pidoffset = test
                 pid = 0
             if '[FREE MEMORY]' not in line:
                 pids = line.split('[')[1].split(']')[0]
                 pid = pids.split(':', 1)[0]
                 pidoffset = pids.split(':', 1)[1].split(' ')[0]
-
+                # test for victim pid (infected pid)
                 if pids.count(':') > 1:
                     try:
-                        ppid = pids.split(':')[1].split(' ')[1]
-                        ppidoffset = pids.split(':')[2].split(' ')[0]
+                        tpid = pids.split(':')[1].split(' ')[1]
+                        tpidoffset = pids.split(':')[2].split(' ')[0]
                     except:
                         pass
-                try:
-                    if line.split('[',)[1].split(':')[1].split(']')[0].split(' ')[1] != '':
-                        parentpid = test.split(':').split(':')[0]
-                        parentoffset = test.split(':').split(':')[1]
-                except:
-                    pass
-
             stringsoffset = line.split(' ', 1)[0]
             value = line.split('] ')[1]
             value = value.replace("'", '"')
-            sql_list.append([stringsoffset, pid, pidoffset, ppid, ppidoffset, value])
+            sql_list.append([stringsoffset, pid, pidoffset, tpid, tpidoffset, value])
 
     for col in sql_list:
         sql_cmd = ''
