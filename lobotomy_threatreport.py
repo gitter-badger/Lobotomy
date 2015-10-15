@@ -199,7 +199,14 @@ def main(database):
         # report_index.append('Appendix: Custom Malicious Callbacks')
         # report_appendix.append(['Appendix: Custom Malicious Callbacks', report_fileinfo])
 
-
+    report, report_fileinfo = lobotomy_msfdetect(database)
+    if report != '':
+        #explain = lobotomy_explain('MSF')
+        report_index.append('Scanned MSF')
+        report_body.append(['Scanned MSF', report])
+        #report_explain.append(['Scanned MSF', explain])
+        report_index.append('Appendix: Scanned MSF')
+        report_appendix.append(['Appendix: Scanned MSF', report_fileinfo])
 
     lobotomy_report = 'Lobotomy Memory Report\n'
     lobotomy_report += '#' * 64 + '\n'
@@ -750,7 +757,7 @@ def ssdt_hooking(database):
     return report
 
 
-def lobotomy_build_pstree(tree_pid):
+def lobotomy_build_pstree_old(tree_pid):
     list_pstree = []
     report_tree = ''
     for line_pstree in data_pstree:
@@ -758,7 +765,7 @@ def lobotomy_build_pstree(tree_pid):
         plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
         list_pstree.append(line_pstree)
         if str(pid_pstree) == str(tree_pid):
-            report_tree += '\nBuild pidtree - Pid from PSTree vs Ldrmodules'
+            report_tree += '\nTrying to build pidtree from pid to system.'
             report_tree += '\n' + '*' * 120 + '\n'
             tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
             tmpcounter = 0
@@ -811,6 +818,149 @@ def lobotomy_build_pstree(tree_pid):
                         report_tree += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
                         tree = str(tmptree[4])
             report_tree += '\n' + '-' * 120 + '\n'
+    return report_tree
+
+
+def lobotomy_build_pstree(tree_pid):
+    list_pstree = []
+    report_tree = ''
+    counter = 0
+    for line_pstree in data_pstree:
+        depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+        plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+        list_pstree.append(line_pstree)
+        if str(pid_pstree) == str(tree_pid):
+            report_tree += '\nTrying to build pidtree from pid to system.'
+            report_tree += '\n' + '*' * 120 + '\n'
+            tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+            tmpcounter = 0
+            report_tree += '-' * int(depth_pstree) + ' '
+            for tmplen in tmp:
+                if str(tmp[tmpcounter]) == 'offset':
+                    report_tree += tmp[tmpcounter] + '\t\t'
+                if str(tmp[tmpcounter]) == 'name':
+                    report_tree += tmp[tmpcounter] + '\t\t'
+                if tmpcounter >= 2:
+                    report_tree += str(tmp[tmpcounter]) + '\t'
+                tmpcounter += 1
+            tmpcounter = 0
+            report_tree += '\n'
+            report_tree += '-' * int(depth_pstree) + ' '
+            for tmplen in tmp:
+                if str(tmp[tmpcounter]) == 'offset':
+                    report_tree += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                if str(tmp[tmpcounter]) == 'name':
+                    report_tree += line_pstree[tmpcounter + 1] + '\t'
+                if tmpcounter >= 2:
+                    report_tree += str(line_pstree[tmpcounter + 1]) + '\t'
+
+                tmpcounter += 1
+            report_tree += '\n'
+            report_tree += '-' * int(depth_pstree) + ' Audit : ' + audit_pstree + '\n'
+            report_tree += '-' * int(depth_pstree) + ' Cmd   : ' + cmd_pstree + '\n'
+            report_tree += '-' * int(depth_pstree) + ' Path  : ' + path_pstree
+            tree = str(line_pstree[4])
+            while tree != '0':
+                counter += 1
+                tmpcounter = 0
+                for tmptree in list_pstree:
+                    if str(tmptree[3]) == tree:
+                        report_tree += '\n' + '-' * 120 + '\n'
+                        report_tree += '-' * int(tmptree[0]) + ' '
+                        for tmplen in tmp:
+                            if str(tmp[tmpcounter]) == 'offset':
+                                report_tree += str(tmptree[tmpcounter + 1]) + '\t\t'
+                            if str(tmp[tmpcounter]) == 'name':
+                                report_tree += tmptree[tmpcounter + 1] + '\t'
+                                if tmptree[tmpcounter + 1] == 'System':
+                                    report_tree += '\t'
+                            if tmpcounter >= 2:
+                                report_tree += str(tmptree[tmpcounter + 1]) + '\t'
+
+                            tmpcounter += 1
+                        report_tree += '\n'
+                        report_tree += '-' * int(tmptree[0]) + ' Audit : ' + tmptree[8] + '\n'
+                        report_tree += '-' * int(tmptree[0]) + ' Cmd   : ' + tmptree[9] + '\n'
+                        report_tree += '-' * int(tmptree[0]) + ' Path  : ' + tmptree[10]
+                        tree = str(tmptree[4])
+                if counter == 1000:
+                    report_tree += '\n\nFail to build tree to system, probably a orphan pid.\n'
+                    tree = '0'
+            report_tree += '\n' + '-' * 120 + '\n'
+    return report_tree
+
+
+def lobotomy_build_pstree_children(tree_pid):
+    list_pstree = []
+    report_tree = ''
+    childpid = []
+    tmpchildpids = []
+    counter = 0
+    lineheader = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
+    for line_pstree in data_pstree:
+        if report_tree == '':
+            report_tree += '\nTrying to build pidtree to get all the children from pid.'
+            report_tree += '\n' + '*' * 120 + '\n'
+            report_tree += '-' * int(line_pstree[0]) + ' '
+
+        # depth_pstree, offset_pstree, name_pstree, pid_pstree, ppid_pstree, thds_pstree, hnds_pstree, \
+        # plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
+        if line_pstree[3] == tree_pid:
+            # got the pid.
+            # need to build a child list
+            # set the first pid to follow
+            follow_pid = tree_pid
+            while counter < 5000:
+            #while len(tmpchildpids) > 0:
+                for line_childpid in data_pstree:
+                    if line_childpid[4] == follow_pid:
+                        childpid.append(line_childpid)
+                        tmpchildpids.append(line_childpid[3])
+                        # got the first child items
+                        # need to get more childs.
+
+                try:
+                    follow_pid = tmpchildpids.pop()
+                except:
+                    pass
+                counter += 1
+    for line in childpid:
+        tmpcounter = 0
+        report_tree += '\n' + '-' * 120 + '\n'
+        report_tree += '-' * int(line[0]) + ' '
+        for tmplen in lineheader:
+            if str(lineheader[tmpcounter]) == 'offset':
+                report_tree += lineheader[tmpcounter] + '\t\t'
+            if str(lineheader[tmpcounter]) == 'name':
+                report_tree += lineheader[tmpcounter] + '\t\t'
+            if tmpcounter >= 2:
+                report_tree += str(lineheader[tmpcounter]) + '\t'
+            tmpcounter += 1
+        report_tree += '\n'
+        tmpcounter = 0
+        report_tree += '-' * int(line[0]) + ' '
+        for tmplen in lineheader:
+            if str(lineheader[tmpcounter]) == 'offset':
+                if line[0] < 5:
+                    report_tree += str(line[tmpcounter + 1]) + '\t\t'
+                if line[0] >= 5:
+                    report_tree += str(line[tmpcounter + 1]) + '\t'
+            if str(lineheader[tmpcounter]) == 'name':
+                if line[0] < 5:
+                    report_tree += line[tmpcounter + 1] + '\t\t'
+                if line[0] >= 5:
+                    report_tree += line[tmpcounter + 1] + '\t'
+                if line[tmpcounter + 1] == 'System':
+                    report_tree += '\t'
+            if tmpcounter >= 2:
+                report_tree += str(line[tmpcounter + 1]) + '\t'
+
+            tmpcounter += 1
+        report_tree += '\n' + '-' * int(line[0]) + ' Audit : ' + line[8]
+        report_tree += '\n' + '-' * int(line[0]) + ' Cmd   : ' + line[9]
+        report_tree += '\n' + '-' * int(line[0]) + ' Path  : ' + line[10] + '\n'
+    if len(report_tree) <= 182:
+        report_tree += "\nPid doesnt have children."
     return report_tree
 
 
@@ -876,7 +1026,7 @@ def lobotomy_psxview(pid):
         offset_psxview, name_psxview, pid_psxview, pslist_psxview, psscan_psxview, thrdproc_psxview, \
         pspcid_psxview, csrss_psxview, session_psxview, deskthrd_psxview, exittime_psxview = line_psxview
         if str(pid_psxview) == str(pid):
-            report_fileinfo += 'Match - Pid: PSXview'
+            report_fileinfo += '\nMatch - Pid: PSXview'
             report_fileinfo += '\n' + '*' * 120 + '\n'
             tmp = ['offset','name','pid','pslist','psscan','thrdproc','pspcid','csrss','session','deskthrd','exittime']
             tmpcounter = 0
@@ -971,6 +1121,92 @@ def lobotomy_orphan_threadscan(database):
                 report_thread2 += '\nExittime    : ' + str(line_threadscan[5])
     report = report_thread1 + report_thread2
     return report
+
+
+def lobotomy_msfdetect(database):
+# Find Metasploit meterpreter strings in memorydump and try to link the pid with other modules.
+# 1. try to find pstree (find childeren of pid)
+# 2. try to find a way to get the ldrmodules and imports (impscan)
+
+
+    report = ''
+    report_pidinfo = ''
+    tmppidlist = []
+    tmpvpidlist = []
+    tmppids = []
+    tmpvpids = []
+    pids = []
+    nopid = []
+    vpids = []
+    data_msfscan = Lobotomy.get_databasedata('stringsoffset,pid,pidoffset,vpid,vpidoffset,value', 'msfdetect', database)
+    # data_ldrmod = Lobotomy.get_databasedata('pid,process,base,inload,ininit,inmem,mappedpath,loadpathpath,'
+    #                                         'loadpathprocess, initpathpath, initpathprocess, mempathpath,'
+    #                                         'mempathprocess', 'ldrmodules_v', database)
+    for line in data_msfscan:
+        if line[1] != 0:
+            tmppids.append(line[1])
+        if line[3] != 0:
+            tmpvpids.append(line[3])
+        if line[2] == 'FREE MEMORY':
+            nopid.append(line[3])
+
+    # newList = list(set(oldList))
+    pids = list(set(tmppids))
+    vpids = list(set(tmpvpids))
+    if pids[0] != '':
+        report += '\nLooking for MSF strings.'
+        report += '\n' + '*' * 120
+        report += '\n\nFound {} items in {} pid(s)'.format(len(tmppids), len(pids))
+        report += '\nFound {} items in {} possible infected pid(s)'.format(len(tmpvpids), len(vpids))
+        report += '\nFound {} items without a pid'.format(len(nopid))
+    for pid in pids:
+        if str(pid) != '0':
+            report += '\nPossible infected pid: {}'.format(str(pid))
+            report_pidinfo += '\nPossible infected pid: {}'.format(str(pid))
+            report_pidinfo += lobotomy_psxview(int(pid))
+            report_pidinfo += lobotomy_build_pstree(int(pid))
+            report_pidinfo += lobotomy_build_pstree_children(int(pid))
+    for pid in vpids:
+        if str(pid) != '0':
+            report += '\nPossible infected targeted pid: {}'.format(str(pid))
+            report_pidinfo += '\nPossible infected targeted pid: {}'.format(str(pid))
+            report_pidinfo += lobotomy_psxview(int(pid))
+            report_pidinfo += lobotomy_build_pstree(int(pid))
+            report_pidinfo += lobotomy_build_pstree_children(int(pid))
+    if report != '':
+        report += '\nPlease check Lobotomy website, database {}, plugin msfdetect for more information'.format(database)
+
+        # report_fileinfo += lobotomy_impscan(str(ldr_pid), str(ldr_base), database)
+        # report_fileinfo += lobotomy_malfind_info(ldr_pid, ldr_base)
+
+        # to soon to get ldrmodules
+        # for ldr_line in data_ldrmod:
+        #     if str(pid) == str(ldr_line):
+        #         if report == '':
+        #             report += '\nLooking for MSF Strings.'
+        #             report += '\nAnd trying to find the process, modules and imports of the exploited pid.'
+        #             report += '\n' + '*' * 120
+        #         report += '\nProcess         : ' + ldr_process
+        #         report += '\nMapped Path     : ' + ldr_mappedpath
+        #         report += '\nBase            : ' + ldr_base
+        #         report += '\nPid Ldrmodules  : ' + str(ldr_pid)
+        #         report += '\nInload          : ' + ldr_inload
+        #         report += '\nInload process  : ' + ldr_loadpathprocess
+        #         report += '\nInload path     : ' + ldr_loadpathpath
+        #         report += '\nIninint         : ' + ldr_ininit
+        #         report += '\nIninint process : ' + ldr_initpathprocess
+        #         report += '\nIninint path    : ' + ldr_initpathpath
+        #         report += '\nInmem           : ' + ldr_inmem
+        #         report += '\nInmem process   : ' + ldr_mempathprocess
+        #         report += '\nInmem path      : ' + ldr_mempathpath + '\n'
+        #
+        #         # Get extra data for suspicious modules
+        #         report_fileinfo += lobotomy_psxview(ldr_pid)
+        #         report_fileinfo += lobotomy_build_pstree(ldr_pid)
+        #         report_fileinfo += lobotomy_impscan(str(ldr_pid), str(ldr_base), database)
+        #         report_fileinfo += lobotomy_malfind_info(ldr_pid, ldr_base)
+    # exit()
+    return report, report_pidinfo
 
 
 def lobotomy_explain(explain):
