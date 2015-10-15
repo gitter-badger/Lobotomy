@@ -105,6 +105,7 @@ def get_msfstrings(log, database):
                         pass
             stringsoffset = line.split(' ', 1)[0]
             value = line.split('] ')[1]
+            value = value.replace('\\', '\\\\')
             value = value.replace("'", '"')
             sql_list.append([stringsoffset, pid, pidoffset, vpid, vpidoffset, value])
 
