@@ -830,14 +830,15 @@ def lobotomy_build_pstree(tree_pid):
         plugin_time_pstree, audit_pstree, cmd_pstree, path_pstree = line_pstree
         list_pstree.append(line_pstree)
         if str(pid_pstree) == str(tree_pid):
-            report_tree += '\nTrying to build pidtree from pid to system.'
-            report_tree += '\n' + '*' * 120 + '\n'
+            if report_tree == '':
+                report_tree += '\nTrying to build pidtree from pid to system.'
+                report_tree += '\n' + '*' * 120 + '\n'
             tmp = ['offset', 'name', 'pid', 'ppid', 'thds', 'hnds', 'plugin_time']
             tmpcounter = 0
             report_tree += '-' * int(depth_pstree) + ' '
             for tmplen in tmp:
                 if str(tmp[tmpcounter]) == 'offset':
-                    report_tree += tmp[tmpcounter] + '\t\t'
+                    report_tree += tmp[tmpcounter] + '\t'
                 if str(tmp[tmpcounter]) == 'name':
                     report_tree += tmp[tmpcounter] + '\t\t'
                 if tmpcounter >= 2:
@@ -848,9 +849,12 @@ def lobotomy_build_pstree(tree_pid):
             report_tree += '-' * int(depth_pstree) + ' '
             for tmplen in tmp:
                 if str(tmp[tmpcounter]) == 'offset':
-                    report_tree += str(line_pstree[tmpcounter + 1]) + '\t\t'
+                    report_tree += str(line_pstree[tmpcounter + 1]) + '\t'
                 if str(tmp[tmpcounter]) == 'name':
-                    report_tree += line_pstree[tmpcounter + 1] + '\t'
+                    if len(line_pstree[tmpcounter + 1]) < 8:
+                        report_tree += line_pstree[tmpcounter + 1] + '\t\t'
+                    if len(line_pstree[tmpcounter + 1]) >= 8:
+                        report_tree += line_pstree[tmpcounter + 1] + '\t'
                 if tmpcounter >= 2:
                     report_tree += str(line_pstree[tmpcounter + 1]) + '\t'
 
@@ -869,7 +873,10 @@ def lobotomy_build_pstree(tree_pid):
                         report_tree += '-' * int(tmptree[0]) + ' '
                         for tmplen in tmp:
                             if str(tmp[tmpcounter]) == 'offset':
-                                report_tree += str(tmptree[tmpcounter + 1]) + '\t\t'
+                                if line_pstree[0] < 4:
+                                    report_tree += str(tmptree[tmpcounter + 1]) + '\t'
+                                if line_pstree[0] >= 4:
+                                    report_tree += str(tmptree[tmpcounter + 1]) + '\t'
                             if str(tmp[tmpcounter]) == 'name':
                                 report_tree += tmptree[tmpcounter + 1] + '\t'
                                 if tmptree[tmpcounter + 1] == 'System':
@@ -928,27 +935,35 @@ def lobotomy_build_pstree_children(tree_pid):
         tmpcounter = 0
         report_tree += '\n' + '-' * 120 + '\n'
         report_tree += '-' * int(line[0]) + ' '
+        # Header
         for tmplen in lineheader:
             if str(lineheader[tmpcounter]) == 'offset':
-                report_tree += lineheader[tmpcounter] + '\t\t'
+                if line[0] < 5:
+                    report_tree += lineheader[tmpcounter] + '\t'
+                if line[0] >= 5:
+                    report_tree += lineheader[tmpcounter] + '\t\t'
             if str(lineheader[tmpcounter]) == 'name':
-                report_tree += lineheader[tmpcounter] + '\t\t'
+                if line[0] < 4:
+                    report_tree += lineheader[tmpcounter] + '\t\t'
+                if line[0] >= 4:
+                    report_tree += lineheader[tmpcounter] + '\t'
             if tmpcounter >= 2:
                 report_tree += str(lineheader[tmpcounter]) + '\t'
             tmpcounter += 1
         report_tree += '\n'
         tmpcounter = 0
         report_tree += '-' * int(line[0]) + ' '
+        # Body
         for tmplen in lineheader:
             if str(lineheader[tmpcounter]) == 'offset':
-                if line[0] < 5:
+                if line[0] < 4:
                     report_tree += str(line[tmpcounter + 1]) + '\t\t'
-                if line[0] >= 5:
+                if line[0] >= 4:
                     report_tree += str(line[tmpcounter + 1]) + '\t'
             if str(lineheader[tmpcounter]) == 'name':
-                if line[0] < 5:
+                if len(line[tmpcounter + 1]) < 8:
                     report_tree += line[tmpcounter + 1] + '\t\t'
-                if line[0] >= 5:
+                if len(line[tmpcounter + 1]) >= 8:
                     report_tree += line[tmpcounter + 1] + '\t'
                 if line[tmpcounter + 1] == 'System':
                     report_tree += '\t'
