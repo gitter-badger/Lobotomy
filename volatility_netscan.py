@@ -38,7 +38,7 @@ def main(database):
     config.parse_options()
     config.PROFILE = ''
     config.LOCATION = ''
-    command = []
+
     Lobotomy.plugin_start(plugin, database)
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
@@ -48,6 +48,11 @@ def main(database):
     log = ''
     config.PROFILE = imagetype
     config.LOCATION = 'file://' + imagename
+
+    # Check if Profile is supported
+    if imagetype.startswith('WinXP' or 'mac_' or 'linux_'):
+        print '{} is not supported for {}'.format(plugin, imagetype)
+        exit()
 
     print 'Running {}, please wait...'.format(plugin)
     p = netscan.Netscan(config)
@@ -74,13 +79,13 @@ def main(database):
         volplugindata = []
         if line != '' and not line.startswith('Offset'):
             offsetp = line[0:19].strip(' ') # Offset {0:<18}
-            proto = line[19:28].strip(' ') # Proto {1:<8} "{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            laddress = line[28:59].strip(' ') # Local Address {2:<30} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            faddress = line[59:80].strip(' ') # Foreing Address {3:<20} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            state = line[80:97].strip(' ') # State {4:<16} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            pid = line[97:106].strip(' ') # Pid {5:<8} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            owner = line[106:121] # Owner {6:<14} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
-            created = line[121:] # Created {7} #."{0:<18} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}
+            proto = line[19:28].strip(' ') # Proto {1:<8}
+            laddress = line[28:59].strip(' ') # Local Address {2:<30}
+            faddress = line[59:80].strip(' ') # Foreing Address {3:<20}
+            state = line[80:97].strip(' ') # State {4:<16}
+            pid = line[97:106].strip(' ') # Pid {5:<8}
+            owner = line[106:121] # Owner {6:<14}
+            created = line[121:] # Created {7}
 
             sql_cmd = ''
             sql_cmd = "INSERT INTO {} VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(plugin,
