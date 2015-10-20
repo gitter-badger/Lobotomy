@@ -1,7 +1,7 @@
 __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 #
-# Script version    0.5
-# Plugin version:   0.1
+# Script version    0.8
+# Plugin version:   1
 # 11 aug 2015:      Wim Venhuizen
 # Plugin:           Netscan
 # Edit:             16 okt 2015
@@ -45,7 +45,6 @@ def main(database):
     imagetype = case_settings["profile"]
     casedir = case_settings["directory"]
     case = database
-    log = ''
     config.PROFILE = imagetype
     config.LOCATION = 'file://' + imagename
 
@@ -55,6 +54,8 @@ def main(database):
         exit()
 
     print 'Running {}, please wait...'.format(plugin)
+
+    # Get the data and redirect it to volnetscan
     p = netscan.Netscan(config)
     old_stdout = sys.stdout
     sys.stdout = volnetscan = StringIO()
@@ -76,7 +77,6 @@ def main(database):
     print 'Parsing {} data...'.format(plugin)
     for line in voldata:
         offsetp = proto = laddress = faddress = state = pid = owner = created = ''
-        volplugindata = []
         if line != '' and not line.startswith('Offset'):
             offsetp = line[0:19].strip(' ') # Offset {0:<18}
             proto = line[19:28].strip(' ') # Proto {1:<8}
