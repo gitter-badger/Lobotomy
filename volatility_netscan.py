@@ -73,7 +73,6 @@ def main(database):
     voldata = voldata.getvalue().split('\n')
 
     # Parsing data
-    sql_list = []
     print 'Parsing {} data...'.format(plugin)
     for line in voldata:
         offsetp = proto = laddress = faddress = state = pid = owner = created = ''
