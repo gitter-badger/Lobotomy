@@ -58,20 +58,20 @@ def main(database):
     # Get the data and redirect it to volnetscan
     p = netscan.Netscan(config)
     old_stdout = sys.stdout
-    sys.stdout = volnetscan = StringIO()
+    sys.stdout = voldata = StringIO()
     p.render_text(sys.stdout, p.calculate())
     sys.stdout = old_stdout
-
-    voldata = volnetscan.getvalue().split('\n')
 
     # Writing log to casefolder
     try:
         f = open(imagename + '-' + plugin + '.txt', 'w')
-        f.write(str(voldata))
+        f.write(str(voldata.getvalue()))
         f.close()
     except:
         pass
-    
+
+    voldata = voldata.getvalue().split('\n')
+
     # Parsing data
     sql_list = []
     print 'Parsing {} data...'.format(plugin)
