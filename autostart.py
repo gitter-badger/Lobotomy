@@ -51,6 +51,7 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'pstree.py {}'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psscan'.format(database), 2)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} psxview'.format(database), 2)
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 3)
 
         # Scanning files
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'vol_yarascan.py {} index.yara'.format(database), 10)
@@ -88,11 +89,9 @@ def autostart(database):
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} shimcache'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} symlinkscan'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} timers'.format(database), 10)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'hashdump.py {}'.format(database), 4)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'multiparser.py {} unloadedmodules'.format(database), 10)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_shimcache.py {}'.format(database), 11)
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'svcscan.py {}'.format(database), 3)
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_impscan.py {}'.format(database), 20) # Imscan after ldrmodules
         Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'lobotomy_threatreport.py {}'.format(database), 99)
 
@@ -116,8 +115,8 @@ def autostart(database):
         pass # connections, connscan,  sockscan
 #    if profile == "WinVistax86" or profile == "Win7SP1x86" or profile == "Win7SP1x64" or profile == "Elke andere windows vista+ machine":
 #        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'netscan.py {}'.format(database))
-    if 'Win7' in profile or 'Vista' in profile:
-        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'netscan.py {}'.format(database))
+    if 'Win7' or 'Vista' or 'Win8' in profile:
+        Lobotomy.add_to_queue('python ' + Lobotomy.plugin_dir + 'volatility_netscan.py {}'.format(database), 5)
 
     
 if __name__ == "__main__":
