@@ -197,9 +197,11 @@ def main(database):
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Stop:  running plugin: " + plugin)
-        Lobotomy.plugin_stop('hivelist', database)
-        
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
+
+    Lobotomy.plugin_stop(plugin, database)
+    Lobotomy.plugin_pct(plugin, database, 100)
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print "Usage: " + plugin + ".py <databasename>"
