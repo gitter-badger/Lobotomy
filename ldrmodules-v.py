@@ -5,10 +5,15 @@ import commands
 import main
 Lobotomy = main.Lobotomy()
 plugin = "ldrmodules"
-
+pluginname = 'ldrmodules-v'
 DEBUG = False
 
+
 def main(database):
+    # Register plugin start-time on the website
+    Lobotomy.plugin_start(pluginname, database)
+    Lobotomy.plugin_pct(pluginname, database, 1)
+
     case_settings = Lobotomy.get_settings(database)
     imagename = case_settings["filepath"]
     imagetype = case_settings["profile"]
@@ -177,8 +182,12 @@ def main(database):
     if DEBUG:
         print "Write log: (" + casedir + " ,Database: " + database + " Stop:  running plugin: " + plugin + ")"
     else:
-        Lobotomy.write_to_case_log(casedir,"Database: " + database + " Stop:  running plugin: " + plugin)
-        
+        Lobotomy.write_to_case_log(casedir, "Database: " + database + " Stop:  running plugin: " + plugin)
+
+    Lobotomy.plugin_stop(pluginname, database)
+    Lobotomy.plugin_pct(pluginname, database, 100)
+
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print "Usage: " + plugin + ".py <databasename>"
