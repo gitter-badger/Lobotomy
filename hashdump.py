@@ -102,9 +102,10 @@ def main(database):
                 try:
                     Lobotomy.exec_sql_query(sql_line, database)
                 except:
+                    pass
         if line.startswith('ERROR   : volatility.plugins.registry.lsadump'):
             sql_line = "INSERT INTO " + plugin + " VALUES (0, '{}', '{}', '{}', '{}', '{}')".format(line, '0', '0', '0', '0')
-            print sql_line
+            #print sql_line
             Lobotomy.exec_sql_query(sql_line, database)
     Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_pct(plugin, database, 100)
