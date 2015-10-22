@@ -5,7 +5,7 @@ import commands
 import main
 Lobotomy = main.Lobotomy()
 plugin = "ldrmodules"
-pluginname = 'ldrmodules-v'
+pluginname = 'ldrmodules_v'
 DEBUG = False
 
 
