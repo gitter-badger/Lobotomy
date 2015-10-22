@@ -12,6 +12,23 @@
 ###             Oplossing moet nog getest worden met Windows 8 en Win2008
 ###
 
+# Todo
+# Try to filter with grep?
+# wcm://Microsoft-Windows-OS-Kernel?version=6.1.7600.16385
+# WCM://MICROSOFT-WINDOWS-OS-KERNEL?VERSION=6.1.7600.16792&LANGUAGE=NEUTRAL&PROCESSORARCHITECTURE=AMD64&PUBLICKEYTOKEN=31BF3856AD364E35&VERSIONSCOPE=NONSXS&SCOPE=ALLUSERS
+
+# Windows 10
+# -------------------------
+# Volatility Foundation Volatility Framework 2.4
+# Traceback (most recent call last):
+#   File "/home/solvent/lob_scripts/imageinfo.py", line 73, in <module>
+#     imageinfo(sys.argv[1])
+#   File "/home/solvent/lob_scripts/imageinfo.py", line 55, in imageinfo
+#     sp = 'SP{}'.format(servicepack)
+# UnboundLocalError: local variable 'servicepack' referenced before assignment
+# ID: 21
+# Command: python /home/solvent/lob_scripts/multiparser.py 1510221123_Win7Sp1X64_Cleanraw clipboard
+# Priority: 2
 
 
 import os
@@ -35,18 +52,18 @@ def imageinfo(database):
     os.system(command)
     Lobotomy.write_to_case_log(settings['directory'], "Command imageinfo executed")
     counter = 1
+    servicepack = profiles = ''
     with open(settings['directory'] + '/imageinfo.txt') as f:
         for line in f:
             if not line.startswith("Determining") and line != "\n":
-                omschrijving = line[0:30].strip("  ")
-                waarde = line[33:].strip("\n")
-                SQL_cmd = "INSERT INTO imageinfo VALUES (0, '{}', '{}')".format(omschrijving, waarde)
+                SQL_cmd = "INSERT INTO imageinfo VALUES (0, '{}', '{}')".format(
+                    line.split(' : ')[0], line.split(' : ')[1])
                 Lobotomy.exec_sql_query(SQL_cmd, database)
-            if counter == 3:
+            if 'Suggested Profile(s)' in line:
                 profiles = line.split(':')[1].strip()
                 profiles = re.sub(r'\([^)]*\)', '', profiles)
                 Lobotomy.write_to_case_log(settings['directory'], "Found possible profiles: {}".format(profiles))
-            elif counter == 10:
+            if 'Image Type (Service Pack)' in line:
                 servicepack = line.split(':')[1].strip()
                 Lobotomy.write_to_case_log(settings['directory'], "Found service pack: {}".format(servicepack))
             counter += 1
