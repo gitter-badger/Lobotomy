@@ -56,6 +56,8 @@ def imageinfo(database):
     with open(settings['directory'] + '/imageinfo.txt') as f:
         for line in f:
             if not line.startswith("Determining") and line != "\n":
+                print "INSERT INTO imageinfo VALUES (0, '{}', '{}')".format(
+                    line.split(' : ')[0].strip("  "), line.split(' : ')[1].strip('\n'))
                 SQL_cmd = "INSERT INTO imageinfo VALUES (0, '{}', '{}')".format(
                     line.split(' : ')[0].strip("  "), line.split(' : ')[1].strip('\n'))
                 Lobotomy.exec_sql_query(SQL_cmd, database)
