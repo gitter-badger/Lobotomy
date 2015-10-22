@@ -30,6 +30,20 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Plugin Exifinfo meegenomen in de start-stop push naar de database.
 # in voorkomend geval zou het kunnen zijn dat de tabel exifinfo niet zichtbaar is, omdat de waarde mist in tabel plugin.
 
+# \* fixme
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 21
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 22
+# Error parse-ing file: /srv/lobotomy/dumps/JEFFY9YUQR4G/photorec_dump.1/f0183816.ttf
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 23
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 33
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 34
+# sh: 1: Syntax error: "(" unexpected (expecting "}")
+# sh: 1: Syntax error: "(" unexpected (expecting "}")
+# sh: 1: Syntax error: "(" unexpected (expecting "}")
+# plugin: photorec - Database: 1509170742_Bobvmem - pct done: 35
+
+# Exifinfo dont need to check txt files and ttf?
+# Or catch that error.
 
 import sys
 import os
@@ -123,70 +137,74 @@ def main(database):
     pcttmp = 0
     with open(casedir + "/photorec.log") as f:
         for line in f:
-            if line.startswith(casedir):
-                filenaam = line.split("\t")[0]
-                filename = ''
-                filemd5 = ''
-                filesha256 = ''
-                mtime = ''
-                atime = ''
-                ctime = ''
+            try:
+                if line.startswith(casedir):
+                    filenaam = line.split("\t")[0]
+                    filename = ''
+                    filemd5 = ''
+                    filesha256 = ''
+                    mtime = ''
+                    atime = ''
+                    ctime = ''
 
-                #test of filenaam bestaat. mogelijke photorec bug.
+                    #test of filenaam bestaat. mogelijke photorec bug.
 
-                if not filenaam.endswith("mft"):
-                    if not os.path.isfile(filenaam):
-                        tmp = len(filenaam.split("/")[-1])
-                        tmpfilename = filenaam.split("/")[-1].split(".")[0]
-                        tmpfilepath = filenaam[:-tmp]
-                        filenaam = glob.glob(tmpfilepath + tmpfilename + "*")[0]
+                    if not filenaam.endswith("mft"):
+                        if not os.path.isfile(filenaam):
+                            tmp = len(filenaam.split("/")[-1])
+                            tmpfilename = filenaam.split("/")[-1].split(".")[0]
+                            tmpfilepath = filenaam[:-tmp]
+                            filenaam = glob.glob(tmpfilepath + tmpfilename + "*")[0]
 
-                    count += 1
-                    try:
-                        filemd5 = Lobotomy.md5Checksum(filenaam)
-                    except:
-                        pass
+                        count += 1
+                        try:
+                            filemd5 = Lobotomy.md5Checksum(filenaam)
+                        except:
+                            pass
 
-                    try:
-                        filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(filenaam)
-                        mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
-                        atime = parse(time.ctime(fileatime)).strftime("%Y-%m-%d %H:%M:%S")
-                        ctime = parse(time.ctime(filectime)).strftime("%Y-%m-%d %H:%M:%S")
-                    except:
-                        pass
+                        try:
+                            filesha256, filemtime, fileatime, filectime, filesize = Lobotomy.sha256checksum(filenaam)
+                            mtime = parse(time.ctime(filemtime)).strftime("%Y-%m-%d %H:%M:%S")
+                            atime = parse(time.ctime(fileatime)).strftime("%Y-%m-%d %H:%M:%S")
+                            ctime = parse(time.ctime(filectime)).strftime("%Y-%m-%d %H:%M:%S")
+                        except:
+                            pass
 
-                    pct = str(11 + (float(1.0 * count / counter) * 88)).split(".")[0]
+                        pct = str(11 + (float(1.0 * count / counter) * 88)).split(".")[0]
 
-                    filename = filenaam.split("/")[-1]
+                        filename = filenaam.split("/")[-1]
 
-                    # Exiftool routine
-                    try:
-                        command = "exiftool " + filenaam
-                        status, log = commands.getstatusoutput(command)
-                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, log)
-                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
-                    except:
-                        print "Error parse-ing file: " + filenaam
-                        exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
-                        Lobotomy.exec_sql_query(exif_SQL_cmd, database)
-                        pass
+                        # Exiftool routine
+                        try:
+                            command = "exiftool " + filenaam
+                            status, log = commands.getstatusoutput(command)
+                            exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, log)
+                            Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                        except:
+                            print "Error parse-ing file: " + filenaam
+                            exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, 'Parse error')
+                            Lobotomy.exec_sql_query(exif_SQL_cmd, database)
+                            pass
 
-                    try:
-                        SQL_cmd = "INSERT INTO photorec VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
-                    except:
-                        pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
+                        try:
+                            SQL_cmd = "INSERT INTO photorec VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
+                        except:
+                            pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
 
-                    try:
-                        if DEBUG:
-                            print SQL_cmd
-                        else:
-                            Lobotomy.exec_sql_query(SQL_cmd, database)
-                            if pct != pcttmp:
-                                print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
-                                Lobotomy.plugin_pct(plugin, database, pct)
-                    except:
-                        pass
-                    pcttmp = pct
+                        try:
+                            if DEBUG:
+                                print SQL_cmd
+                            else:
+                                Lobotomy.exec_sql_query(SQL_cmd, database)
+                                if pct != pcttmp:
+                                    print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(pct)
+                                    Lobotomy.plugin_pct(plugin, database, pct)
+                        except:
+                            pass
+                        pcttmp = pct
+            except IndexError:
+                # IndexError: list index out of range
+                pass
 
     Lobotomy.plugin_stop(plugin, database)
     Lobotomy.plugin_stop('exifinfo', database)
