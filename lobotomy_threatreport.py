@@ -1161,17 +1161,21 @@ def lobotomy_msfdetect(database):
     # data_ldrmod = Lobotomy.get_databasedata('pid,process,base,inload,ininit,inmem,mappedpath,loadpathpath,'
     #                                         'loadpathprocess, initpathpath, initpathprocess, mempathpath,'
     #                                         'mempathprocess', 'ldrmodules_v', database)
-    for line in data_msfscan:
-        if line[1] != 0:
-            tmppids.append(line[1])
-        if line[3] != 0:
-            tmpvpids.append(line[3])
-        if line[2] == 'FREE MEMORY':
-            nopid.append(line[3])
+    try:
+        for line in data_msfscan:
+            if line[1] != 0:
+                tmppids.append(line[1])
+            if line[3] != 0:
+                tmpvpids.append(line[3])
+            if line[2] == 'FREE MEMORY':
+                nopid.append(line[3])
 
-    # newList = list(set(oldList))
-    pids = list(set(tmppids))
-    vpids = list(set(tmpvpids))
+        # newList = list(set(oldList))
+        pids = list(set(tmppids))
+        vpids = list(set(tmpvpids))
+    except TypeError:
+        # When nothing is found: TypeError: 'NoneType' is not iterable
+        pass
     try:
         if pids[0] != '':
             report += '\nLooking for MSF strings.'
