@@ -1146,8 +1146,8 @@ def lobotomy_msfdetect(database):
 
     report = ''
     report_pidinfo = ''
-    tmppidlist = []
-    tmpvpidlist = []
+    # tmppidlist = []
+    # tmpvpidlist = []
     tmppids = []
     tmpvpids = []
     pids = []
@@ -1168,26 +1168,30 @@ def lobotomy_msfdetect(database):
     # newList = list(set(oldList))
     pids = list(set(tmppids))
     vpids = list(set(tmpvpids))
-    if pids[0] != '':
-        report += '\nLooking for MSF strings.'
-        report += '\n' + '*' * 120
-        report += '\n\nFound {} items in {} pid(s)'.format(len(tmppids), len(pids))
-        report += '\nFound {} items in {} possible infected pid(s)'.format(len(tmpvpids), len(vpids))
-        report += '\nFound {} items without a pid'.format(len(nopid))
-    for pid in pids:
-        if str(pid) != '0':
-            report += '\nPossible infected pid: {}'.format(str(pid))
-            report_pidinfo += '\nPossible infected pid: {}'.format(str(pid))
-            report_pidinfo += lobotomy_psxview(int(pid))
-            report_pidinfo += lobotomy_build_pstree(int(pid))
-            report_pidinfo += lobotomy_build_pstree_children(int(pid))
-    for pid in vpids:
-        if str(pid) != '0':
-            report += '\nPossible infected targeted pid: {}'.format(str(pid))
-            report_pidinfo += '\nPossible infected targeted pid: {}'.format(str(pid))
-            report_pidinfo += lobotomy_psxview(int(pid))
-            report_pidinfo += lobotomy_build_pstree(int(pid))
-            report_pidinfo += lobotomy_build_pstree_children(int(pid))
+    try:
+        if pids[0] != '':
+            report += '\nLooking for MSF strings.'
+            report += '\n' + '*' * 120
+            report += '\n\nFound {} items in {} pid(s)'.format(len(tmppids), len(pids))
+            report += '\nFound {} items in {} possible infected pid(s)'.format(len(tmpvpids), len(vpids))
+            report += '\nFound {} items without a pid'.format(len(nopid))
+        for pid in pids:
+            if str(pid) != '0':
+                report += '\nPossible infected pid: {}'.format(str(pid))
+                report_pidinfo += '\nPossible infected pid: {}'.format(str(pid))
+                report_pidinfo += lobotomy_psxview(int(pid))
+                report_pidinfo += lobotomy_build_pstree(int(pid))
+                report_pidinfo += lobotomy_build_pstree_children(int(pid))
+        for pid in vpids:
+            if str(pid) != '0':
+                report += '\nPossible infected targeted pid: {}'.format(str(pid))
+                report_pidinfo += '\nPossible infected targeted pid: {}'.format(str(pid))
+                report_pidinfo += lobotomy_psxview(int(pid))
+                report_pidinfo += lobotomy_build_pstree(int(pid))
+                report_pidinfo += lobotomy_build_pstree_children(int(pid))
+    except IndexError:
+        pass
+
     if report != '':
         report += '\nPlease check Lobotomy website, database {}, plugin msfdetect for more information'.format(database)
 
