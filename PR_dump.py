@@ -29,6 +29,10 @@ __author__ = 'Wim Venhuizen, Jeroen Hagebeek'
 # Fix voor plugin end time
 # Plugin Exifinfo meegenomen in de start-stop push naar de database.
 # in voorkomend geval zou het kunnen zijn dat de tabel exifinfo niet zichtbaar is, omdat de waarde mist in tabel plugin.
+# Date:             22 okt 2015:
+# Edited:           W Venhuizen
+# Detail:          Added: Check subprocess. If Exiftool takes longer then 60 seconds to run, kill it.
+# Dependency:      subprocess, psutil and shlex
 
 # \* fixme
 # plugin: photorec - Database: 1509170742_Bobvmem - pct done: 21
@@ -52,10 +56,12 @@ import time
 import commands
 import glob
 from dateutil.parser import parse
+import subprocess
+import psutil
+import shlex
 
 Lobotomy = main.Lobotomy()
 plugin = "photorec"
-
 
 DEBUG = False
 
@@ -127,7 +133,7 @@ def main(database):
         for line in f:
             if line.startswith(casedir):
                 filenaam = line.split("\t")[0]
-                if not filenaam.endswith("mft"):
+                if not filenaam.endswith("mft") and filenaam.startswith(casedir):
                     counter += 1
     Lobotomy.plugin_pct(plugin, database, 10)
     print "plugin: " + plugin + " - Database: " + database + " - pct done: " + str(10)
@@ -160,6 +166,7 @@ def main(database):
                         try:
                             filemd5 = Lobotomy.md5Checksum(filenaam)
                         except:
+                            filemd5 = ''
                             pass
 
                         try:
@@ -175,9 +182,17 @@ def main(database):
                         filename = filenaam.split("/")[-1]
 
                         # Exiftool routine
+                        command = "exiftool " + filenaam
+                        args = shlex.split(command)
+                        subp = subprocess.Popen(args, stdout=subprocess.PIPE)
+                        p = psutil.Process(subp.pid)
+                        log, err = subp.communicate()
                         try:
-                            command = "exiftool " + filenaam
-                            status, log = commands.getstatusoutput(command)
+                            p.wait(timeout=60)
+                        except psutil.TimeoutExpired:
+                            p.kill()
+
+                        try:
                             exif_SQL_cmd = "INSERT INTO exifinfo VALUES (0, '{}', '{}')".format(filenaam, log)
                             Lobotomy.exec_sql_query(exif_SQL_cmd, database)
                         except:
@@ -187,7 +202,8 @@ def main(database):
                             pass
 
                         try:
-                            SQL_cmd = "INSERT INTO photorec VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
+                            SQL_cmd = "INSERT INTO photorec VALUES (0, '{}', '{}', '{}', '{}', '{}', '{}', '{}')".\
+                                format(filenaam, filename, filemd5, filesha256, mtime, atime, ctime)
                         except:
                             pass #UnboundLocalError: local variable 'filemd5' referenced before assignment
 
