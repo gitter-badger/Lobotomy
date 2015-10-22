@@ -1107,13 +1107,17 @@ def lobotomy_orphan_threadscan(database):
 # Finding appropriate address space for tables...
 
     data_threads = Lobotomy.get_databasedata('ethread,pid,tid,tags,created,exited,owner,state,`blob`', 'threads', database)
-    for line_threads in data_threads:
-        if 'OrphanThread' in line_threads[3]:
-            if report_thread1 == '':
-                report_thread1 += '\nLooking for Orphan Thread.'
-                report_thread1 += '\nWith Volatility plugin Threads.'
-                report_thread1 += '\n' + '*' * 120
-            report_thread1 += '\n' + line_threads[8] + '\n' + '-' * 25
+    try:
+        for line_threads in data_threads:
+            if 'OrphanThread' in line_threads[3]:
+                if report_thread1 == '':
+                    report_thread1 += '\nLooking for Orphan Thread.'
+                    report_thread1 += '\nWith Volatility plugin Threads.'
+                    report_thread1 += '\n' + '*' * 120
+                report_thread1 += '\n' + line_threads[8] + '\n' + '-' * 25
+    except TypeError:
+        # When nothing is found: TypeError: 'NoneType' is not iterable
+        pass
 
     data_threadscan = Lobotomy.get_databasedata('offset,pid,tid,startaddress,createtime,exittime', 'thrdscan', database)
     if data_threadscan != None and data_threadscan != '------ ERROR reading autostart! ------':
