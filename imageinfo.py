@@ -57,14 +57,14 @@ def imageinfo(database):
         for line in f:
             if not line.startswith("Determining") and line != "\n":
                 SQL_cmd = "INSERT INTO imageinfo VALUES (0, '{}', '{}')".format(
-                    line.split(' : ')[0], line.split(' : ')[1])
+                    line.split(' : ')[0].strip("  "), line.split(' : ')[1].strip('\n'))
                 Lobotomy.exec_sql_query(SQL_cmd, database)
             if 'Suggested Profile(s)' in line:
-                profiles = line.split(':')[1].strip()
+                profiles = line.split(':')[1].strip().strip('\n')
                 profiles = re.sub(r'\([^)]*\)', '', profiles)
                 Lobotomy.write_to_case_log(settings['directory'], "Found possible profiles: {}".format(profiles))
             if 'Image Type (Service Pack)' in line:
-                servicepack = line.split(':')[1].strip()
+                servicepack = line.split(':')[1].strip().strip('\n')
                 Lobotomy.write_to_case_log(settings['directory'], "Found service pack: {}".format(servicepack))
             counter += 1
     count = 0
