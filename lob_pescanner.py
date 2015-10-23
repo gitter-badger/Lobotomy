@@ -64,16 +64,8 @@ def main(database, folder):
                         loopfilenaam = os.path.join(subdir1, loopfile)
                         if not loopfilenaam.endswith('.txt'):
                             count += 1
-                            command = "python mcb_pescanner1.py " + loopfilenaam
 
-                            args = shlex.split(command)
-                            subp = subprocess.Popen(args, stdout=subprocess.PIPE)
-                            p = psutil.Process(subp.pid)
-                            log, err = subp.communicate()
-                            try:
-                                p.wait(timeout=60)
-                            except psutil.TimeoutExpired:
-                                p.kill()
+                            command = "python mcb_pescanner1.py " + loopfilenaam
 
                             try:
                                 pct = str(float(1.0 * count / counter) * 99).split(".")[0]
@@ -82,6 +74,19 @@ def main(database, folder):
                                 pass
                             print "Lobotomy PEScanner - files to go: " + str(counter) + " from " + str(count)
                             print "Lobotomy PEScanner - Current filename: ", loopfilenaam
+
+                            args = shlex.split(command)
+                            subp = subprocess.Popen(args, stdout=subprocess.PIPE)
+                            p = psutil.Process(subp.pid)
+                            log, err = subp.communicate()
+                            if err is not None:
+                                print err
+                            try:
+                                p.wait(timeout=60)
+                            except psutil.TimeoutExpired:
+                                print 'Kill process: {}'.format(subp.pid)
+                                p.kill()
+
                             if log != '':
                                 log = log.replace("'", '"').replace("`", "\`").replace('"', '\\"')
                                 sql_line = sql_prefix + "'{}', '{}''".format(loopfilenaam, log + "')")[:-2]
